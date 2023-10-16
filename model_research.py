@@ -19,7 +19,7 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 import warnings
-from data_forming import X, Y
+from data_forming import X_train, X_test, Y_train, Y_test
 
 warnings.filterwarnings('ignore')
 
@@ -28,21 +28,6 @@ pd.set_option('display.max_columns', None)
 
 
 # 5. Evaluate Algorithms and Models --------------------------------------------------------
-
-# 5.1. Train Test Split and Evaluation Metrics Next, we start by splitting our data in training and testing chunks.
-# If we are going to use Time series models we have to split the data in continuous series.
-validation_size = 0.2
-
-# In case the data is not dependent on the time series, then train and test split randomly
-# seed = 7
-# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=validation_size, random_state=seed)
-
-# In case the data is not dependent on the time series, then train and test split should be done based on sequential
-# sample This can be done by selecting an arbitrary split point in the ordered list of observations and creating two
-# new datasets.
-train_size = int(len(X) * (1 - validation_size))
-X_train, X_test = X[0:train_size], X[train_size:len(X)]
-Y_train, Y_test = Y[0:train_size], Y[train_size:len(X)]
 
 # 5.2. Test Options and Evaluation Metrics
 num_folds = 10

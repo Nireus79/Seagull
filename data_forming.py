@@ -90,8 +90,8 @@ data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
 full_data = data.copy()
 # training_data = data.copy()
-data = data.loc[events.index]  # cusum + bb
-data.dropna(axis=0, inplace=True)
+training_data = data.loc[events.index]  # cusum + bb
+training_data.dropna(axis=0, inplace=True)
 # data = data.loc[data.apply(lambda x: x.spos == 1 or x.sneg == -1, axis=1)]
 
 # data = standardizer(data)
@@ -99,18 +99,21 @@ data.dropna(axis=0, inplace=True)
 # data = rescaler(data, minmax=(-1, 1))
 
 prediction = 'ret'  # 'bin'
-Y = data.loc[:, prediction]
+Y = training_data.loc[:, prediction]
 Y.name = Y.name
-X = data.loc[:, ('Close', 'etheur_close', 'ema9', 'volatility')]
+X = training_data.loc[:, ('Close', 'etheur_close', 'ema9', 'volatility')]
 # dataset = pd.concat([Y, X], axis=1)
 
-Y = data.loc[:, Y.name]
-X = data.loc[:, X.columns]
+Y = training_data.loc[:, Y.name]
+X = training_data.loc[:, X.columns]
 
 validation_size = 0.2
 train_size = int(len(X) * (1 - validation_size))
 X_train, X_test = X[0:train_size], X[train_size:len(X)]
 Y_train, Y_test = Y[0:train_size], Y[train_size:len(X)]
+test_data = full_data[X_test.index[0]:]
+print(test_data)
+
 
 # print(data)
 # print(training_data)

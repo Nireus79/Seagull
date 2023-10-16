@@ -1,4 +1,4 @@
-from data_forming import X, Y
+from data_forming import X_train, X_test, Y_train, Y_test
 import pandas as pd
 import numpy as np
 import warnings
@@ -20,7 +20,6 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor
-
 
 # Libraries for Deep Learning Models
 from keras.models import Sequential
@@ -55,13 +54,7 @@ pd.set_option('display.max_columns', None)
 
 num_folds = 10
 scoring = 'neg_mean_absolute_error'
-
-validation_size = 0.2
 seed = 7
-
-train_size = int(len(X) * (1 - validation_size))
-X_train, X_test = X[0:train_size], X[train_size:len(X)]
-Y_train, Y_test = Y[0:train_size], Y[train_size:len(Y)]
 
 
 # 1 Grid search: Linear regression

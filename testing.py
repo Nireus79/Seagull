@@ -1,20 +1,11 @@
 import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
-from data_forming import full_data, data, X_train, Y_train
+from data_forming import full_data, training_data, test_data, X_train, Y_train, X_test, Y_test
 from sklearn.linear_model import LinearRegression
 import warnings
 
 warnings.filterwarnings('ignore')
-
-# data['X_Close'] = data['Close']
-# data.rename(columns={'volatility': 'X_volatility', 'etheur_close': 'X_etheur_close', 'ema9': 'X_ema9'}, inplace=True)
-# print(data)
-
-validation_size = 0.2
-train_size = int(len(data) * (1 - validation_size))
-train_data, test_data = data[0:train_size], data[train_size:len(data)]
-
 
 # data = data.fillna(0)
 # print(test_data)
@@ -47,7 +38,7 @@ class Seagull(Strategy):
 
 
 def statistics():
-    bt = Backtest(full_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
+    bt = Backtest(test_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
     output = bt.run()
     print(output)
     # winsound.Beep(1000, 1500)
@@ -55,7 +46,7 @@ def statistics():
 
 
 def opt():
-    bt = Backtest(full_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
+    bt = Backtest(test_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
     stats, heatmap = bt.optimize(
         # ema=range(5, 31, 1),
         # rs=range(50, 76, 1),
