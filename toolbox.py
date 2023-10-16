@@ -30,6 +30,21 @@ def data_merger(path):
     return file_list
 
 
+def primary_asset_merger(csv_path):
+    merged = data_merger(csv_path)
+    merged.columns = ['time', 'Open', 'High', 'Low', 'Close', 'Volume',
+                      'close_time', 'quote_asset_volume', 'number_of_trades',
+                      'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume',
+                      'ignore']
+    # merged.time = pd.to_datetime(merged.time, unit='ms')
+    merged.set_index('time', inplace=True)
+    merged.drop(['close_time', 'quote_asset_volume', 'number_of_trades',
+                 'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 'ignore'], axis=1, inplace=True)
+    merged = merged[~merged.index.duplicated(keep='first')]
+    # print(merged)
+    return merged
+
+
 def asset_merger(csv_path, asset):
     merged = data_merger(csv_path)
     merged.columns = ['time', asset + '_open', asset + '_high', asset + '_low', asset + '_close', 'volume',

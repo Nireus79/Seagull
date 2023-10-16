@@ -1,4 +1,4 @@
-time,doteur_open,doteur_high,doteur_low,doteur_close,volume
+time,Open,High,Low,Close,Volume
 1604052000000,5.27,5.27,3.45,3.45,1027.547
 1604055600000,3.475,3.493,3.456,3.481,262.304
 1604059200000,3.481,3.551,3.469,3.549,234.7
