@@ -56,16 +56,16 @@ data[asset1 + '_close'] = eth[asset1 + '_close']
 # data[asset2 + '_close'] = bit[asset2 + '_close']
 # data[asset3 + '_close'] = eur[asset3 + '_close']
 data['ema9'] = data['Close'].rolling(9).mean()
-data['ema13'] = data['Close'].rolling(13).mean()
-data['ema20'] = data['Close'].rolling(20).mean()
-data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-data['%K'] = stoch(data['High'], data['Low'], data['Close'],
-                   window=14, smooth_window=3, fillna=False)
-data['%D'] = data['%K'].rolling(3).mean()
-data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
-data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-data['atr'] = average_true_range(data['High'], data['Low'], data['Close'],
-                                 window=14, fillna=False)
+# data['ema13'] = data['Close'].rolling(13).mean()
+# data['ema20'] = data['Close'].rolling(20).mean()
+# data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['%K'] = stoch(data['High'], data['Low'], data['Close'],
+#                    window=14, smooth_window=3, fillna=False)
+# data['%D'] = data['%K'].rolling(3).mean()
+# data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
+# data['rsi'] = rsi(data['Close'], window=14, fillna=False)
+# data['atr'] = average_true_range(data['High'], data['Low'], data['Close'],
+#                                  window=14, fillna=False)
 data['price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=1)
 data.drop(columns=['price'], axis=1, inplace=True)
 data['volatility'] = getDailyVol(data['Close'], window, 1)
@@ -88,7 +88,8 @@ data['ret'] = clean_labels['ret']
 # data['bin'] = clean_labels['bin']
 data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
-
+full_data = data.copy()
+# training_data = data.copy()
 data = data.loc[events.index]  # cusum + bb
 data.dropna(axis=0, inplace=True)
 # data = data.loc[data.apply(lambda x: x.spos == 1 or x.sneg == -1, axis=1)]
@@ -111,11 +112,12 @@ train_size = int(len(X) * (1 - validation_size))
 X_train, X_test = X[0:train_size], X[train_size:len(X)]
 Y_train, Y_test = Y[0:train_size], Y[train_size:len(X)]
 
-print(data)
-# print(data.isnull().sum())
 # print(data)
-# print('len data: ', len(data))
-# print('total ret', np.sum(np.array(data.ret) != 0, axis=0))
-# print('positive ret', np.sum(np.array(data.ret) > 0, axis=0))
-# print('negative ret', np.sum(np.array(data.ret) < 0, axis=0))
+# print(training_data)
+# print(training_data.isnull().sum())
+# print(training_data)
+# print('len training_data: ', len(data))
+# print('total ret', np.sum(np.array(training_data.ret) != 0, axis=0))
+# print('positive ret', np.sum(np.array(training_data.ret) > 0, axis=0))
+# print('negative ret', np.sum(np.array(training_data.ret) < 0, axis=0))
 # print(X_test)

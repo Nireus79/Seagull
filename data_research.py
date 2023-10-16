@@ -12,45 +12,45 @@ from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
 from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
-from data_forming import research_data, X, Y
+from data_forming import data, X, Y
 
 # research------------------------------------------------------------------------------------
 print('data.describe()--------------------------------------------------------------------')
-print(research_data.describe())
+print(data.describe())
 print('data-------------------------------------------------------------------------------')
-print(research_data)
+print(data)
 
 # 3. Exploratory Data Analysis ---------------------------------------------------------------
 # 3.1. Descriptive Statistics
 # shape
 print('data.shape-------------------------------------------------------------------------')
-print(research_data.shape)
+print(data.shape)
 # peek at data
 pd.set_option('display.width', 100)
 print('data.head(2)-----------------------------------------------------------------------')
-print(research_data.head(2))
+print(data.head(2))
 # types
 pd.set_option('display.max_rows', 500)
 print('data.dtypes------------------------------------------------------------------------')
-print(research_data.dtypes)
+print(data.dtypes)
 print('data.describe()--------------------------------------------------------------------')
-print(research_data.describe())
+print(data.describe())
 
 # 3.2. Data Visualization --------------------------------------------------------------------
 # histograms
-research_data.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(12, 12))
+data.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(12, 12))
 # density
-research_data.plot(kind='density', subplots=True, layout=(20, 20), sharex=False, legend=True, fontsize=1, figsize=(15, 15))
+data.plot(kind='density', subplots=True, layout=(20, 20), sharex=False, legend=True, fontsize=1, figsize=(15, 15))
 # Box and Whisker Plots
-research_data.plot(kind='box', subplots=True, layout=(20, 20), sharex=False, sharey=False, figsize=(15, 15))
+data.plot(kind='box', subplots=True, layout=(20, 20), sharex=False, sharey=False, figsize=(15, 15))
 # # correlation
-correlation = research_data.corr()
+correlation = data.corr()
 pyplot.figure(figsize=(15, 15))
 pyplot.title('Correlation Matrix')
 sns.heatmap(correlation, vmax=1, square=True, annot=True, cmap='cubehelix')
 # Scatterplot Matrix
 pyplot.figure(figsize=(15, 15))
-scatter_matrix(research_data, figsize=(12, 12))
+scatter_matrix(data, figsize=(12, 12))
 
 # 3.3. Time Series Analysis ------------------------------------------------------------------
 # Time series broken down into different time series comonent.
