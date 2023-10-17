@@ -18,22 +18,30 @@ warnings.filterwarnings('ignore')
 class Seagull(Strategy):
 
     def init(self):
-        self.model = LinearRegression(fit_intercept=False)
+        self.model = LinearRegression(fit_intercept=True)
         self.model.fit(X_train, Y_train)
-        self.state = 'B'
+        self.b = 0
+        self.s = 0
+        self.profit = self.s - self.b
 
     def next(self):
         ret = self.data.ret[-1]
+        bb_up = self.data.bol_up_cross[-1]
+        bb_down = self.data.bol_down_cross[-1]
         forecast = self.model.predict([[self.data['Close'][-1], self.data['etheur_close'][-1], self.data['ema9'][-1],
-                                        self.data['volatility'][-1]]])
-        # print(ret, forecast)
-        if not self.position.is_long and ret != 0 and forecast > 0.004:
-            print(ret, forecast)
-            # self.state = 'S'
+                                        self.data['ema13'][-1], self.data['volatility'][-1]]])
+        if not self.position.is_long and ret != 0 and (bb_up != 0 or bb_down != 0) and forecast > 0.004:
+            self.b = self.data.Close[-1]
             self.buy()
-        elif not self.position.is_short and ret != 0 and forecast < 0.004:
-            print(ret, forecast)
-            # self.state = 'B'
+        elif not self.position.is_short and self.b < self.b - self.data.volatility[-1]:
+            self.s = self.data.Close[-1]
+            print(self.data.index[-1], 'Pillow profit: ', self.s, '-', self.b, '=', self.s - self.b)
+            self.s, self.b = 0, 0
+            self.sell()
+        elif not self.position.is_short and ret != 0 and (bb_up != 0 or bb_down != 0) and forecast < 0:
+            self.s = self.data.Close[-1]
+            print(self.data.index[-1], 'Trade profit: ', self.s, '-', self.b, '=', self.s - self.b)
+            self.s, self.b = 0, 0
             self.sell()
 
 
@@ -41,7 +49,7 @@ def statistics():
     bt = Backtest(backtest_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
     output = bt.run()
     print(output)
-    winsound.Beep(1000, 1500)
+    # winsound.Beep(1000, 1500)
     bt.plot(resample=False)
 
 
@@ -58,7 +66,7 @@ def opt():
         return_heatmap=True)
     print(stats)
     print(heatmap.sort_values().iloc[-100:])
-    winsound.Beep(1000, 1500)
+    # winsound.Beep(1000, 1500)
 
 
 statistics()
