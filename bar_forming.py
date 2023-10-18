@@ -3,6 +3,10 @@ import numpy as np
 from tqdm import tqdm
 # from numba import jit
 import glob
+import winsound
+
+# pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
 
 
 def mad_outlier(y, thresh=3.):
@@ -27,28 +31,6 @@ def mad_outlier(y, thresh=3.):
 def returns(s):
     arr = np.diff(np.log(s))
     return pd.Series(arr, index=s.index[1:])
-
-
-def form_time_bars(data, frequency):
-    """
-    Takes tick to tick data frame and structures data by given time freq.
-    :param data: tick to tick data frame
-    :param frequency: string ex: '5min'
-    see doc https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-    :return: time bars of given frequency
-    Time bars oversample information during low-activity periods and undersample
-    information during high-activity periods.
-    Time-sampled series often exhibit poor
-    statistical properties, like serial correlation, heteroscedasticity, and non-normality of
-    returns.
-    WARNING (works with datetime index only datetime_indexing function must be used as arg)
-    WARNING Lopez de Prado suggests 1min bars as substitute for constructing market microstructural futures
-    """
-    data.time = pd.to_datetime(data.time, unit='ms')
-    data.set_index('time', inplace=True)
-    time_bars = data.groupby(pd.Grouper(freq=frequency)).agg({'price': 'ohlc', 'qty': 'sum'})
-    time_bars_price = time_bars.loc[:, 'price']
-    return time_bars_price
 
 
 def tick_bars(df, price_column, m):
@@ -176,10 +158,6 @@ def dollar_bar_df(df, value_column, m):
 #     df.set_index('time', inplace=True)
 #     return df
 #
-#
-
-#
-#
 # def form_log_returns(time_bars_price):
 #     """
 #     Takes time bars data frame and return time_bars_price.close / time_bars_price.close.shift(1)
@@ -274,135 +252,54 @@ def db_csv(csv, m, output):
     db_creator(csv, m).to_csv(output)
 
 
-def sequence(trades, sample):
-    read = trades + '/ETHUSDT-trades-2020-01.csv'
-    out = 'ETHUSDT-20mdb-2020-01.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-02.csv'
-    out = 'ETHUSDT-20mdb-2020-02.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-03.csv'
-    out = 'ETHUSDT-20mdb-2020-03.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-04.csv'
-    out = 'ETHUSDT-20mdb-2020-04.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-05.csv'
-    out = 'ETHUSDT-20mdb-2020-05.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-06.csv'
-    out = 'ETHUSDT-20mdb-2020-06.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-07.csv'
-    out = 'ETHUSDT-20mdb-2020-07.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-08.csv'
-    out = 'ETHUSDT-20mdb-2020-08.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-09.csv'
-    out = 'ETHUSDT-20mdb-2020-09.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-10.csv'
-    out = 'ETHUSDT-20mdb-2020-10.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-11.csv'
-    out = 'ETHUSDT-20mdb-2020-11.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2020-12.csv'
-    out = 'ETHUSDT-20mdb-2020-12.csv'
-    db_csv(read, sample, out)
-
-    read = trades + '/ETHUSDT-trades-2021-01.csv'
-    out = 'ETHUSDT-20mdb-2021-01.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-02.csv'
-    out = 'ETHUSDT-20mdb-2021-02.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-03.csv'
-    out = 'ETHUSDT-20mdb-2021-03.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-04.csv'
-    out = 'ETHUSDT-20mdb-2021-04.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-05.csv'
-    out = 'ETHUSDT-20mdb-2021-05.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-06.csv'
-    out = 'ETHUSDT-20mdb-2021-06.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-07.csv'
-    out = 'ETHUSDT-20mdb-2021-07.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-08.csv'
-    out = 'ETHUSDT-20mdb-2021-08.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-09.csv'
-    out = 'ETHUSDT-20mdb-2021-09.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-10.csv'
-    out = 'ETHUSDT-20mdb-2021-10.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-11.csv'
-    out = 'ETHUSDT-20mdb-2021-11.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2021-12.csv'
-    out = 'ETHUSDT-20mdb-2021-12.csv'
-    db_csv(read, sample, out)
-
-    read = trades + '/ETHUSDT-trades-2022-01.csv'
-    out = 'ETHUSDT-20mdb-2022-01.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-02.csv'
-    out = 'ETHUSDT-20mdb-2022-02.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-03.csv'
-    out = 'ETHUSDT-20mdb-2022-03.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-04.csv'
-    out = 'ETHUSDT-20mdb-2022-04.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-05.csv'
-    out = 'ETHUSDT-20mdb-2022-05.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-06.csv'
-    out = 'ETHUSDT-20mdb-2022-06.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-07.csv'
-    out = 'ETHUSDT-20mdb-2022-07.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-08.csv'
-    out = 'ETHUSDT-20mdb-2022-08.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-09.csv'
-    out = 'ETHUSDT-20mdb-2022-09.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-10.csv'
-    out = 'ETHUSDT-20mdb-2022-10.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-11.csv'
-    out = 'ETHUSDT-20mdb-2022-11.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2022-12.csv'
-    out = 'ETHUSDT-20mdb-2022-12.csv'
-    db_csv(read, sample, out)
-
-    read = trades + '/ETHUSDT-trades-2023-01.csv'
-    out = 'ETHUSDT-20mdb-2023-01.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2023-02.csv'
-    out = 'ETHUSDT-20mdb-2023-02.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2023-03.csv'
-    out = 'ETHUSDT-20mdb-2023-03.csv'
-    db_csv(read, sample, out)
-    read = trades + '/ETHUSDT-trades-2023-04.csv'
-    out = 'ETHUSDT-20mdb-2023-04.csv'
-    db_csv(read, sample, out)
+def form_time_bars(data, frequency):
+    """
+    Takes tick to tick data frame and structures data by given time freq.
+    param data:
+    :param data: tick to tick data frame
+    :param frequency: string ex: '5min'
+    see doc https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+    :return: time bars of given frequency
+    Time bars oversample information during low-activity periods and undersample
+    information during high-activity periods.
+    Time-sampled series often exhibit poor
+    statistical properties, like serial correlation, heteroscedasticity, and non-normality of
+    returns.
+    WARNING (works with datetime index only datetime_indexing function must be used as arg)
+    WARNING Lopez de Prado suggests 1min bars as substitute for constructing market microstructural futures
+    """
+    data.time = pd.to_datetime(data.time, unit='ms')
+    data.set_index('time', inplace=True)
+    # data = data.loc[~data.index.duplicated(keep='first')]
+    time_bars = data.groupby(pd.Grouper(freq=frequency)).agg({'price': 'ohlc', 'qty': 'sum'})
+    time_bars_price = time_bars.loc[:, 'price']
+    return time_bars_price
 
 
-raw = 'D:/crypto_DATA/raw/ETHUSDT/trades/csv'
-dbs = 'D:/crypto_DATA/raw/ETHUSDT/dbs/20mdb/'
+def bar_former():
+    for y in range(4):
+        for m in range(1, 13):
+            if y < 1 and m < 10:
+                pass
+            elif y > 2 and m > 9:
+                pass
+            else:
+                directory = 'D:/crypto_DATA/tick/'
+                asset = 'BTCEUR'
+                file = '/months/'
+                year = '202' + str(y)
+                if m < 10:
+                    month = str(0) + str(m)
+                else:
+                    month = str(m)
+                name = asset + '-trades-' + year + '-' + month + '.csv'
+                full_dir = directory + asset + file + name
+                print(full_dir)
+                columns = ['id', 'price', 'qty', 'base_qty', 'time', 'is_buyer_maker', '7']
+                data = pd.read_csv(full_dir, header=None, names=columns)
+                data.drop(columns=['id', 'base_qty', 'is_buyer_maker', '7'], axis=1, inplace=True)
+                form_time_bars(data, '30min').to_csv(asset + '_' + year + '_' + month + '_30min_time_bars.csv')
+                print(data)
 
-# sequence(raw, 20000000)
-# c = csv_merger(dbs)
-# c.to_csv('ETHUSDT_20mdb_2020_2023.csv')
+
+bar_former()

@@ -1,3 +1,5 @@
+from abc import ABC
+
 import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
@@ -6,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 import warnings
 
 warnings.filterwarnings('ignore')
+
 
 # data = data.fillna(0)
 # print(test_data)
@@ -43,6 +46,12 @@ class Seagull(Strategy):
             print(self.data.index[-1], 'Trade profit: ', self.s, '-', self.b, '=', self.s - self.b)
             self.s, self.b = 0, 0
             self.sell()
+
+
+# class Prelder(Strategy):
+#     def init(self):
+#
+#     def next(self):
 
 
 def statistics():

@@ -8,10 +8,11 @@ from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, ge
     bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj
 
 # https://data.binance.vision/
-doteur_csv = 'C:/Users/themi/Desktop/Jonathon/doteur1h/'
-btceur_csv = 'C:/Users/themi/Desktop/Jonathon/btceur1h/'
-etheur_csv = 'C:/Users/themi/Desktop/Jonathon/etheur1h/'
-eurusd_csv = 'C:/Users/themi/Desktop/Jonathon/eurusd1h/'
+# doteur_csv = 'C:/Users/themi/Desktop/Jonathon/doteur1h/'
+# btceur_csv = 'C:/Users/themi/Desktop/Jonathon/btceur1h/'
+# etheur_csv = 'C:/Users/themi/Desktop/Jonathon/etheur1h/'
+# eurusd_csv = 'C:/Users/themi/Desktop/Jonathon/eurusd1h/'
+
 
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -25,16 +26,16 @@ pd.set_option('display.max_columns', None)
 # merged_eurusd = asset_merger(eurusd_csv, 'eurusd')
 # merged_eurusd.to_csv('eur_usd_20_23_hours.csv')
 
-dot = pd.read_csv('csv/dot_eur_20_23_hours.csv')
+dot = pd.read_csv('csv/time_bars_1h/dot_eur_20_23_hours.csv')
 dot.time = pd.to_datetime(dot.time, unit='ms')
 dot.set_index('time', inplace=True)
-eth = pd.read_csv('csv/eth_eur_20_23_hours.csv')
+eth = pd.read_csv('csv/time_bars_1h/eth_eur_20_23_hours.csv')
 eth.time = pd.to_datetime(eth.time, unit='ms')
 eth.set_index('time', inplace=True)
-bit = pd.read_csv('csv/btc_eur_20_23_hours.csv')
+bit = pd.read_csv('csv/time_bars_1h/btc_eur_20_23_hours.csv')
 bit.time = pd.to_datetime(bit.time, unit='ms')
 bit.set_index('time', inplace=True)
-eur = pd.read_csv('csv/eur_usd_20_23_hours.csv')
+eur = pd.read_csv('csv/time_bars_1h/eur_usd_20_23_hours.csv')
 eur.time = pd.to_datetime(eur.time, unit='ms')
 eur.set_index('time', inplace=True)
 
@@ -109,7 +110,6 @@ train_size = int(len(X) * (1 - validation_size))
 X_train, X_test = X[0:train_size], X[train_size:len(X)]
 Y_train, Y_test = Y[0:train_size], Y[train_size:len(X)]
 backtest_data = full_data[X_test.index[0]:]
-
 
 # print(data)
 # print(full_data)
