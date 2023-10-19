@@ -115,7 +115,7 @@ research_data = data.loc[events.index]
 prediction = 'ret'  # 'bin'
 Y = research_data.loc[:, prediction]
 Y.name = Y.name
-X = research_data.loc[:, ('Close', 'Dema9', 'Dema13', '4Hmacd', '4H%K', '4H%D', '4H%DS', '4H_rsi', 'Volatility')]
+X = research_data.loc[:, ('Close', 'Dema13', '4H%K', 'Volatility')]
 
 Y = research_data.loc[:, Y.name]
 X = research_data.loc[:, X.columns]
