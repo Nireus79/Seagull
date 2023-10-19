@@ -270,13 +270,13 @@ def form_time_bars(data, frequency):
     """
     data.time = pd.to_datetime(data.time, unit='ms')
     data.set_index('time', inplace=True)
-    # data = data.loc[~data.index.duplicated(keep='first')]
+    data = data.loc[~data.index.duplicated(keep='first')]
     time_bars = data.groupby(pd.Grouper(freq=frequency)).agg({'price': 'ohlc', 'qty': 'sum'})
     time_bars_price = time_bars.loc[:, 'price']
     return time_bars_price
 
 
-def bar_former():
+def bar_former(asset):
     for y in range(4):
         for m in range(1, 13):
             if y < 1 and m < 10:
@@ -285,7 +285,7 @@ def bar_former():
                 pass
             else:
                 directory = 'D:/crypto_DATA/tick/'
-                asset = 'BTCEUR'
+                asset = asset
                 file = '/months/'
                 year = '202' + str(y)
                 if m < 10:
@@ -300,6 +300,3 @@ def bar_former():
                 data.drop(columns=['id', 'base_qty', 'is_buyer_maker', '7'], axis=1, inplace=True)
                 form_time_bars(data, '30min').to_csv(asset + '_' + year + '_' + month + '_30min_time_bars.csv')
                 print(data)
-
-
-bar_former()
