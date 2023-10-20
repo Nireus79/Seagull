@@ -3,7 +3,7 @@ from abc import ABC
 import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
-from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test
+from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth
 from sklearn.linear_model import LinearRegression
 import warnings
 
@@ -25,25 +25,25 @@ class Seagull(Strategy):
         self.model.fit(X_train, Y_train)
         self.b = 0
         self.s = 0
-        self.profit = self.s - self.b
 
     def next(self):
         ret = self.data.ret[-1]
-        bb_up = self.data.bol_up_cross[-1]
-        bb_down = self.data.bol_down_cross[-1]
-        forecast = self.model.predict([[self.data['Close'][-1], self.data['etheur_close'][-1], self.data['ema9'][-1],
-                                        self.data['ema13'][-1], self.data['volatility'][-1]]])
-        if not self.position.is_long and ret != 0 and (bb_up != 0 or bb_down != 0) and forecast > 0.004:
+        # bb_up = self.data.bol_up_cross[-1]
+        # bb_down = self.data.bol_down_cross[-1]
+        forecast = self.model.predict([[self.data['Close'][-1], self.data['Dema13'][-1],
+                                        self.data['4H%K'][-1], self.data['Volatility'][-1], self.data['Etherium'][-1]]])
+        if not self.position.is_long and ret != 0 and forecast > 0.004:
             self.b = self.data.Close[-1]
             self.buy()
-        elif not self.position.is_short and self.b < self.b - self.data.volatility[-1]:
+        elif not self.position.is_short and self.data.Close < (self.b - self.data.Volatility[-1]) and\
+                forecast < 0.004:
             self.s = self.data.Close[-1]
-            print(self.data.index[-1], 'Pillow profit: ', self.s, '-', self.b, '=', self.s - self.b)
+            print(self.data.index[-1], 'Pillow profit: ', self.s - self.b)
             self.s, self.b = 0, 0
             self.sell()
-        elif not self.position.is_short and ret != 0 and (bb_up != 0 or bb_down != 0) and forecast < 0:
+        elif not self.position.is_short and ret != 0 and forecast < 0.004:
             self.s = self.data.Close[-1]
-            print(self.data.index[-1], 'Trade profit: ', self.s, '-', self.b, '=', self.s - self.b)
+            print(self.data.index[-1], 'Trade profit: ', self.s - self.b)
             self.s, self.b = 0, 0
             self.sell()
 
