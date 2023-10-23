@@ -88,8 +88,8 @@ data['Volatility'] = getDailyVol(data['Close'], window, 2)
 data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
 data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
 
-thresh = data['Volatility'].mean()
-tEvents = getTEvents(data['Close'], h=thresh)
+threshold = data['Volatility'].mean()
+tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=1)
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=None)
 

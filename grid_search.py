@@ -359,10 +359,6 @@ def polynomial():
     plt.suptitle('Algorithm comparison')
     plt.show()
 
-
-
-
-
 # create_ANN(X_train, Y_train, X_test, Y_test)
 
 

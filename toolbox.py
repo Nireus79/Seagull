@@ -156,7 +156,7 @@ def evaluate_LSTM_combinations(Xtr, Xts, Yts, neurons_list, learn_rate_list, mom
     print('Best LSTM: {} mse: {}'.format(best_cfg, best_score))
 
 
-def create_ANN(X_tr, Y_tr, X_tst, Y_tst):
+def create_ANN(X_tr, Y_tr):
     # Initialization
     model = Sequential()
     # Input layer
@@ -169,6 +169,9 @@ def create_ANN(X_tr, Y_tr, X_tst, Y_tst):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     # Fitting
     model.fit(X_tr, Y_tr, batch_size=10, epochs=100)
+
+
+def evaluate_ANN(model, X_tst, Y_tst):
     # Evaluation
     y_pred = model.predict(X_tst)
     y_pred = pd.DataFrame(y_pred)

@@ -3,7 +3,7 @@ from abc import ABC
 import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
-from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth, thresh
+from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth, threshold
 from sklearn.linear_model import LinearRegression
 import warnings
 
