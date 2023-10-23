@@ -1,9 +1,12 @@
+import matplotlib.pyplot as plt
+
 from data_forming import X_train, X_test, Y_train, Y_test
 import pandas as pd
 import numpy as np
 import warnings
-from matplotlib import pyplot
-from toolbox import evaluate_LSTM_combinations, create_LSTMmodel, evaluate_arima_models
+from toolbox import evaluate_LSTM_combinations, create_LSTMmodel, evaluate_arima_models, create_ANN
+from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix
+from sklearn.preprocessing import PolynomialFeatures, LabelEncoder, StandardScaler
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
@@ -20,6 +23,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor
+from sklearn.compose import ColumnTransformer
 
 # Libraries for Deep Learning Models
 from keras.models import Sequential
@@ -336,14 +340,41 @@ def GS_KerasNNRegressor():
             print("%f (%f) with: %r" % (mean, stdev, param))
 
 
-print('GS_Linear_regression-------------------------------------------------------------------------------------------')
-GS_Linear_regression()  # Best: -0.056558 using {'fit_intercept': False}
-print('GS_Lasso-------------------------------------------------------------------------------------------------------')
-GS_Lasso()
-print('GS_ElasticNet--------------------------------------------------------------------------------------------------')
-GS_ElasticNet()
-print('GS_SVR---------------------------------------------------------------------------------------------------------')
-GS_SVR()
+def polynomial():
+    Deg = range(2, 15)
+    results = []
+    names = []
+    for deg in Deg:
+        polynomial_features = PolynomialFeatures(degree=deg)
+        x_poly = polynomial_features.fit_transform(X_train)
+        model = LinearRegression(fit_intercept=False)
+        model.fit(x_poly, Y_train)
+        Y_poly_pred = model.predict(x_poly)
+        rmse = np.sqrt(mean_squared_error(Y_train, Y_poly_pred))
+        r2 = r2_score(Y_train, Y_poly_pred)
+        results.append(rmse)  # 4 degrees 0.06 rmse / 9 degrees r2 -10.5
+        names.append(deg)
+    plt.plot(names, results, 'o')
+    plt.xlabel('n-degrees polynomial')
+    plt.suptitle('Algorithm comparison')
+    plt.show()
+
+
+
+
+
+# create_ANN(X_train, Y_train, X_test, Y_test)
+
+
+# print('GS_Linear_regression-------------------------------------------------------------------------------------------')
+# GS_Linear_regression()  # Best: -0.048184 using {'fit_intercept': False}
+# print('GS_Lasso-------------------------------------------------------------------------------------------------------')
+# GS_Lasso()
+# print('GS_ElasticNet--------------------------------------------------------------------------------------------------')
+# GS_ElasticNet()
+# print('GS_SVR---------------------------------------------------------------------------------------------------------')
+# GS_SVR()
+
 
 # names = []
 # test_results = []

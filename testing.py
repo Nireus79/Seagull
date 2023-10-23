@@ -3,7 +3,7 @@ from abc import ABC
 import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
-from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth
+from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth, thresh
 from sklearn.linear_model import LinearRegression
 import warnings
 
@@ -28,24 +28,22 @@ class Seagull(Strategy):
 
     def next(self):
         ret = self.data.ret[-1]
-        # bb_up = self.data.bol_up_cross[-1]
-        # bb_down = self.data.bol_down_cross[-1]
         forecast = self.model.predict([[self.data['Close'][-1], self.data['Dema13'][-1],
-                                        self.data['4H%K'][-1], self.data['Volatility'][-1], self.data['Etherium'][-1]]])
-        if not self.position.is_long and ret != 0 and forecast > 0.004:
+                                        self.data['4H%K'][-1], self.data['Volatility'][-1],
+                                        self.data['Etherium'][-1]]])
+        if not self.position.is_long and ret != 0 and forecast > self.data['Volatility'][-1]:
             self.b = self.data.Close[-1]
             self.buy()
-        elif not self.position.is_short and self.data.Close < (self.b - self.data.Volatility[-1]) and\
-                forecast < 0.004:
+        elif not self.position.is_short and self.data.Close < self.b and forecast < self.data['Volatility'][-1]:
             self.s = self.data.Close[-1]
             print(self.data.index[-1], 'Pillow profit: ', self.s - self.b)
             self.s, self.b = 0, 0
-            self.sell()
-        elif not self.position.is_short and ret != 0 and forecast < 0.004:
+            self.position.close()
+        elif not self.position.is_short and ret != 0 and forecast < self.data['Volatility'][-1]:
             self.s = self.data.Close[-1]
             print(self.data.index[-1], 'Trade profit: ', self.s - self.b)
             self.s, self.b = 0, 0
-            self.sell()
+            self.position.close()
 
 
 # class Prelder(Strategy):
@@ -68,7 +66,7 @@ def opt():
         # ema=range(5, 31, 1),
         # rs=range(50, 76, 1),
         # upper_bound=range(30, 100, 1),
-        lower_bound=range(5, 35, 1),
+        forcast_lim=range(10, 20, 1),
         # maximize='Sharpe Ratio',
         # maximize='Equity Final [$]',
         maximize='Max. Drawdown [%]',

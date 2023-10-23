@@ -154,3 +154,24 @@ def evaluate_LSTM_combinations(Xtr, Xts, Yts, neurons_list, learn_rate_list, mom
                     best_score, best_cfg = mse, combination
                 print('LSTM: {} mse: {}'.format(combination, mse))
     print('Best LSTM: {} mse: {}'.format(best_cfg, best_score))
+
+
+def create_ANN(X_tr, Y_tr, X_tst, Y_tst):
+    # Initialization
+    model = Sequential()
+    # Input layer
+    model.add(Dense(units=6, kernel_initializer='uniform', activation='relu', input_dim=5))
+    # Hidden layer
+    model.add(Dense(units=6, kernel_initializer='uniform', activation='relu'))
+    # Output layer
+    model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
+    # Compilation
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    # Fitting
+    model.fit(X_tr, Y_tr, batch_size=10, epochs=100)
+    # Evaluation
+    y_pred = model.predict(X_tst)
+    y_pred = pd.DataFrame(y_pred)
+    print(y_pred.describe())
+    scores = model.evaluate(X_tst, Y_tst)
+    print(model.metrics_names[1], scores[1])
