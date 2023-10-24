@@ -131,6 +131,10 @@ def create_LSTMmodel(Xtr, neurons, learn_rate, momentum):
     mdl.add(LSTM(neurons, input_shape=(Xtr.shape[1], Xtr.shape[2])))
     # Number of cells can be added if needed
     mdl.add(Dense(1))
+    mdl.add(Dense(1))
+    mdl.add(Dense(1))
+    mdl.add(Dense(1))
+    mdl.add(Dense(1))
     optimizer = SGD(learning_rate=learn_rate, momentum=momentum)
     mdl.compile(loss='mse', optimizer='adam')
     return mdl
@@ -156,25 +160,48 @@ def evaluate_LSTM_combinations(Xtr, Xts, Yts, neurons_list, learn_rate_list, mom
     print('Best LSTM: {} mse: {}'.format(best_cfg, best_score))
 
 
-def create_ANN(X_tr, Y_tr):
+def create_ANN(X_tr, Y_tr, units=6, batch=10, epochs=100):
     # Initialization
     model = Sequential()
     # Input layer
-    model.add(Dense(units=6, kernel_initializer='uniform', activation='relu', input_dim=5))
-    # Hidden layer
-    model.add(Dense(units=6, kernel_initializer='uniform', activation='relu'))
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu', input_dim=5))
+    # Hidden layers
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
     # Output layer
     model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
     # Compilation
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     # Fitting
-    model.fit(X_tr, Y_tr, batch_size=10, epochs=100)
+    model.fit(X_tr, Y_tr, batch_size=batch, epochs=epochs)
 
 
-def evaluate_ANN(model, X_tst, Y_tst):
-    # Evaluation
-    y_pred = model.predict(X_tst)
-    y_pred = pd.DataFrame(y_pred)
-    print(y_pred.describe())
-    scores = model.evaluate(X_tst, Y_tst)
-    print(model.metrics_names[1], scores[1])
+def evaluate_ANN(X_tr, Y_tr, X_tst, Y_tst, units, batch, epochs):
+    for u in units:
+        for b in batch:
+            for e in epochs:
+                # Initialization
+                model = Sequential()
+                # Input layer
+                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu', input_dim=5))
+                # Hidden layers
+                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+                # Output layer
+                model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
+                # Compilation
+                model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+                # Fitting
+                model.fit(X_tr, Y_tr, batch_size=b, epochs=e)
+                # Evaluation
+                y_pred = model.predict(X_tst)
+                y_pred = pd.DataFrame(y_pred)
+                print(y_pred.describe())
+                scores = model.evaluate(X_tst, Y_tst)
+                print(model.metrics_names[1], scores[1])

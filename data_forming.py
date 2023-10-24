@@ -25,11 +25,11 @@ pd.set_option('display.max_columns', None)
 # merged_eurusd = asset_merger(eurusd_csv, 'eurusd')
 # merged_eurusd.to_csv('eur_usd_20_23_hours.csv')
 
-dot = pd.read_csv('csv/time_bars_30min/DOTEUR_full_30m.csv')
+dot = pd.read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
 dot.time = pd.to_datetime(dot.time, unit='ms')
 dot.set_index('time', inplace=True)
 
-eth = pd.read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
+eth = pd.read_csv('csv/time_bars_30min/DOTEUR_full_30m.csv')
 eth.time = pd.to_datetime(eth.time, unit='ms')
 eth.set_index('time', inplace=True)
 
@@ -57,7 +57,7 @@ asset2 = 'btceur'
 asset3 = 'eurusd'
 
 data = dot
-data['Etherium'] = eth['Close'].loc[data.index]
+# data['Etherium'] = eth['Close']  # .loc[data.index]
 # data[asset1 + '_close'] = eth['close']
 # data[asset2 + '_close'] = bit['close']
 # data[asset3 + '_close'] = eur['close']
@@ -116,7 +116,7 @@ research_data = data.loc[events.index]
 prediction = 'ret'  # 'bin'
 Y = research_data.loc[:, prediction]
 Y.name = Y.name
-X = research_data.loc[:, ('Close', 'Dema13', '4H%K', 'Volatility', 'Etherium')]
+X = research_data.loc[:, ('Close', 'Dema13', '4H%K', 'Volatility')]
 
 Y = research_data.loc[:, Y.name]
 X = research_data.loc[:, X.columns]

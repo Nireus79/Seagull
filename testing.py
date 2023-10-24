@@ -5,10 +5,10 @@ import numpy as np
 from backtesting import Backtest, Strategy
 from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth, threshold
 from sklearn.linear_model import LinearRegression
+from statsmodels.tsa.arima.model import ARIMA
 import warnings
 
 warnings.filterwarnings('ignore')
-
 
 # data = data.fillna(0)
 # print(test_data)
@@ -17,11 +17,15 @@ warnings.filterwarnings('ignore')
 # print('positive ret', np.sum(np.array(test_data.ret) > 0, axis=0))
 # print('negative ret', np.sum(np.array(test_data.ret) < 0, axis=0))
 
+# X_train_ARIMA = X_train.loc[:, ['Close', 'Dema13', '4H%K', 'Volatility', 'Etherium']]
+
 
 class Seagull(Strategy):
 
     def init(self):
-        self.model = LinearRegression(fit_intercept=True)
+        # self.model = ARIMA(endog=Y_train, exog=X_train_ARIMA, order=[2, 1, 1])
+        # self.model_fit = self.model.fit()
+        self.model = LinearRegression(fit_intercept=False)
         self.model.fit(X_train, Y_train)
         self.b = 0
         self.s = 0
@@ -29,8 +33,7 @@ class Seagull(Strategy):
     def next(self):
         ret = self.data.ret[-1]
         forecast = self.model.predict([[self.data['Close'][-1], self.data['Dema13'][-1],
-                                        self.data['4H%K'][-1], self.data['Volatility'][-1],
-                                        self.data['Etherium'][-1]]])
+                                        self.data['4H%K'][-1], self.data['Volatility'][-1]]])
         if not self.position.is_long and ret != 0 and forecast > self.data['Volatility'][-1]:
             self.b = self.data.Close[-1]
             self.buy()

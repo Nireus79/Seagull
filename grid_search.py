@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 
-from data_forming import X_train, X_test, Y_train, Y_test
+from data_forming import X, Y, X_train, X_test, Y_train, Y_test
 import pandas as pd
 import numpy as np
 import warnings
-from toolbox import evaluate_LSTM_combinations, create_LSTMmodel, evaluate_arima_models, create_ANN
+from toolbox import evaluate_ANN, evaluate_LSTM, create_LSTMmodel, evaluate_arima_models, create_ANN,\
+    evaluate_LSTM_combinations
 from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix
 from sklearn.preprocessing import PolynomialFeatures, LabelEncoder, StandardScaler
 
@@ -34,10 +35,6 @@ from scikeras.wrappers import KerasRegressor
 
 # Libraries for Statistical Models
 import statsmodels.api as sm
-from statsmodels.tsa.arima.model import ARIMA
-
-# Time series Models
-from statsmodels.tsa.arima.model import ARIMA
 
 # Error Metrics
 from sklearn.metrics import mean_squared_error
@@ -359,6 +356,30 @@ def polynomial():
     plt.suptitle('Algorithm comparison')
     plt.show()
 
+
+seq_len = 2  # Length of the seq for the LSTM
+
+Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
+X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
+X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
+for i in range(seq_len):
+    X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
+    X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
+
+n = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+lr = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08]
+m = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+
+u = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+e = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
+# evaluate_LSTM_combinations(X_train_LSTM, X_test_LSTM, Y_test_LSTM, n, lr, m)
+# Best LSTM: (14, 0.02, 0.6) mse: 0.005436469241202679
+# print(evaluate_LSTM(X_train_LSTM, X_test_LSTM, Y_test_LSTM, 12, 0.01, 0))
+# evaluate_ANN(X_train, Y_train, X_test, Y_test, u, b, e)
+
+
 # create_ANN(X_train, Y_train, X_test, Y_test)
 
 
@@ -372,138 +393,139 @@ def polynomial():
 # GS_SVR()
 
 
-# names = []
-# test_results = []
-# train_results = []
-#
-# # 5. Evaluate Algorithms and Models --------------------------------------------------------
-#
-# # 5.1. Train Test Split and Evaluation Metrics Next, we start by splitting our data in training and testing chunks.
-# # If we are going to use Time series models we have to split the data in continuous series.
-# validation_size = 0.2
-#
-# # In case the data is not dependent on the time series, then train and test split randomly
-# # seed = 7
-# # X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=validation_size, random_state=seed)
-#
-# # In case the data is not dependent on the time series, then train and test split should be done based on sequential
-# # sample This can be done by selecting an arbitrary split point in the ordered list of observations and creating two
-# # new datasets.
-#
-# # 5.3.1 Time Series based models-ARIMA and LSTM --------------------------------------------------
-# # Let us first prepare the dataset for ARIMA models,
-# # by having only the correlated variables as exogenous variables.
-#
-# # Time Series Model - ARIMA Model
-# print('X_train.columns--------------------------------------------------------------------------')
-# print(X_train.columns)
-# X_train_ARIMA = X_train.loc[:, ['doteur_close', 'etheur_close', 'ema9', 'volatility', 'cusum']]
-# X_test_ARIMA = X_test.loc[:, ['doteur_close', 'etheur_close', 'ema9', 'volatility', 'cusum']]
-# tr_len = len(X_train_ARIMA)
-# te_len = len(X_test_ARIMA)
-# to_len = len(X)
-#
-# modelARIMA = ARIMA(endog=Y_train, exog=X_train_ARIMA, order=[2, 0, 0])
-# model_fit = modelARIMA.fit()
-#
-# error_Training_ARIMA = mean_squared_error(Y_train, model_fit.fittedvalues)
-# predicted = model_fit.predict(start=tr_len - 1, end=to_len - 1, exog=X_test_ARIMA)[1:]
-# error_Test_ARIMA = mean_squared_error(Y_test, predicted)
-# print('error_Test_ARIMA------------------------------------------------------------------------')
-# print(error_Test_ARIMA)
-#
-# # LSTM Model
-# seq_len = 2  # Length of the seq for the LSTM
-#
-# Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
-# X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
-# X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
-# for i in range(seq_len):
-#     X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
-#     X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
-#
-# # Lstm Network
-#
-#
-# LSTMModel = create_LSTMmodel(X_train_LSTM, 12, learn_rate=0.01, momentum=0)
-# LSTMModel_fit = LSTMModel.fit(X_train_LSTM, Y_train_LSTM, validation_data=(X_test_LSTM, Y_test_LSTM), epochs=330,
-#                               batch_size=72, verbose=0, shuffle=False)
-#
-# # Visual plot to check if the error is reducing
-# pyplot.plot(LSTMModel_fit.history['loss'], label='train', )
-# pyplot.plot(LSTMModel_fit.history['val_loss'], '--', label='test', )
-# pyplot.legend()
-# pyplot.show()
-#
-# error_Training_LSTM = mean_squared_error(Y_train_LSTM, LSTMModel.predict(X_train_LSTM))
-# predicted = LSTMModel.predict(X_test_LSTM)
-# error_Test_LSTM = mean_squared_error(Y_test, predicted)
-# print('lenX: ', len(X))
-# print('predicted LSTM ------------------------------------------------------------')
-# print(predicted)
-# print(np.sum(np.array(predicted) >= 0, axis=0))
-# print('error_Test_LSTM-------------------------------------------------------------')
-# print(error_Test_LSTM)
-#
-# # Append to previous results
-# test_results.append(error_Test_ARIMA)
-# test_results.append(error_Test_LSTM)
-#
-# train_results.append(error_Training_ARIMA)
-# train_results.append(error_Training_LSTM)
-#
-# names.append("ARIMA")
-# names.append("LSTM")
-#
-# # Overall Comparison of all the algorithms (including Time Series Algorithms) -------------------
-# # compare algorithms
-# fig = pyplot.figure()
-#
-# ind = np.arange(len(names))  # the x locations for the groups
-# width = 0.35  # the width of the bars
-#
-# fig.suptitle('Comparing the performance of various algorthims on the Train and Test Dataset')
-# ax = fig.add_subplot(111)
-# pyplot.bar(ind - width / 2, train_results, width=width, label='Train Error')
-# pyplot.bar(ind + width / 2, test_results, width=width, label='Test Error')
-# fig.set_size_inches(15, 8)
-# pyplot.legend()
-# ax.set_xticks(ind)
-# ax.set_xticklabels(names)
-# pyplot.ylabel('Mean Square Error')
-# pyplot.show()
-#
-# # 6. Model Tuning and Grid Search ------------------------------------------------------------------
-# """ARIMA model is one of the best mode according to metrics above, so we perform the model tuning of the ARIMA model.
-#     The default order of ARIMA model is [1,0,0]. We perform a grid search with different combination p,d and q
-#     in the ARIMA model's order. """
-#
-# # Grid Search for ARIMA Model - LSTM
-# # Change p,d and q and check for the best result
-#
-# # evaluate parameters
-# print('ARIMA parameters evaluation ------------------------------------------------------')
-# p_values = [0, 1, 2]
-# d_values = range(0, 2)
-# q_values = range(0, 2)
-# warnings.filterwarnings("ignore")
-# print('evaluate_models(p_values, d_values, q_values)-------------------------------------------')
-# print(evaluate_arima_models(X_train, Y_train, p_values, d_values, q_values))
-#
-# print('LSTM parameters evaluation -------------------------------------------------------')
-# neurons_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 2
-# learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5]  # 0.4
-# momentum_list = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]  # 0.5
-# # dense_list = [1, 5]
-# # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-# # verbose_list = [0, 1]
-# # epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-# evaluate_LSTM_combinations(X_train_LSTM, X_test_LSTM, Y_test_LSTM, neurons_list, learn_rate_list, momentum_list)
+names = []
+test_results = []
+train_results = []
+
+# 5. Evaluate Algorithms and Models --------------------------------------------------------
+
+# 5.1. Train Test Split and Evaluation Metrics Next, we start by splitting our data in training and testing chunks.
+# If we are going to use Time series models we have to split the data in continuous series.
+validation_size = 0.2
+
+# In case the data is not dependent on the time series, then train and test split randomly
+# seed = 7
+# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=validation_size, random_state=seed)
+
+# In case the data is not dependent on the time series, then train and test split should be done based on sequential
+# sample This can be done by selecting an arbitrary split point in the ordered list of observations and creating two
+# new datasets.
+
+# 5.3.1 Time Series based models-ARIMA and LSTM --------------------------------------------------
+# Let us first prepare the dataset for ARIMA models,
+# by having only the correlated variables as exogenous variables.
+
+# Time Series Model - ARIMA Model
+print('X_train.columns--------------------------------------------------------------------------')
+print(X_train.columns)
+X_train_ARIMA = X_train.loc[:, ['Close', 'Dema13', '4H%K', 'Volatility', 'Etherium']]
+X_test_ARIMA = X_test.loc[:, ['Close', 'Dema13', '4H%K', 'Volatility', 'Etherium']]
+tr_len = len(X_train_ARIMA)
+te_len = len(X_test_ARIMA)
+to_len = len(X)
+print(X_test_ARIMA)
+
+modelARIMA = ARIMA(endog=Y_train, exog=X_train_ARIMA, order=[2, 1, 1])
+model_fit = modelARIMA.fit()
+
+error_Training_ARIMA = mean_squared_error(Y_train, model_fit.fittedvalues)
+predicted = model_fit.predict(start=tr_len - 1, end=to_len - 1, exog=X_test_ARIMA)[1:]
+error_Test_ARIMA = mean_squared_error(Y_test, predicted)
+print('error_Test_ARIMA------------------------------------------------------------------------')
+print(error_Test_ARIMA)
+
+# LSTM Model
+seq_len = 2  # Length of the seq for the LSTM
+
+Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
+X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
+X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
+for i in range(seq_len):
+    X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
+    X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
+
+# Lstm Network
+
+
+LSTMModel = create_LSTMmodel(X_train_LSTM, 12, learn_rate=0.01, momentum=0)
+LSTMModel_fit = LSTMModel.fit(X_train_LSTM, Y_train_LSTM, validation_data=(X_test_LSTM, Y_test_LSTM), epochs=330,
+                              batch_size=72, verbose=0, shuffle=False)
+
+# Visual plot to check if the error is reducing
+plt.plot(LSTMModel_fit.history['loss'], label='train', )
+plt.plot(LSTMModel_fit.history['val_loss'], '--', label='test', )
+plt.legend()
+plt.show()
+
+error_Training_LSTM = mean_squared_error(Y_train_LSTM, LSTMModel.predict(X_train_LSTM))
+predicted = LSTMModel.predict(X_test_LSTM)
+error_Test_LSTM = mean_squared_error(Y_test, predicted)
+print('lenX: ', len(X))
+print('predicted LSTM ------------------------------------------------------------')
+print(predicted)
+print(np.sum(np.array(predicted) >= 0, axis=0))
+print('error_Test_LSTM-------------------------------------------------------------')
+print(error_Test_LSTM)
+
+# Append to previous results
+test_results.append(error_Test_ARIMA)
+test_results.append(error_Test_LSTM)
+
+train_results.append(error_Training_ARIMA)
+train_results.append(error_Training_LSTM)
+
+names.append("ARIMA")
+names.append("LSTM")
+
+# Overall Comparison of all the algorithms (including Time Series Algorithms) -------------------
+# compare algorithms
+fig = plt.figure()
+
+ind = np.arange(len(names))  # the x locations for the groups
+width = 0.35  # the width of the bars
+
+fig.suptitle('Comparing the performance of various algorthims on the Train and Test Dataset')
+ax = fig.add_subplot(111)
+plt.bar(ind - width / 2, train_results, width=width, label='Train Error')
+plt.bar(ind + width / 2, test_results, width=width, label='Test Error')
+fig.set_size_inches(15, 8)
+plt.legend()
+ax.set_xticks(ind)
+ax.set_xticklabels(names)
+plt.ylabel('Mean Square Error')
+plt.show()
+
+# 6. Model Tuning and Grid Search ------------------------------------------------------------------
+"""ARIMA model is one of the best mode according to metrics above, so we perform the model tuning of the ARIMA model.
+    The default order of ARIMA model is [1,0,0]. We perform a grid search with different combination p,d and q
+    in the ARIMA model's order. """
+
+# Grid Search for ARIMA Model - LSTM
+# Change p,d and q and check for the best result
+
+# evaluate parameters
+print('ARIMA parameters evaluation ------------------------------------------------------')
+p_values = [0, 1, 2]
+d_values = range(0, 2)
+q_values = range(0, 2)
+warnings.filterwarnings("ignore")
+print('evaluate_models(p_values, d_values, q_values)-------------------------------------------')
+print(evaluate_arima_models(X_train, Y_train, p_values, d_values, q_values))
+
+print('LSTM parameters evaluation -------------------------------------------------------')
+neurons_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 2
+learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5]  # 0.4
+momentum_list = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]  # 0.5
+# dense_list = [1, 5]
+# batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+# verbose_list = [0, 1]
+# epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+evaluate_LSTM_combinations(X_train_LSTM, X_test_LSTM, Y_test_LSTM, neurons_list, learn_rate_list, momentum_list)
 #
 # # 7. Finalise the Model -------------------------------------------------------------------------
 # # 7.1. Results on the Test Dataset
 # # prepare model
-# modelARIMA_tuned = ARIMA(endog=Y_train, exog=X_train_ARIMA, order=[2, 0, 0])
+# modelARIMA_tuned = ARIMA(endog=Y_train, exog=X_train_ARIMA, order=[2, 1, 1])
 # model_fit_tuned = modelARIMA_tuned.fit()
 # # estimate accuracy on validation set
 # predicted_tuned = model_fit.predict(start=tr_len - 1, end=to_len - 1, exog=X_test_ARIMA)[1:]
