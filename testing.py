@@ -27,26 +27,31 @@ class Seagull(Strategy):
         # self.model_fit = self.model.fit()
         self.model = LinearRegression(fit_intercept=False)
         self.model.fit(X_train, Y_train)
-        self.b = 0
-        self.s = 0
+        self.buy_price = 0
+        self.sell_price = 0
 
     def next(self):
         ret = self.data.ret[-1]
         forecast = self.model.predict([[self.data['Close'][-1], self.data['Dema13'][-1],
                                         self.data['4H%K'][-1], self.data['Volatility'][-1]]])
-        if not self.position.is_long and ret != 0 and forecast > self.data['Volatility'][-1]:
-            self.b = self.data.Close[-1]
+        if not self.position.is_long and ret != 0\
+                and forecast / self.data.Close[-1] > 4.5:
+            self.buy_price = self.data.Close[-1]
+            backtest_data['b'].loc[self.data.index[-1]] = True
             self.buy()
-        elif not self.position.is_short and self.data.Close < self.b and forecast < self.data['Volatility'][-1]:
-            self.s = self.data.Close[-1]
-            print(self.data.index[-1], 'Pillow profit: ', self.s - self.b)
-            self.s, self.b = 0, 0
-            self.position.close()
-        elif not self.position.is_short and ret != 0 and forecast < self.data['Volatility'][-1]:
-            self.s = self.data.Close[-1]
-            print(self.data.index[-1], 'Trade profit: ', self.s - self.b)
-            self.s, self.b = 0, 0
-            self.position.close()
+        elif not self.position.is_short and self.data.Close < self.buy_price\
+                and forecast / self.data.Close[-1] < 4.5:
+            self.sell_price = self.data.Close[-1]
+            # print(self.data.index[-1], 'Pillow profit: ', self.s - self.b)
+            self.sell_price, self.buy_price = 0, 0
+            backtest_data['s'].loc[self.data.index[-1]] = True
+            self.sell()
+        elif not self.position.is_short and ret != 0 and forecast / self.data.Close[-1] < 4.5:
+            self.sell_price = self.data.Close[-1]
+            # print(self.data.index[-1], 'Trade profit: ', self.s - self.b)
+            self.sell_price, self.buy_price = 0, 0
+            backtest_data['s'].loc[self.data.index[-1]] = True
+            self.sell()
 
 
 # class Prelder(Strategy):
@@ -56,7 +61,7 @@ class Seagull(Strategy):
 
 
 def statistics():
-    bt = Backtest(backtest_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
+    bt = Backtest(backtest_data, Seagull, cash=100000, commission=0.045, exclusive_orders=True)
     output = bt.run()
     print(output)
     # winsound.Beep(1000, 1500)
@@ -64,7 +69,7 @@ def statistics():
 
 
 def opt():
-    bt = Backtest(backtest_data, Seagull, cash=100000, commission=0.004, exclusive_orders=True)
+    bt = Backtest(backtest_data, Seagull, cash=100000, commission=0.045, exclusive_orders=True)
     stats, heatmap = bt.optimize(
         # ema=range(5, 31, 1),
         # rs=range(50, 76, 1),
@@ -79,6 +84,11 @@ def opt():
     # winsound.Beep(1000, 1500)
 
 
+backtest_data['b'] = 0
+backtest_data['s'] = 0
 statistics()
 
+# print(backtest_data)
+# print(backtest_data.b.sum())
+# print(backtest_data.s.sum())
 # opt()

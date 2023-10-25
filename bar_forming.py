@@ -67,8 +67,7 @@ def volume_bars(df, volume_column, m):
     # args
         df: pd.DataFrame()
         column: name for volume data
-        m: int(), threshold value for volume
-    # returns
+        m: int(), threshold value for volume returns
         idx: list of indices
     """
     t = df[volume_column]
@@ -95,8 +94,7 @@ def dollar_bars(df, value_column, m):
     # args
         df: pd.DataFrame()
         column: name for dollar volume data
-        m: int(), threshold value for dollars
-    # returns
+        m: int(), threshold value for dollars returns
         idx: list of indices
     """
     t = df[value_column]
