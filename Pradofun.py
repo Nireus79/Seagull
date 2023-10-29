@@ -175,6 +175,59 @@ def getDailyVol(close, span0, days):
     return df0
 
 
+def getDailyVolCGPT(close, span0, rows):
+    """
+    The formula used in the function to calculate daily volatility is based on the exponential moving standard
+    deviation (EMS). The function calculates daily volatility as an estimate of the standard deviation of daily
+    returns.
+
+Here's a breakdown of the formula and the steps involved:
+
+Calculate the Number of Rows/Periods: The function takes a parameter called rows, which represents the number of
+previous rows or periods to consider for calculating daily volatility.
+
+Find Start Date for Volatility Calculation: The function searches for the index position where the calculation should
+start. It does this by finding the index position where the time series (in this case, the close prices) is a certain
+number of rows before the current time.
+
+Create a Reindexed Series: The function creates a new Series called df0, which contains the index positions from the
+original close Series corresponding to the start date determined in step 2.
+
+Calculate Daily Returns: It calculates daily returns as the percentage change in the close prices between the start
+date and the current date. This is done by taking the ratio of the close prices on the current date and the close
+prices on the start date and subtracting 1. This step helps calculate the daily returns of the asset.
+
+Calculate Exponential Moving Standard Deviation: Finally, it calculates the daily volatility by applying an
+exponential moving standard deviation (EMS) to the daily returns. The ewm method is used for this purpose with a
+given span0 parameter. The span0 parameter controls the weighting of the data points in the moving standard
+deviation. It essentially determines how quickly the influence of older data diminishes. A smaller span0 value will
+give more weight to recent data, while a larger span0 value will give more weight to historical data.
+
+The resulting Series, named 'dailyVol', contains the estimated daily volatility. It measures the variability of daily
+returns, providing an indication of the asset's risk and price fluctuations over time.
+
+In summary, the formula is based on calculating the daily returns over a specified number of rows/periods and then
+smoothing these returns using an exponential moving standard deviation to estimate the asset's daily volatility.
+Daily Volatility Estimator [3.1] daily vol re-indexed to close Original df0 = df0[df0 > 0] does not include first day
+indexes was changed to df0 = df0[df0 >= 0] :param rows: Number of rows to consider for calculating daily volatility
+:param close: Series of close prices :param span0: Span parameter for exponential moving average (EMA) :return:
+Series containing daily volatility
+    """
+    df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
+    df0 = df0[df0 >= 0]  # df0 >= 0 includes the first row in the index
+
+    df0 = (pd.Series(close.index[df0 - rows], index=close.index[close.shape[0] - df0.shape[0]:]))
+
+    try:
+        df0 = close.loc[df0.index] / close.loc[df0.values].values - 1
+    except Exception as e:
+        print(f'Error: {e}\nPlease confirm there are no duplicate indices.')
+
+    df0 = df0.ewm(span=span0).std().rename('dailyVol')
+    print(df0)
+    return df0
+
+
 def getTEvents(gRaw, h):
     """Symmetric CUSUM Filter [2.5.2.1]
     T events are the moments that a shift in
@@ -191,10 +244,10 @@ def getTEvents(gRaw, h):
             print(sNeg + diff.loc[i], type(sNeg + diff.loc[i]))
             break
         sPos, sNeg = max(0., pos), min(0., neg)
-        if sNeg < -h:
+        if sNeg < -h.loc[i]:  # .loc[i] gives threshold relative to data['Volatility'].rolling(window).mean()
             sNeg = 0
             tEvents.append(i)
-        elif sPos > h:
+        elif sPos > h.loc[i]:
             sPos = 0
             tEvents.append(i)
     return pd.DatetimeIndex(tEvents)

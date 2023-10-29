@@ -9,16 +9,6 @@ from keras.optimizers import SGD
 from keras.layers import LSTM
 
 
-def volatility(df, span0, periods):
-    df0 = df.shift(-periods)  # Shift the DataFrame by rows
-    # df0 = df0.dropna()  # Drop NaN values
-    # Calculate returns
-    returns = df / df0 - 1
-    # Calculate the rolling standard deviation to get daily volatility
-    vol = returns.rolling(window=span0).std()
-    return vol
-
-
 def data_merger(path):
     # path = "E:/T/ETHUSDT/10mdb/"  # set this to the folder containing CSVs
     names = glob.glob(path + "*.csv")  # get names of all CSV files under path

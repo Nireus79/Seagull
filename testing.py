@@ -10,6 +10,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+
 # data = data.fillna(0)
 # print(test_data)
 # print(test_data.isnull().sum())
@@ -29,35 +30,29 @@ class Seagull(Strategy):
         self.model.fit(X_train, Y_train)
         self.buy_price = 0
         self.sell_price = 0
+        self.commission = 4.5
 
     def next(self):
         ret = self.data.ret[-1]
-        forecast = self.model.predict([[self.data['Close'][-1], self.data['Dema13'][-1],
-                                        self.data['4H%K'][-1], self.data['Volatility'][-1]]])
-        if not self.position.is_long and ret != 0\
-                and forecast / self.data.Close[-1] > 4.5:
+        forecast = self.model.predict([[self.data['4H_rsi'][-1], self.data['4H%K'][-1],
+                                        self.data['4H%D'][-1], self.data['4Hmacd'][-1]]])
+        if not self.position.is_long and ret != 0 and forecast / self.data.Close[-1] > self.commission:
             self.buy_price = self.data.Close[-1]
             backtest_data['b'].loc[self.data.index[-1]] = True
             self.buy()
-        elif not self.position.is_short and self.data.Close < self.buy_price\
-                and forecast / self.data.Close[-1] < 4.5:
+        elif not self.position.is_short and self.data.Close < self.buy_price and\
+                forecast / self.data.Close[-1] < self.commission:
             self.sell_price = self.data.Close[-1]
-            # print(self.data.index[-1], 'Pillow profit: ', self.s - self.b)
+            print(self.data.index[-1], 'Pillow profit: ', self.sell_price - self.buy_price)
             self.sell_price, self.buy_price = 0, 0
             backtest_data['s'].loc[self.data.index[-1]] = True
             self.sell()
-        elif not self.position.is_short and ret != 0 and forecast / self.data.Close[-1] < 4.5:
+        elif not self.position.is_short and ret != 0 and forecast / self.data.Close[-1] < self.commission:
             self.sell_price = self.data.Close[-1]
-            # print(self.data.index[-1], 'Trade profit: ', self.s - self.b)
+            print(self.data.index[-1], 'Trade profit: ', self.sell_price - self.buy_price)
             self.sell_price, self.buy_price = 0, 0
             backtest_data['s'].loc[self.data.index[-1]] = True
             self.sell()
-
-
-# class Prelder(Strategy):
-#     def init(self):
-#
-#     def next(self):
 
 
 def statistics():
@@ -74,7 +69,7 @@ def opt():
         # ema=range(5, 31, 1),
         # rs=range(50, 76, 1),
         # upper_bound=range(30, 100, 1),
-        forcast_lim=range(10, 20, 1),
+        commission=range(0, 5, 1),
         # maximize='Sharpe Ratio',
         # maximize='Equity Final [$]',
         maximize='Max. Drawdown [%]',
@@ -87,6 +82,7 @@ def opt():
 backtest_data['b'] = 0
 backtest_data['s'] = 0
 statistics()
+# opt()
 
 # print(backtest_data)
 # print(backtest_data.b.sum())
