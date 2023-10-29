@@ -232,6 +232,40 @@ def getTEvents(gRaw, h):
     """Symmetric CUSUM Filter [2.5.2.1]
     T events are the moments that a shift in
     the mean value of a measured quantity away from a target value.
+
+    The getTEvents function is used to identify "T events" in a time series. T events are moments when there is a
+    significant shift in the mean value of a measured quantity away from a target value. This function uses a
+    symmetric CUSUM (cumulative sum) filter to detect these events. Here are the steps and the formula involved in
+    this function:
+
+Initialize Variables: Initialize three empty lists, tEvents, sPos, and sNeg to keep track of the identified events
+and the cumulative sums of positive and negative changes.
+
+Calculate Differences: Compute the differences between consecutive values of the logarithm of the input series gRaw.
+This is done using np.log(gRaw).diff().dropna(). The diff variable now contains the log returns.
+
+Iterate Through Differences: Iterate through the differences in log returns, starting from the second index (index 1)
+because the first value in diff is NaN.
+
+Cumulative Sum of Positive and Negative Changes:
+
+sPos represents the cumulative sum of positive changes in log returns. sNeg represents the cumulative sum of negative
+changes in log returns. At each step, sPos and sNeg are updated by adding the current value of the log return. The
+float function is used to convert the cumulative sums to floats. The max(0., pos) and min(0., neg) functions ensure
+that these cumulative sums never go below zero. If a positive cumulative sum becomes negative, it's set to zero,
+and if a negative cumulative sum becomes positive, it's set to zero as well. Event Detection:
+
+Check if sNeg goes below a threshold -h.loc[i]. The threshold is relative to h, which is a pandas Series containing
+some form of volatility measurement. If sNeg crosses below the threshold, it indicates a downward shift in the mean
+value, so sNeg is reset to zero, and the current index i is added to the tEvents list. Similarly, if sPos goes above
+the threshold, it indicates an upward shift in the mean value, and sPos is reset to zero, and i is added to the
+tEvents list. Return T Events: The function returns a pd.DatetimeIndex object containing the timestamps of the
+identified T events.
+
+In summary, the function detects T events in a time series by monitoring changes in log returns. When the cumulative
+sums of these changes cross certain thresholds (h.loc[i]), it signifies a shift in the mean value,
+and the corresponding timestamp is recorded as a T event. This is a common technique used in event-driven finance and
+signal processing to detect significant changes in time series data.
     """
     tEvents, sPos, sNeg = [], 0, 0
     diff = np.log(gRaw).diff().dropna()
@@ -267,15 +301,38 @@ def getEvents(close, tEvents, ptSl, trgt, minRet, numThreads, t1, side):
     When side is given, its length appears greater than trgt and error appears as
     side_ = side.loc[trgt.index] cannot detect missing indexes.
     loc[trgt.index] was changed to loc[side.index]
-    :param close:
-    :param tEvents:
-    :param ptSl:
-    :param trgt:
-    :param minRet:
-    :param numThreads:
-    :param t1:
-    :param side:
-    :return: df with event timestamp t1 timestamp target and side
+
+    The getEvents function appears to be a part of a financial analysis or trading system. It's responsible for generating events, which include information about timestamps, target levels, and sides (buy or sell) for trading signals. It makes use of several parameters and logic to form these events. Let me break down the function step by step:
+
+Get the Target Levels (trgt): The function first extracts the target levels from the trgt series for the timestamps in tEvents. It then filters out target levels that are less than a specified minimum return threshold (minRet).
+
+Get the T1 Timestamps (Max Holding Period): If t1 is not provided as an argument (i.e., t1 is set to False), it initializes a Series with NaN values for the timestamps in tEvents. This represents the maximum holding period for each event.
+
+Determine Sides and Profit-Taking/Stop Loss Factors:
+
+If the side parameter is not provided (i.e., it's None), it assumes a default side of 1 (e.g., buy) and sets
+profit-taking and stop-loss factors to ptSl[0] for both the upper and lower barriers. If the side parameter is
+provided, it attempts to match the timestamps in side with the timestamps in trgt. It keeps only the common
+timestamps. It creates a side_ Series containing the sides for the common timestamps, and it sets the profit-taking
+and stop-loss factors based on ptSl[:2]. Form Event Objects:
+
+The function concatenates the t1, trgt, and side_ Series (or side if side is None) to form an events DataFrame. It
+drops rows with NaN values in the 'trgt' column. Parallel Processing of Events: The mpPandasObj function appears to
+be used for parallel processing. It applies the applyPtSlOnT1 function to each row of the events DataFrame in
+parallel. The parameters passed include close prices, the events DataFrame, and profit-taking/stop-loss factors.
+
+Post-Processing: It appears that the result of parallel processing is used to calculate the 't1' column for the
+events DataFrame. It might be determining when a position is exited based on the trading strategy.
+
+Final Output and Cleanup: If the side parameter was not provided initially (i.e., it's None), the 'side' column is
+dropped from the events DataFrame. The function returns the events DataFrame, which contains event timestamps ('t1'),
+target levels ('trgt'), and side information.
+
+In summary, the getEvents function is responsible for generating events for a trading strategy based on a combination
+of target levels, sides (buy/sell), and profit-taking/stop-loss factors. It also supports parallel processing for
+efficiency. The specific logic for trading and event generation would depend on the larger context of the trading
+strategy and the specific implementation of applyPtSlOnT1. :param close: :param tEvents: :param ptSl: :param trgt:
+:param minRet: :param numThreads: :param t1: :param side: :return: df with event timestamp t1 timestamp target and side
     """
     # 1) get target
     trgt = trgt.loc[tEvents]
