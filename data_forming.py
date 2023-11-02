@@ -5,7 +5,8 @@ from ta.trend import macd_diff
 from ta.volatility import average_true_range
 from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, normalizer, standardizer
 from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, getEvents, getBins, \
-    bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj, getDailyVolCGPT
+    bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj, \
+    getDailyVolCGPT
 from sklearn.linear_model import LinearRegression
 import warnings
 
@@ -54,9 +55,11 @@ eth = eth.ffill()
 
 cpus = 1
 ptsl = [2, 1]  # profit-taking and stop loss limit multipliers
-minRet = 0.045  # The minimum target return (volatility) required for running a triple barrier search
-days = 1
-window = 48  # days * 48  30 min candles
+minRet = .01  # The minimum target return (volatility) required for running a triple barrier search
+vertical_days = 1
+span = 20
+window = 20
+c_labels = .01
 
 asset1 = 'etheur'
 asset2 = 'btceur'
@@ -87,7 +90,15 @@ data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=1)
 data.drop(columns=['Price'], axis=1, inplace=True)
-data['Volatility'] = getDailyVolCGPT(data['Close'], window, days)
+# data['Volatility_prcnt'] = getDailyVol(data['Close'], span, vertical_days, 'p')
+data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm')
+bb_down = get_down_cross_bol(data, 'Close')
+bb_up = get_up_cross_bol(data, 'Close')
+bb_side_up = pd.Series(-1, index=bb_up.index)  # sell on up cross for mean reversion
+bb_side_down = pd.Series(1, index=bb_down.index)  # buy on down cross for mean reversion
+bb_side_raw = pd.concat([bb_side_up, bb_side_down]).sort_index()
+data['bb_cross'] = bb_side_raw
+
 # data['diff'] = np.log(data['close']).diff()
 # training data
 # data['cusum'] = data['Close'].cumsum()
@@ -95,12 +106,12 @@ data['Volatility'] = getDailyVolCGPT(data['Close'], window, days)
 # data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
 # data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
 
-threshold = data['Volatility'].rolling(window).mean()
+threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
-t1 = addVerticalBarrier(tEvents, data['Close'], numDays=days)
+t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=None)
 labels = getBins(events, data['Close'])
-clean_labels = dropLabels(labels, .05)
+clean_labels = dropLabels(labels, c_labels)
 data['ret'] = clean_labels['ret']
 # data['bin'] = clean_labels['bin']
 data = data.fillna(0)
@@ -119,8 +130,8 @@ research_data = data.loc[events.index]
 # cusum + bb events
 # research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
 
-prediction = 'ret'  # 'Close'  # 'ret' 'bin'
-Y = research_data.loc[:, prediction]
+ret = 'ret'  # 'Close'  # 'ret' 'bin'
+Y = research_data.loc[:, ret]
 Y.name = Y.name
 X = research_data.loc[:, ('4H_rsi', '4H%K', '4H%D', '4Hmacd')]
 
@@ -138,20 +149,24 @@ X_train, X_test = X[0:train_size], X[train_size:len(X)]
 Y_train, Y_test = Y[0:train_size], Y[train_size:len(X)]
 backtest_data = full_data[X_test.index[0]:]
 
-# print(backtest_data)
-
 # print(data)
 # print(full_data)
 # print(full_data.isnull().sum())
 # print(research_data)
 # print(research_data.isnull().sum())
 # print('len research_data: ', len(data))
+# print(backtest_data)
 data['p_ret'] = research_data.apply(lambda x: x.ret / x.Close if x.ret != 0 else 0, axis=1)
 print('total events', np.sum(np.array(data.ret) != 0, axis=0))
 print('positive ret', np.sum(np.array(data.ret) > 0, axis=0))
 print('over comm ret', np.sum(np.array(data.p_ret) > .045, axis=0))
 print('negative ret', np.sum(np.array(data.ret) < 0, axis=0))
+# print('%vol > 0.045', np.sum(np.array(data.Volatility_prcnt) > 0.045, axis=0))
 print('mean % ret', data.p_ret.mean())
+print('max % ret', data.p_ret.max())
+print('min % ret', data.p_ret.min())
+print('bb 1', np.sum(np.array(data.bb_cross) > 0, axis=0))
+print('bb -1', np.sum(np.array(data.bb_cross) < 0, axis=0))
 # print(backtest_data)
 
 

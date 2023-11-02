@@ -152,12 +152,13 @@ def applyPtSlOnT1(close, events, ptSl, molecule):
     return out
 
 
-def getDailyVol(close, span0, days):
+def getDailyVol(close, span0, days, m):
     """
     Daily Volatility Estimator [3.1]
     daily vol re-indexed to close
     Original df0 = df0[df0 > 0] does not include first day indexes
     was changed to df0 = df0[df0 >= 0]
+    :param m: mode
     :param days:
     :param close:
     :param span0:
@@ -171,11 +172,14 @@ def getDailyVol(close, span0, days):
         df0 = close.loc[df0.index] / close.loc[df0.values].values - days  # daily rets
     except Exception as e:
         print(f'error: {e}\nplease confirm no duplicate indices')
-    df0 = df0.ewm(span=span0).std().rename('dailyVol')
-    return df0
+    df0ewm = df0.ewm(span=span0).std().rename('dailyVol')
+    if m == 'p':
+        return df0
+    elif m == 'ewm':
+        return df0ewm
 
 
-def getDailyVolCGPT(close, span0, rows):
+def getDailyVolCGPT(close, span0, rows, m):
     """
     The formula used in the function to calculate daily volatility is based on the exponential moving standard
     deviation (EMS). The function calculates daily volatility as an estimate of the standard deviation of daily
@@ -208,10 +212,6 @@ returns, providing an indication of the asset's risk and price fluctuations over
 
 In summary, the formula is based on calculating the daily returns over a specified number of rows/periods and then
 smoothing these returns using an exponential moving standard deviation to estimate the asset's daily volatility.
-Daily Volatility Estimator [3.1] daily vol re-indexed to close Original df0 = df0[df0 > 0] does not include first day
-indexes was changed to df0 = df0[df0 >= 0] :param rows: Number of rows to consider for calculating daily volatility
-:param close: Series of close prices :param span0: Span parameter for exponential moving average (EMA) :return:
-Series containing daily volatility
     """
     df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
     df0 = df0[df0 >= 0]  # df0 >= 0 includes the first row in the index
@@ -222,10 +222,11 @@ Series containing daily volatility
         df0 = close.loc[df0.index] / close.loc[df0.values].values - 1
     except Exception as e:
         print(f'Error: {e}\nPlease confirm there are no duplicate indices.')
-
-    df0 = df0.ewm(span=span0).std().rename('dailyVol')
-    print(df0)
-    return df0
+    df0ewm = df0.ewm(span=span0).std().rename('dailyVol')
+    if m == 'p':
+        return df0
+    elif m == 'ewm':
+        return df0ewm
 
 
 def getTEvents(gRaw, h):
@@ -278,10 +279,10 @@ signal processing to detect significant changes in time series data.
             print(sNeg + diff.loc[i], type(sNeg + diff.loc[i]))
             break
         sPos, sNeg = max(0., pos), min(0., neg)
-        if sNeg < -h.loc[i]:  # .loc[i] gives threshold relative to data['Volatility'].rolling(window).mean()
+        if sNeg < -h:  # .loc[i] gives threshold relative to data['Volatility'].rolling(window).mean()
             sNeg = 0
             tEvents.append(i)
-        elif sPos > h.loc[i]:
+        elif sPos > h:
             sPos = 0
             tEvents.append(i)
     return pd.DatetimeIndex(tEvents)
@@ -302,11 +303,17 @@ def getEvents(close, tEvents, ptSl, trgt, minRet, numThreads, t1, side):
     side_ = side.loc[trgt.index] cannot detect missing indexes.
     loc[trgt.index] was changed to loc[side.index]
 
-    The getEvents function appears to be a part of a financial analysis or trading system. It's responsible for generating events, which include information about timestamps, target levels, and sides (buy or sell) for trading signals. It makes use of several parameters and logic to form these events. Let me break down the function step by step:
+    The getEvents function appears to be a part of a financial analysis or trading system. It's responsible for
+    generating events, which include information about timestamps, target levels, and sides (buy or sell) for trading
+    signals. It makes use of several parameters and logic to form these events. Let me break down the function step
+    by step:
 
-Get the Target Levels (trgt): The function first extracts the target levels from the trgt series for the timestamps in tEvents. It then filters out target levels that are less than a specified minimum return threshold (minRet).
+Get the Target Levels (trgt): The function first extracts the target levels from the trgt series for the timestamps
+in tEvents. It then filters out target levels that are less than a specified minimum return threshold (minRet).
 
-Get the T1 Timestamps (Max Holding Period): If t1 is not provided as an argument (i.e., t1 is set to False), it initializes a Series with NaN values for the timestamps in tEvents. This represents the maximum holding period for each event.
+Get the T1 Timestamps (Max Holding Period): If t1 is not provided as an argument (i.e., t1 is set to False),
+it initializes a Series with NaN values for the timestamps in tEvents. This represents the maximum holding period for
+each event.
 
 Determine Sides and Profit-Taking/Stop Loss Factors:
 
