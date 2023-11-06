@@ -57,8 +57,7 @@ cpus = 1
 ptsl = [2, 1]  # profit-taking and stop loss limit multipliers
 minRet = .01  # The minimum target return (volatility) required for running a triple barrier search
 vertical_days = 1
-span = 20
-window = 20
+span = window = 30
 c_labels = .01
 
 asset1 = 'etheur'
@@ -130,7 +129,7 @@ research_data = data.loc[events.index]
 # cusum + bb events
 # research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
 
-ret = 'ret'  # 'Close'  # 'ret' 'bin'
+ret = 'ret'
 Y = research_data.loc[:, ret]
 Y.name = Y.name
 X = research_data.loc[:, ('4H_rsi', '4H%K', '4H%D', '4Hmacd')]
@@ -138,16 +137,38 @@ X = research_data.loc[:, ('4H_rsi', '4H%K', '4H%D', '4Hmacd')]
 Y = research_data.loc[:, Y.name]
 X = research_data.loc[:, X.columns]
 
-validation_size = 0.2
-train_size = int(len(X) * (1 - validation_size))
-test_size = int(len(X) * validation_size)
-# part = 2
-# X_test, X_train = X[test_size:test_size*part], X[test_size*part:]
-# Y_test, Y_train = Y[test_size:test_size*part], Y[test_size*part:]
-# backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-X_train, X_test = X[0:train_size], X[train_size:len(X)]
-Y_train, Y_test = Y[0:train_size], Y[train_size:len(X)]
-backtest_data = full_data[X_test.index[0]:]
+
+def spliter(dataset, part):
+    validation_size = 0.2
+    test_size = int(len(X) * validation_size)
+    if part == 1:
+        X_tst, X_tr = X[:test_size], X[test_size:]
+        Y_tst, Y_tr = Y[:test_size], Y[test_size:]
+        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
+        return X_tr, X_tst, Y_tr, Y_tst, bt_data
+    elif part == 2:
+        X_tst, X_tr = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
+        Y_tst, Y_tr = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
+        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        return X_tr, X_tst, Y_tr, Y_tst, bt_data
+    elif part == 3:
+        X_tst, X_tr = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
+        Y_tst, Y_tr = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
+        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        return X_tr, X_tst, Y_tr, Y_tst, bt_data
+    elif part == 4:
+        X_tst, X_tr = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
+        Y_tst, Y_tr = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
+        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        return X_tr, X_tst, Y_tr, Y_tst, bt_data
+    elif part == 5:
+        X_tst, X_tr = X[test_size * 4:], X[:test_size * 4]
+        Y_tst, Y_tr = Y[test_size * 4:], Y[:test_size * 4]
+        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        return X_tr, X_tst, Y_tr, Y_tst, bt_data
+
+
+data['p_ret'] = research_data.apply(lambda x: x.ret / x.Close if x.ret != 0 else 0, axis=1)
 
 # print(data)
 # print(full_data)
@@ -156,17 +177,17 @@ backtest_data = full_data[X_test.index[0]:]
 # print(research_data.isnull().sum())
 # print('len research_data: ', len(data))
 # print(backtest_data)
-data['p_ret'] = research_data.apply(lambda x: x.ret / x.Close if x.ret != 0 else 0, axis=1)
-print('total events', np.sum(np.array(data.ret) != 0, axis=0))
-print('positive ret', np.sum(np.array(data.ret) > 0, axis=0))
-print('over comm ret', np.sum(np.array(data.p_ret) > .045, axis=0))
-print('negative ret', np.sum(np.array(data.ret) < 0, axis=0))
-# print('%vol > 0.045', np.sum(np.array(data.Volatility_prcnt) > 0.045, axis=0))
-print('mean % ret', data.p_ret.mean())
-print('max % ret', data.p_ret.max())
-print('min % ret', data.p_ret.min())
-print('bb 1', np.sum(np.array(data.bb_cross) > 0, axis=0))
-print('bb -1', np.sum(np.array(data.bb_cross) < 0, axis=0))
+
+# print('total events', np.sum(np.array(data.ret) != 0, axis=0))
+# print('positive ret', np.sum(np.array(data.ret) > 0, axis=0))
+# print('over comm ret', np.sum(np.array(data.p_ret) > .045, axis=0))
+# print('negative ret', np.sum(np.array(data.ret) < 0, axis=0))
+# # print('%vol > 0.045', np.sum(np.array(data.Volatility_prcnt) > 0.045, axis=0))
+# print('mean % ret', data.p_ret.mean())
+# print('max % ret', data.p_ret.max())
+# print('min % ret', data.p_ret.min())
+# print('bb 1', np.sum(np.array(data.bb_cross) > 0, axis=0))
+# print('bb -1', np.sum(np.array(data.bb_cross) < 0, axis=0))
 # print(backtest_data)
 
 

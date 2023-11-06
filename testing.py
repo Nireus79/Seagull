@@ -1,21 +1,13 @@
 import winsound
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
-from data_forming import full_data, research_data, backtest_data, X_train, Y_train, X_test, Y_test, eth, threshold
+from data_forming import full_data, spliter
 from sklearn.linear_model import LinearRegression
 import warnings
 
 warnings.filterwarnings('ignore')
 
-
-# data = data.fillna(0)
-# print(test_data)
-# print(test_data.isnull().sum())
-# print('total ret', np.sum(np.array(test_data.ret) != 0, axis=0))
-# print('positive ret', np.sum(np.array(test_data.ret) > 0, axis=0))
-# print('negative ret', np.sum(np.array(test_data.ret) < 0, axis=0))
-
-# X_train_ARIMA = X_train.loc[:, ['Close', 'Dema13', '4H%K', 'Volatility', 'Etherium']]
+X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, 5)
 
 
 class Seagull(Strategy):
