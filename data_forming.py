@@ -64,29 +64,29 @@ asset1 = 'etheur'
 asset2 = 'btceur'
 asset3 = 'eurusd'
 
-data = eth  # [:'2023-09-30 00:00:00']
+data = eth
 # data['Dot'] = dot['Close']  # .loc[data.index]
 # data[asset1 + '_close'] = eth['close']
 # data[asset2 + '_close'] = bit['close']
 # data[asset3 + '_close'] = eur['close']
-# data['ema9'] = data['Close'].rolling(9).mean()
-# data['Dema9'] = data['1D_Close'].rolling(9).mean()
-# data['ema13'] = data['Close'].rolling(13).mean()
-# data['Dema13'] = data['1D_Close'].rolling(13).mean()
-# data['ema20'] = data['Close'].rolling(20).mean()
-# data['Dema20'] = data['1D_Close'].rolling(20).mean()
-# data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+data['ema9'] = data['Close'].rolling(9).mean()
+data['Dema9'] = data['1D_Close'].rolling(9).mean()
+data['ema13'] = data['Close'].rolling(13).mean()
+data['Dema13'] = data['1D_Close'].rolling(13).mean()
+data['ema20'] = data['Close'].rolling(20).mean()
+data['Dema20'] = data['1D_Close'].rolling(20).mean()
+data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
+data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
-# data['%D'] = data['%K'].rolling(3).mean()
+data['%D'] = data['%K'].rolling(3).mean()
 data['4H%D'] = data['4H%K'].rolling(3).mean()
-# data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
-# data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
-# data['rsi'] = rsi(data['Close'], window=14, fillna=False)
+data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
+data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
+data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
-# data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
-# data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
+data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
+data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=1)
 data.drop(columns=['Price'], axis=1, inplace=True)
 # data['Volatility_prcnt'] = getDailyVol(data['Close'], span, vertical_days, 'p')
@@ -100,10 +100,10 @@ data['bb_cross'] = bb_side_raw
 
 # data['diff'] = np.log(data['close']).diff()
 # training data
-# data['cusum'] = data['Close'].cumsum()
-# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
-# data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
-# data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
+data['cusum'] = data['Close'].cumsum()
+data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
+data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
 
 threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
@@ -112,11 +112,11 @@ events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpu
 labels = getBins(events, data['Close'])
 clean_labels = dropLabels(labels, c_labels)
 data['ret'] = clean_labels['ret']
-# data['bin'] = clean_labels['bin']
+data['bin'] = clean_labels['bin']
 data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
 
-# print(data)
+print(data)
 # print(data.isnull().sum())
 
 # data = standardizer(data)
@@ -127,13 +127,12 @@ full_data = data.copy()
 # cusum events
 research_data = data.loc[events.index]
 # cusum + bb events
-# research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
+research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
 
-ret = 'ret'
-Y = research_data.loc[:, ret]
+signal = 'bin'  # 'ret'
+Y = research_data.loc[:, signal]
 Y.name = Y.name
-X = research_data.loc[:, ('4H_rsi', '4H%K', '4H%D', '4Hmacd')]
-
+X = research_data.loc[:, research_data.columns != signal]
 Y = research_data.loc[:, Y.name]
 X = research_data.loc[:, X.columns]
 
@@ -149,26 +148,25 @@ def spliter(dataset, part):
     elif part == 2:
         X_tst, X_tr = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
         Y_tst, Y_tr = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
-        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
         return X_tr, X_tst, Y_tr, Y_tst, bt_data
     elif part == 3:
         X_tst, X_tr = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
         Y_tst, Y_tr = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
-        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
         return X_tr, X_tst, Y_tr, Y_tst, bt_data
     elif part == 4:
         X_tst, X_tr = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
         Y_tst, Y_tr = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
-        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
         return X_tr, X_tst, Y_tr, Y_tst, bt_data
     elif part == 5:
         X_tst, X_tr = X[test_size * 4:], X[:test_size * 4]
         Y_tst, Y_tr = Y[test_size * 4:], Y[:test_size * 4]
-        bt_data = full_data[X_tst.index[0]:X_tst.index[-1]]
+        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
         return X_tr, X_tst, Y_tr, Y_tst, bt_data
 
-
-data['p_ret'] = research_data.apply(lambda x: x.ret / x.Close if x.ret != 0 else 0, axis=1)
+# data['p_ret'] = research_data.apply(lambda x: x.ret / x.Close if x.ret != 0 else 0, axis=1)
 
 # print(data)
 # print(full_data)

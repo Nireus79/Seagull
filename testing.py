@@ -1,13 +1,14 @@
 import winsound
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
-from data_forming import full_data, spliter
+from data_forming import full_data, research_data
+from toolbox import spliter
 from sklearn.linear_model import LinearRegression
 import warnings
 
 warnings.filterwarnings('ignore')
 
-X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, 5)
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, 'bin', 5)
 
 
 class Seagull(Strategy):

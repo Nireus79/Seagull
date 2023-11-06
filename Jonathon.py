@@ -28,6 +28,8 @@ from toolbox import standardizer
 import warnings
 
 warnings.filterwarnings('ignore')
+# pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
 
 # load dataset
 dataset = pd.read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
@@ -176,7 +178,16 @@ X = subset_dataset.loc[:, dataset.columns != 'signal']
 validation_size = 0.2
 seed = 1
 X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=1)
-
+print('dataset')
+print(dataset)
+print('X_train')
+print(X_train)
+print('X_validation')
+print(X_validation)
+print('Y_train')
+print(Y_train)
+print('Y_validation')
+print(Y_validation)
 # test options for classification
 num_folds = 10
 scoring = 'accuracy'
@@ -226,15 +237,15 @@ plt.show()
 # Grid Search: Random Forest Classifier
 '''
 n_estimators : int (default=100)
-    The number of boosting stages to perform. 
+    The number of boosting stages to perform.
     Gradient boosting is fairly robust to over-fitting so a large number usually results in better performance.
 max_depth : integer, optional (default=3)
-    maximum depth of the individual regression estimators. 
-    The maximum depth limits the number of nodes in the tree. 
-    Tune this parameter for best performance; the best value depends on the interaction of the input variables    
+    maximum depth of the individual regression estimators.
+    The maximum depth limits the number of nodes in the tree.
+    Tune this parameter for best performance; the best value depends on the interaction of the input variables
 criterion : string, optional (default=”gini”)
-    The function to measure the quality of a split. 
-    Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain. 
+    The function to measure the quality of a split.
+    Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain.
 
 '''
 # scaler = StandardScaler().fit(X_train)
@@ -280,6 +291,7 @@ sns.heatmap(df_cm, cmap="Blues", annot=True, annot_kws={"size": 16})  # font siz
 Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
 Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
 plt.xlabel('Variable Importance')
+plt.show()
 
 
 # Backtesting Results

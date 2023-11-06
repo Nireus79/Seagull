@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from data_forming import X, Y, X_train, X_test, Y_train, Y_test
+from data_forming import full_data, research_data, spliter
 import pandas as pd
 import numpy as np
 import warnings
@@ -52,7 +52,7 @@ warnings.filterwarnings('ignore')
 
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
-
+X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, 5)
 num_folds = 10
 scoring = 'neg_mean_absolute_error'
 seed = 7
@@ -131,6 +131,7 @@ def GS_ElasticNet():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -150,6 +151,7 @@ def GS_KNeighborsRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -174,6 +176,11 @@ def GS_DecisionTreeRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+    # Variable Intuition/Feature Importance
+    # Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+    # Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
+    # plt.xlabel('Variable Importance')
+    # plt.show()
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -204,6 +211,7 @@ def GS_SVR():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -224,6 +232,7 @@ def GS_MLPRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -243,6 +252,11 @@ def GS_RandomForestRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+    # Variable Intuition/Feature Importance
+    # Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+    # Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
+    # plt.xlabel('Variable Importance')
+    # plt.show()
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -265,6 +279,11 @@ def GS_GradientBoostingRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+    # Variable Intuition/Feature Importance
+    # Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+    # Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
+    # plt.xlabel('Variable Importance')
+    # plt.show()
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -284,6 +303,11 @@ def GS_ExtraTreesRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+    # Variable Intuition/Feature Importance
+    # Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+    # Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
+    # plt.xlabel('Variable Importance')
+    # plt.show()
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -310,6 +334,11 @@ def GS_AdaBoostRegressor():
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+    # Variable Intuition/Feature Importance
+    # Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+    # Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
+    # plt.xlabel('Variable Importance')
+    # plt.show()
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
 
@@ -333,6 +362,7 @@ def GS_KerasNNRegressor():
         means = grid_result.cv_results_['mean_test_score']
         stds = grid_result.cv_results_['std_test_score']
         params = grid_result.cv_results_['params']
+
         for mean, stdev, param in zip(means, stds, params):
             print("%f (%f) with: %r" % (mean, stdev, param))
 

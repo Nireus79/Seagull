@@ -12,7 +12,8 @@ from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
 from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
-from data_forming import research_data, X, Y
+from data_forming import X, Y, research_data
+
 
 data = research_data
 
