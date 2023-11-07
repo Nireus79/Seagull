@@ -195,3 +195,15 @@ def evaluate_ANN(X_tr, Y_tr, X_tst, Y_tst, units, batch, epochs):
                 print(y_pred.describe())
                 scores = model.evaluate(X_tst, Y_tst)
                 print(model.metrics_names[1], scores[1])
+
+
+def ROC(df, n):
+    M = df.diff(n - 1)
+    N = df.shift(n - 1)
+    ROC = pd.Series(((M / N) * 100), name='ROC_' + str(n))
+    return ROC
+
+
+def MOM(df, n):
+    MOM = pd.Series(df.diff(n), name='Momentum_' + str(n))
+    return MOM

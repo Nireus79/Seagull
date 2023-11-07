@@ -23,171 +23,74 @@ from keras.models import Sequential
 from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
-
+from ta.momentum import rsi, stoch
+from ta.trend import macd_diff
+from ta.volatility import average_true_range
 from toolbox import standardizer
 import warnings
+from data_forming import spliter, full_data, research_data
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 # load dataset
-dataset = pd.read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
-print(dataset.shape)
+# print(dataset.shape)
 # peek at data
 # set_option('display.width', 100)
-print(dataset.tail(5))
+# print(dataset.tail(5))
 # describe data
 # set_option('precision', 3)
-print(dataset.describe())
-
+# print(dataset.describe())
+dataset = research_data
 # Data Cleaning
-print('Null Values =', dataset.isnull().values.any())
+# print('Null Values =', dataset.isnull().values.any())
 dataset[dataset.columns.values] = dataset[dataset.columns.values].ffill()
+
+
 # dataset = dataset.drop(columns=['Timestamp'])
 # Preparing the data for classification
 # Initialize the `signals` DataFrame with the `signal` column
 # datas['PriceMove'] = 0.0
 
-# Create short simple moving average over the short window
-dataset['short_mavg'] = dataset['Close'].rolling(window=10, min_periods=1, center=False).mean()
-
-# Create long simple moving average over the long window
-dataset['long_mavg'] = dataset['Close'].rolling(window=60, min_periods=1, center=False).mean()
-
-# Create signals
-dataset['signal'] = np.where(dataset['short_mavg'] > dataset['long_mavg'], 1.0, 0.0)
-print(dataset.tail())
-
-
-# Feature Engineering
-# calculation of exponential moving average
-def EMA(df, n):
-    EMA = pd.Series(df['Close'].ewm(span=n, min_periods=n).mean(), name='EMA_' + str(n))
-    return EMA
-
-
-dataset['EMA10'] = EMA(dataset, 10)
-dataset['EMA30'] = EMA(dataset, 30)
-dataset['EMA200'] = EMA(dataset, 200)
-dataset.head()
+# print(dataset.tail())
 
 
 # calculation of rate of change
-def ROC(df, n):
-    M = df.diff(n - 1)
-    N = df.shift(n - 1)
-    ROC = pd.Series(((M / N) * 100), name='ROC_' + str(n))
-    return ROC
 
-
-dataset['ROC10'] = ROC(dataset['Close'], 10)
-dataset['ROC30'] = ROC(dataset['Close'], 30)
-
-
-# Calculation of price momentum
-def MOM(df, n):
-    MOM = pd.Series(df.diff(n), name='Momentum_' + str(n))
-    return MOM
-
-
-dataset['MOM10'] = MOM(dataset['Close'], 10)
-dataset['MOM30'] = MOM(dataset['Close'], 30)
-
-
-# calculation of relative strength index
-def RSI(series, period):
-    delta = series.diff().dropna()
-    u = delta * 0
-    d = u.copy()
-    u[delta > 0] = delta[delta > 0]
-    d[delta < 0] = -delta[delta < 0]
-    u[u.index[period - 1]] = np.mean(u[:period])  # first value is sum of avg gains
-    u = u.drop(u.index[:(period - 1)])
-    d[d.index[period - 1]] = np.mean(d[:period])  # first value is sum of avg losses
-    d = d.drop(d.index[:(period - 1)])
-    rs = u.ewm(com=period - 1, adjust=False).mean() / \
-         d.ewm(com=period - 1, adjust=False).mean()
-    return 100 - 100 / (1 + rs)
-
-
-dataset['RSI10'] = RSI(dataset['Close'], 10)
-dataset['RSI30'] = RSI(dataset['Close'], 30)
-dataset['RSI200'] = RSI(dataset['Close'], 200)
-
-
-# calculation of stochastic osillator.
-
-def STOK(close, low, high, n):
-    STOK = ((close - low.rolling(n).min()) / (high.rolling(n).max() - low.rolling(n).min())) * 100
-    return STOK
-
-
-def STOD(close, low, high, n):
-    STOK = ((close - low.rolling(n).min()) / (high.rolling(n).max() - low.rolling(n).min())) * 100
-    STOD = STOK.rolling(3).mean()
-    return STOD
-
-
-dataset['%K10'] = STOK(dataset['Close'], dataset['Low'], dataset['High'], 10)
-dataset['%D10'] = STOD(dataset['Close'], dataset['Low'], dataset['High'], 10)
-dataset['%K30'] = STOK(dataset['Close'], dataset['Low'], dataset['High'], 30)
-dataset['%D30'] = STOD(dataset['Close'], dataset['Low'], dataset['High'], 30)
-dataset['%K200'] = STOK(dataset['Close'], dataset['Low'], dataset['High'], 200)
-dataset['%D200'] = STOD(dataset['Close'], dataset['Low'], dataset['High'], 200)
-
-
-# Calculation of moving average
-def MA(df, n):
-    MA = pd.Series(df['Close'].rolling(n, min_periods=n).mean(), name='MA_' + str(n))
-    return MA
-
-
-dataset['MA21'] = MA(dataset, 10)
-dataset['MA63'] = MA(dataset, 30)
-dataset['MA252'] = MA(dataset, 200)
-print(dataset.tail())
 
 # excluding columns that are not needed for our prediction.
 
-dataset = dataset.drop(['High', 'Low', 'Open', 'Volume', 'short_mavg', 'long_mavg'], axis=1)
-dataset = dataset.dropna(axis=0)
-print(dataset.tail())
+
+
 
 # Data Visualization
 # dataset[['Weighted_Price']].plot(grid=True)
 # plt.show()
 # histograms
-dataset.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(12, 12))
+dataset.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(15, 15))
 plt.show()
-fig = plt.figure()
-plot = dataset.groupby(['signal']).size().plot(kind='barh', color='red')
-plt.show()
+# fig = plt.figure()
+# plot = dataset.groupby(['signal']).size().plot(kind='barh', color='red')
+# plt.show()
 # correlation
-correlation = dataset.corr()
-plt.figure(figsize=(15, 15))
-plt.title('Correlation Matrix')
-sns.heatmap(correlation, vmax=1, square=True, annot=True, cmap='cubehelix')
+# correlation = dataset.corr()
+# plt.figure(figsize=(15, 15))
+# plt.title('Correlation Matrix')
+# sns.heatmap(correlation, vmax=1, square=True, annot=True, cmap='cubehelix')
 
 # Evaluate Algorithms and Models
 # Train Test Split
 # split out validation dataset for the end
-subset_dataset = dataset.iloc[-100000:]
-Y = subset_dataset["signal"]
-X = subset_dataset.loc[:, dataset.columns != 'signal']
-validation_size = 0.2
+print('total events', np.sum(np.array(dataset.signal) != 0, axis=0))
+print('no events', np.sum(np.array(dataset.signal) == 0, axis=0))
+print('positive bin', np.sum(np.array(dataset.signal) > 0, axis=0))
+print('negative bin', np.sum(np.array(dataset.signal) < 0, axis=0))
+Y = dataset['signal']
+X = dataset.loc[:, dataset.columns != 'signal']
+
 seed = 1
-X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=1)
-print('dataset')
-print(dataset)
-print('X_train')
-print(X_train)
-print('X_validation')
-print(X_validation)
-print('Y_train')
-print(Y_train)
-print('Y_validation')
-print(Y_validation)
+X_train, X_validation, Y_train, Y_validation, bt_data = spliter(dataset, 5)
 # test options for classification
 num_folds = 10
 scoring = 'accuracy'
@@ -198,20 +101,15 @@ scoring = 'accuracy'
 
 # Compare Models and Algorithms
 # spot check the algorithms
-models = []
-models.append(('LR', LogisticRegression(n_jobs=-1)))
-models.append(('LDA', LinearDiscriminantAnalysis()))
-models.append(('KNN', KNeighborsClassifier()))
-models.append(('CART', DecisionTreeClassifier()))
-models.append(('NB', GaussianNB()))
-# Neural Network
-models.append(('NN', MLPClassifier()))
-# Ensable Models
-# Boosting methods
-models.append(('AB', AdaBoostClassifier()))
-models.append(('GBM', GradientBoostingClassifier()))
-# Bagging methods
-models.append(('RF', RandomForestClassifier(n_jobs=-1)))
+models = [('LR', LogisticRegression(n_jobs=-1)),
+          ('LDA', LinearDiscriminantAnalysis()),
+          ('KNN', KNeighborsClassifier()),
+          ('CART', DecisionTreeClassifier()),
+          ('NB', GaussianNB()),
+          ('NN', MLPClassifier()),
+          ('AB', AdaBoostClassifier()),
+          ('GBM', GradientBoostingClassifier()),
+          ('RF', RandomForestClassifier(n_jobs=-1))]
 
 # K-folds cross validation
 results = []
@@ -292,7 +190,6 @@ Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, inde
 Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
 plt.xlabel('Variable Importance')
 plt.show()
-
 
 # Backtesting Results
 # Create column for Strategy Returns by multiplying the daily returns by the position that was held at close

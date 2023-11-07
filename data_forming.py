@@ -3,7 +3,7 @@ import numpy as np
 from ta.momentum import rsi, stoch
 from ta.trend import macd_diff
 from ta.volatility import average_true_range
-from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, normalizer, standardizer
+from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, normalizer, standardizer, ROC, MOM
 from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, getEvents, getBins, \
     bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj, \
     getDailyVolCGPT
@@ -88,7 +88,10 @@ data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=1)
-data.drop(columns=['Price'], axis=1, inplace=True)
+data['roc10'] = ROC(data['Close'], 10)
+data['roc30'] = ROC(data['Close'], 30)
+data['mom10'] = MOM(data['Close'], 10)
+data['mom30'] = MOM(data['Close'], 30)
 # data['Volatility_prcnt'] = getDailyVol(data['Close'], span, vertical_days, 'p')
 data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm')
 bb_down = get_down_cross_bol(data, 'Close')
@@ -111,12 +114,13 @@ t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=None)
 labels = getBins(events, data['Close'])
 clean_labels = dropLabels(labels, c_labels)
-data['ret'] = clean_labels['ret']
-data['bin'] = clean_labels['bin']
+# data['signal'] = clean_labels['ret']
+data['signal'] = clean_labels['bin']
+data.drop(columns=['Price'], axis=1, inplace=True)
 data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
 
-print(data)
+# print(data)
 # print(data.isnull().sum())
 
 # data = standardizer(data)
@@ -127,9 +131,9 @@ full_data = data.copy()
 # cusum events
 research_data = data.loc[events.index]
 # cusum + bb events
-research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
+# research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
 
-signal = 'bin'  # 'ret'
+signal = 'signal'  # 'ret'
 Y = research_data.loc[:, signal]
 Y.name = Y.name
 X = research_data.loc[:, research_data.columns != signal]
@@ -166,48 +170,3 @@ def spliter(dataset, part):
         bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
         return X_tr, X_tst, Y_tr, Y_tst, bt_data
 
-# data['p_ret'] = research_data.apply(lambda x: x.ret / x.Close if x.ret != 0 else 0, axis=1)
-
-# print(data)
-# print(full_data)
-# print(full_data.isnull().sum())
-# print(research_data)
-# print(research_data.isnull().sum())
-# print('len research_data: ', len(data))
-# print(backtest_data)
-
-# print('total events', np.sum(np.array(data.ret) != 0, axis=0))
-# print('positive ret', np.sum(np.array(data.ret) > 0, axis=0))
-# print('over comm ret', np.sum(np.array(data.p_ret) > .045, axis=0))
-# print('negative ret', np.sum(np.array(data.ret) < 0, axis=0))
-# # print('%vol > 0.045', np.sum(np.array(data.Volatility_prcnt) > 0.045, axis=0))
-# print('mean % ret', data.p_ret.mean())
-# print('max % ret', data.p_ret.max())
-# print('min % ret', data.p_ret.min())
-# print('bb 1', np.sum(np.array(data.bb_cross) > 0, axis=0))
-# print('bb -1', np.sum(np.array(data.bb_cross) < 0, axis=0))
-# print(backtest_data)
-
-
-# eth4h = eth.resample('4H').apply(ohlc)
-# eth['4H_Close'] = eth4h['Close']
-# eth['4H_Low'] = eth4h['Low']
-# eth['4H_High'] = eth4h['High']
-# eth1D = eth.resample('D').apply(ohlc)
-# eth['1D_Close'] = eth1D['Close']
-# eth = eth.ffill()
-#
-# eth['Dema13'] = eth['1D_Close'].rolling(13).mean()
-# eth['4H%K'] = stoch(eth['4H_High'], eth['4H_Low'], eth['4H_Close'], window=14, smooth_window=3, fillna=False)
-# eth['Volatility'] = getDailyVol(eth['Close'], window, 2)
-#
-# etEvents = getTEvents(eth['Close'], h=eth['Volatility'].mean())
-# et1 = addVerticalBarrier(etEvents, eth['Close'], numDays=1)
-# eevents = getEvents(eth['Close'], etEvents, ptsl, eth['Volatility'], minRet, cpus, t1, side=None)
-#
-# elabels = getBins(eevents, eth['Close'])
-# eclean_labels = dropLabels(elabels, .05)
-# eth['ret'] = eclean_labels['ret']
-# # data['bin'] = clean_labels['bin']
-# eth = eth.fillna(0)
-# eth = eth.loc[~eth.index.duplicated(keep='first')]
