@@ -77,12 +77,25 @@ def normalizer(data):
 
 
 def spliter(full_data, research_data, signal, part):
+    """
+    spliter takes a full dataset, and a dataset containing only cases for training and testing.
+    drops the column of returns if classification is researched
+    or bins if regression is researched.
+    Then splits the research_data into X (features) and Y(labels),
+    drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
+    Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
+    :param full_data: full dataset
+    :param research_data: dataset containing only cases for training and testing
+    :param signal:
+    :param part: 1 to 5
+    :return: X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    """
     if signal == 'ret':
         full_data.drop(columns=['bin'], axis=1, inplace=True)
         research_data.drop(columns=['bin'], axis=1, inplace=True)
     elif signal == 'bin':
         full_data.drop(columns=['ret'], axis=1, inplace=True)
-        research_data.drop(columns=['bin'], axis=1, inplace=True)
+        research_data.drop(columns=['ret'], axis=1, inplace=True)
     Y = research_data.loc[:, signal]
     Y.name = Y.name
     X = research_data.loc[:, research_data.columns != signal]
@@ -116,6 +129,8 @@ def spliter(full_data, research_data, signal, part):
         Y_test, Y_train = Y[test_size * 4:], Y[:test_size * 4]
         backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
         return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    else:
+        print('Give part number 1 to 5 only.')
 
 
 def evaluate_arima_model(Xt, Yt, arima_order):

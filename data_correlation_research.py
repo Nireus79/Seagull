@@ -41,44 +41,29 @@ print(data.describe())
 
 # 3.2. Data Visualization --------------------------------------------------------------------
 # histograms
-# data.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(12, 12))
-# # density
-# data.plot(kind='density', subplots=True, layout=(20, 20), sharex=False, legend=True, fontsize=1, figsize=(15, 15))
-# # Box and Whisker Plots
-# data.plot(kind='box', subplots=True, layout=(20, 20), sharex=False, sharey=False, figsize=(15, 15))
-# # # correlation
-# correlation = data.corr()
-# pyplot.figure(figsize=(15, 15))
-# pyplot.title('Correlation Matrix')
-# sns.heatmap(correlation, vmax=1, square=True, annot=True, cmap='cubehelix')
-# # Scatterplot Matrix
-# pyplot.figure(figsize=(15, 15))
-# scatter_matrix(data, figsize=(12, 12))
-#
-# # 3.3. Time Series Analysis ------------------------------------------------------------------
-# # Time series broken down into different time series comonent.
-# res = sm.tsa.seasonal_decompose(Y, period=365)
-# fig = res.plot()
-# fig.set_figheight(8)
-# fig.set_figwidth(15)
-#
-# pyplot.show()
+data.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(12, 12))
+# density
+data.plot(kind='density', subplots=True, layout=(20, 20), sharex=False, legend=True, fontsize=1, figsize=(15, 15))
+# Box and Whisker Plots
+data.plot(kind='box', subplots=True, layout=(20, 20), sharex=False, sharey=False, figsize=(15, 15))
+# # correlation
+correlation = data.corr()
+pyplot.figure(figsize=(15, 15))
+pyplot.title('Correlation Matrix')
+sns.heatmap(correlation, vmax=1, square=True, annot=True, cmap='cubehelix')
+# Scatterplot Matrix
+pyplot.figure(figsize=(15, 15))
+scatter_matrix(data, figsize=(12, 12))
 
-# 4. Data Preparation
-#
-# 4.1. Data Cleaning
-# Check for the NAs in the rows, either drop them or fill them with the mean of the column
-# Checking for any null values and removing the null values'''
-# print('dataset Null Values =', data.isnull().values.any())
-# Given that there are null values drop the row containing the null values.
-# Drop the rows containing NA
-# data.dropna(axis=0)
-# Fill na with 0
-# dataset.fillna('0')
-#
-# Filling the NAs with the mean of the column.
-# dataset['col'] = dataset['col'].fillna(dataset['col'].mean())
-#
+# 3.3. Time Series Analysis ------------------------------------------------------------------
+# Time series broken down into different time series comonent.
+res = sm.tsa.seasonal_decompose(Y, period=365)
+fig = res.plot()
+fig.set_figheight(8)
+fig.set_figwidth(15)
+
+pyplot.show()
+
 # 4.2 Feature Selection ---------------------------------------------------------------------
 """Statistical tests can be used to select those features that have the strongest relationship
 with the output variable.The scikit-learn library provides the SelectKBest class that can be used with a suite of

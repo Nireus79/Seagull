@@ -122,8 +122,8 @@ data['bin'] = clean_labels['bin']
 
 data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
-data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'ave', 'Price', 'Volatility', 'upper', 'lower'],
-          axis=1, inplace=True)
+# data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'ave', 'Price', 'Volatility', 'upper', 'lower'],
+#           axis=1, inplace=True)
 
 # print(data)
 # print(data.isnull().sum())
@@ -138,11 +138,12 @@ research_data = data.loc[events.index]
 # cusum + bb events
 # research_data = research_data.loc[research_data.apply(lambda x: x.bb_cross != 0, axis=1)]
 
+# signal = 'ret'
+signal = 'bin'
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, 'ret', 5)
-
-print('total events', np.sum(np.array(research_data.signal) != 0, axis=0))
-print('no events', np.sum(np.array(research_data.signal) == 0, axis=0))
-print('positive event', np.sum(np.array(research_data.signal) > 0, axis=0))
-print('negative event', np.sum(np.array(research_data.signal) < 0, axis=0))
+print('total events', np.sum(np.array(research_data[signal]) != 0, axis=0))
+print('no events', np.sum(np.array(research_data[signal]) == 0, axis=0))
+print('positive event', np.sum(np.array(research_data[signal]) > 0, axis=0))
+print('negative event', np.sum(np.array(research_data[signal]) < 0, axis=0))
 print(research_data.columns)

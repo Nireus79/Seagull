@@ -7,7 +7,7 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, KFold, cross_val_score, GridSearchCV
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
@@ -15,7 +15,7 @@ from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier, \
-    ExtraTreesClassifier
+    ExtraTreesClassifier, RandomForestRegressor
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 # Libraries for Deep Learning Models
@@ -34,8 +34,6 @@ dataset = research_data
 dataset[dataset.columns.values] = dataset[dataset.columns.values].ffill()
 
 seed = 1
-
-
 # test options for classification
 num_folds = 10
 scoring = 'accuracy'
@@ -64,6 +62,12 @@ for name, model in models:
     cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
     results.append(cv_results)
     names.append(name)
+    model.fit(X_train, Y_train)
+    print(name, '-----------------------------------------------------------------------------------------------')
+    if name == 'CART_C' or name == 'AB' or name == 'GBM' or name == 'RF':
+        Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X_train.columns)
+        Importance.sort_values('Importance', axis=0, ascending=True)
+        print(Importance)
     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
     print(msg)
 
@@ -75,5 +79,3 @@ plt.boxplot(results)
 ax.set_xticklabels(names)
 fig.set_size_inches(15, 8)
 plt.show()
-
-
