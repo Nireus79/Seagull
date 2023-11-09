@@ -19,9 +19,8 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 import warnings
-from data_forming import full_data, research_data, spliter
+from data_forming import X_train, X_test, Y_train, Y_test
 
-X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, 5)
 warnings.filterwarnings('ignore')
 
 # pd.set_option('display.max_rows', None)
@@ -45,7 +44,7 @@ models = [
     ('LASSO', Lasso()),
     ('EN', ElasticNet()),
     ('KNN', KNeighborsRegressor()),
-    ('CART', DecisionTreeRegressor()),
+    ('CART_S', DecisionTreeRegressor()),
     ('SVR', SVR()),
     ('MLP', MLPRegressor()),
     ('RFR', RandomForestRegressor()),

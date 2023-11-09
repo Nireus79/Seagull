@@ -1,14 +1,11 @@
 import winsound
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
-from data_forming import full_data, research_data
-from toolbox import spliter
+from data_forming import X_train, Y_train, backtest_data
 from sklearn.linear_model import LinearRegression
 import warnings
 
 warnings.filterwarnings('ignore')
-
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, 'bin', 5)
 
 
 class Seagull(Strategy):
@@ -59,14 +56,15 @@ class Prelder(Strategy):
         self.sell_price = 0
 
     def next(self):
-        ret = self.data.ret[-1]
-        rsi = self.data['4H_rsi'][-1]
+        ret = self.data.signal[-1]
+        # rsi = self.data['4H_rsi'][-1]
         K = self.data['4H%K'][-1]
         D = self.data['4H%D'][-1]
         mac = self.data['4Hmacd'][-1]
+        roc = self.data['roc30'][-1]
         bb_cross = self.data.bb_cross[-1]
 
-        forecast = self.model.predict([[rsi, K, D, mac]])
+        forecast = self.model.predict([[mac, K, D, roc]])
 
         if not self.position.is_long and ret != 0 and bb_cross > 0 and forecast > 0 and K > D:
             # forecast / self.data.Close[-1] > self.commission:

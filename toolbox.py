@@ -76,6 +76,48 @@ def normalizer(data):
     return normalized
 
 
+def spliter(full_data, research_data, signal, part):
+    if signal == 'ret':
+        full_data.drop(columns=['bin'], axis=1, inplace=True)
+        research_data.drop(columns=['bin'], axis=1, inplace=True)
+    elif signal == 'bin':
+        full_data.drop(columns=['ret'], axis=1, inplace=True)
+        research_data.drop(columns=['bin'], axis=1, inplace=True)
+    Y = research_data.loc[:, signal]
+    Y.name = Y.name
+    X = research_data.loc[:, research_data.columns != signal]
+    Y = research_data.loc[:, Y.name]
+    X = research_data.loc[:, X.columns]
+    X.drop(columns=['Open', 'High', 'Low', 'Close', 'Volume'], axis=1, inplace=True)
+    validation_size = 0.2
+    test_size = int(len(X) * validation_size)
+    if part == 1:
+        X_test, X_train = X[:test_size], X[test_size:]
+        Y_test, Y_train = Y[:test_size], Y[test_size:]
+        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    elif part == 2:
+        X_test, X_train = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
+        Y_test, Y_train = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
+        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    elif part == 3:
+        X_test, X_train = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
+        Y_test, Y_train = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
+        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    elif part == 4:
+        X_test, X_train = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
+        Y_test, Y_train = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
+        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    elif part == 5:
+        X_test, X_train = X[test_size * 4:], X[:test_size * 4]
+        Y_test, Y_train = Y[test_size * 4:], Y[:test_size * 4]
+        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+
+
 def evaluate_arima_model(Xt, Yt, arima_order):
     """
     evaluate an ARIMA model for a given order (p,d,q)

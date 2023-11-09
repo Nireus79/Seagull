@@ -94,27 +94,3 @@ featureScores = pd.concat([dfcolumns, dfscores], axis=1)
 featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
 print('featureScores--------------------------------------------------------------------------')
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
-
-# raw
-# Specs
-# Close       139.770717
-# 4H%K         59.489339
-# Dema13       54.025903
-# Volatility   52.684790
-# Dema9        47.765246
-# 4Hmacd       41.703173
-# 4H%D         25.379989
-# 4H_rsi       23.312552
-# 4H%DS         7.757869
-
-# scaled
-# Specs
-# Close       139.770717
-# 4H%K         59.489339
-# Dema13       54.025903
-# Volatility   52.684790
-# Dema9        47.765246
-# 4Hmacd       41.703173
-# 4H%D         25.379989
-# 4H_rsi       23.312552
-# 4H%DS         7.757869

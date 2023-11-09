@@ -3,7 +3,8 @@ import numpy as np
 from ta.momentum import rsi, stoch
 from ta.trend import macd_diff
 from ta.volatility import average_true_range
-from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, normalizer, standardizer, ROC, MOM
+from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, normalizer, standardizer, ROC, MOM, \
+    spliter
 from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, getEvents, getBins, \
     bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj, \
     getDailyVolCGPT
@@ -54,10 +55,12 @@ eth['1D_Close'] = eth1D['Close']
 eth = eth.ffill()
 
 cpus = 1
-ptsl = [2, 1]  # profit-taking and stop loss limit multipliers
+ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
 minRet = .01  # The minimum target return (volatility) required for running a triple barrier search
 vertical_days = 1
-span = window = 30
+span = 100
+bb_window = 20
+bb_stddev = 2
 c_labels = .01
 
 asset1 = 'etheur'
@@ -69,29 +72,29 @@ data = eth
 # data[asset1 + '_close'] = eth['close']
 # data[asset2 + '_close'] = bit['close']
 # data[asset3 + '_close'] = eur['close']
-data['ema9'] = data['Close'].rolling(9).mean()
-data['Dema9'] = data['1D_Close'].rolling(9).mean()
-data['ema13'] = data['Close'].rolling(13).mean()
-data['Dema13'] = data['1D_Close'].rolling(13).mean()
-data['ema20'] = data['Close'].rolling(20).mean()
-data['Dema20'] = data['1D_Close'].rolling(20).mean()
-data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['ema9'] = data['Close'].rolling(9).mean()
+# data['Dema9'] = data['1D_Close'].rolling(9).mean()
+# data['ema13'] = data['Close'].rolling(13).mean()
+# data['Dema13'] = data['1D_Close'].rolling(13).mean()
+# data['ema20'] = data['Close'].rolling(20).mean()
+# data['Dema20'] = data['1D_Close'].rolling(20).mean()
+# data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
+# data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
-data['%D'] = data['%K'].rolling(3).mean()
+# data['%D'] = data['%K'].rolling(3).mean()
 data['4H%D'] = data['4H%K'].rolling(3).mean()
-data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
-data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
-data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
-data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
-data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
-data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=1)
-data['roc10'] = ROC(data['Close'], 10)
+# data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
+# data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
+# data['rsi'] = rsi(data['Close'], window=14, fillna=False)
+# data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
+# data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
+# data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
+data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=bb_window, numsd=bb_stddev)
+# data['roc10'] = ROC(data['Close'], 10)
 data['roc30'] = ROC(data['Close'], 30)
-data['mom10'] = MOM(data['Close'], 10)
-data['mom30'] = MOM(data['Close'], 30)
+# data['mom10'] = MOM(data['Close'], 10)
+# data['mom30'] = MOM(data['Close'], 30)
 # data['Volatility_prcnt'] = getDailyVol(data['Close'], span, vertical_days, 'p')
 data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm')
 bb_down = get_down_cross_bol(data, 'Close')
@@ -103,10 +106,10 @@ data['bb_cross'] = bb_side_raw
 
 # data['diff'] = np.log(data['close']).diff()
 # training data
-data['cusum'] = data['Close'].cumsum()
-data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
-data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
-data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
+# data['cusum'] = data['Close'].cumsum()
+# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+# data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
+# data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
 
 threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
@@ -114,11 +117,13 @@ t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=None)
 labels = getBins(events, data['Close'])
 clean_labels = dropLabels(labels, c_labels)
-# data['signal'] = clean_labels['ret']
-data['signal'] = clean_labels['bin']
-data.drop(columns=['Price'], axis=1, inplace=True)
+data['ret'] = clean_labels['ret']
+data['bin'] = clean_labels['bin']
+
 data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
+data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'ave', 'Price', 'Volatility', 'upper', 'lower'],
+          axis=1, inplace=True)
 
 # print(data)
 # print(data.isnull().sum())
@@ -131,42 +136,13 @@ full_data = data.copy()
 # cusum events
 research_data = data.loc[events.index]
 # cusum + bb events
-# research_data = research_data.loc[research_data.apply(lambda x: x.bol_up_cross != 0 or x.bol_down_cross != 0, axis=1)]
-
-signal = 'signal'  # 'ret'
-Y = research_data.loc[:, signal]
-Y.name = Y.name
-X = research_data.loc[:, research_data.columns != signal]
-Y = research_data.loc[:, Y.name]
-X = research_data.loc[:, X.columns]
+# research_data = research_data.loc[research_data.apply(lambda x: x.bb_cross != 0, axis=1)]
 
 
-def spliter(dataset, part):
-    validation_size = 0.2
-    test_size = int(len(X) * validation_size)
-    if part == 1:
-        X_tst, X_tr = X[:test_size], X[test_size:]
-        Y_tst, Y_tr = Y[:test_size], Y[test_size:]
-        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
-        return X_tr, X_tst, Y_tr, Y_tst, bt_data
-    elif part == 2:
-        X_tst, X_tr = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
-        Y_tst, Y_tr = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
-        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
-        return X_tr, X_tst, Y_tr, Y_tst, bt_data
-    elif part == 3:
-        X_tst, X_tr = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
-        Y_tst, Y_tr = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
-        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
-        return X_tr, X_tst, Y_tr, Y_tst, bt_data
-    elif part == 4:
-        X_tst, X_tr = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
-        Y_tst, Y_tr = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
-        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
-        return X_tr, X_tst, Y_tr, Y_tst, bt_data
-    elif part == 5:
-        X_tst, X_tr = X[test_size * 4:], X[:test_size * 4]
-        Y_tst, Y_tr = Y[test_size * 4:], Y[:test_size * 4]
-        bt_data = dataset[X_tst.index[0]:X_tst.index[-1]]
-        return X_tr, X_tst, Y_tr, Y_tst, bt_data
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, 'ret', 5)
 
+print('total events', np.sum(np.array(research_data.signal) != 0, axis=0))
+print('no events', np.sum(np.array(research_data.signal) == 0, axis=0))
+print('positive event', np.sum(np.array(research_data.signal) > 0, axis=0))
+print('negative event', np.sum(np.array(research_data.signal) < 0, axis=0))
+print(research_data.columns)

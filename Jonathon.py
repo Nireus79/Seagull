@@ -23,10 +23,6 @@ from keras.models import Sequential
 from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
-from ta.momentum import rsi, stoch
-from ta.trend import macd_diff
-from ta.volatility import average_true_range
-from toolbox import standardizer
 import warnings
 from data_forming import spliter, full_data, research_data
 
@@ -47,7 +43,6 @@ dataset = research_data
 # print('Null Values =', dataset.isnull().values.any())
 dataset[dataset.columns.values] = dataset[dataset.columns.values].ffill()
 
-
 # dataset = dataset.drop(columns=['Timestamp'])
 # Preparing the data for classification
 # Initialize the `signals` DataFrame with the `signal` column
@@ -60,8 +55,6 @@ dataset[dataset.columns.values] = dataset[dataset.columns.values].ffill()
 
 
 # excluding columns that are not needed for our prediction.
-
-
 
 
 # Data Visualization
@@ -82,10 +75,6 @@ plt.show()
 # Evaluate Algorithms and Models
 # Train Test Split
 # split out validation dataset for the end
-print('total events', np.sum(np.array(dataset.signal) != 0, axis=0))
-print('no events', np.sum(np.array(dataset.signal) == 0, axis=0))
-print('positive bin', np.sum(np.array(dataset.signal) > 0, axis=0))
-print('negative bin', np.sum(np.array(dataset.signal) < 0, axis=0))
 Y = dataset['signal']
 X = dataset.loc[:, dataset.columns != 'signal']
 
@@ -103,8 +92,8 @@ scoring = 'accuracy'
 # spot check the algorithms
 models = [('LR', LogisticRegression(n_jobs=-1)),
           ('LDA', LinearDiscriminantAnalysis()),
-          ('KNN', KNeighborsClassifier()),
-          ('CART', DecisionTreeClassifier()),
+          ('KNC', KNeighborsClassifier()),
+          ('CART_C', DecisionTreeClassifier()),
           ('NB', GaussianNB()),
           ('NN', MLPClassifier()),
           ('AB', AdaBoostClassifier()),
@@ -114,22 +103,22 @@ models = [('LR', LogisticRegression(n_jobs=-1)),
 # K-folds cross validation
 results = []
 names = []
-for name, model in models:
-    kfold = KFold(n_splits=num_folds, random_state=seed, shuffle=True)
-    cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
-    results.append(cv_results)
-    names.append(name)
-    msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
-    print(msg)
-
-# compare algorithms
-fig = plt.figure()
-fig.suptitle('Algorithm Comparison')
-ax = fig.add_subplot(111)
-plt.boxplot(results)
-ax.set_xticklabels(names)
-fig.set_size_inches(15, 8)
-plt.show()
+# for name, model in models:
+#     kfold = KFold(n_splits=num_folds, random_state=seed, shuffle=True)
+#     cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
+#     results.append(cv_results)
+#     names.append(name)
+#     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
+#     print(msg)
+#
+# # compare algorithms
+# fig = plt.figure()
+# fig.suptitle('Algorithm Comparison')
+# ax = fig.add_subplot(111)
+# plt.boxplot(results)
+# ax.set_xticklabels(names)
+# fig.set_size_inches(15, 8)
+# plt.show()
 
 # Model Tuning and Grid Search
 # Grid Search: Random Forest Classifier
@@ -148,15 +137,15 @@ criterion : string, optional (default=”gini”)
 '''
 # scaler = StandardScaler().fit(X_train)
 # rescaledX = scaler.transform(X_train)
-rescaledX = standardizer(X_train)
-n_estimators = [20, 80]
-max_depth = [5, 10]
+# rescaledX = standardizer(X_train)
+max_depth = [50, 200]
+n_estimators = [50, 200]
 criterion = ["gini", "entropy"]
 param_grid = dict(n_estimators=n_estimators, max_depth=max_depth, criterion=criterion)
 model = RandomForestClassifier(n_jobs=-1)
 kfold = KFold(n_splits=num_folds, random_state=seed, shuffle=True)
 grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
-grid_result = grid.fit(rescaledX, Y_train)
+grid_result = grid.fit(X_train, Y_train)
 
 # Print Results
 print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
