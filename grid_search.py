@@ -23,7 +23,7 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import AdaBoostRegressor
-from sklearn.neural_network import MLPRegressor
+from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.compose import ColumnTransformer
 
 # Libraries for Deep Learning Models
@@ -44,7 +44,7 @@ from statsmodels.tsa.arima.model import ARIMA
 
 # Error Metrics
 from sklearn.metrics import mean_squared_error, accuracy_score, classification_report
-from data_forming import X_train, Y_train
+from data_forming import X_train, Y_train, X_test, Y_test
 
 # Saving the Model
 from pickle import dump
@@ -387,5 +387,28 @@ def polynomial():
     plt.show()
 
 
-GS_Linear_regression()
+def GS_MLP_classifier():
+    mlp = MLPClassifier(max_iter=100)
+    parameter_space = {
+        'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100,)],
+        'activation': ['tanh', 'relu'],
+        'solver': ['sgd', 'adam'],
+        'alpha': [0.0001, 0.05],
+        'learning_rate': ['constant', 'adaptive'],
+    }
+    clf = GridSearchCV(mlp, parameter_space, n_jobs=-1, cv=3)
+    clf.fit(X_train, Y_train)
+    print('Best parameters found:\n', clf.best_params_)
 
+    # All results
+    means = clf.cv_results_['mean_test_score']
+    stds = clf.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
+    y_true, y_pred = Y_test, clf.predict(X_test)
+
+    print('Results on the test set:')
+    print(classification_report(y_true, y_pred))
+
+
+GS_Linear_regression()

@@ -50,21 +50,20 @@ class Prelder(Strategy):
     commission = 4.5
 
     def init(self):
-        self.model = LinearRegression(fit_intercept=False)
+        self.model = LinearRegression(fit_intercept=True)
         self.model.fit(X_train, Y_train)
         self.buy_price = 0
         self.sell_price = 0
 
     def next(self):
-        ret = self.data.signal[-1]
-        # rsi = self.data['4H_rsi'][-1]
+        ret = self.data.ret[-1]
+        rsi = self.data['4H_rsi'][-1]
         K = self.data['4H%K'][-1]
         D = self.data['4H%D'][-1]
         mac = self.data['4Hmacd'][-1]
-        roc = self.data['roc30'][-1]
         bb_cross = self.data.bb_cross[-1]
 
-        forecast = self.model.predict([[mac, K, D, roc]])
+        forecast = self.model.predict([[mac, K, D, rsi]])
 
         if not self.position.is_long and ret != 0 and bb_cross > 0 and forecast > 0 and K > D:
             # forecast / self.data.Close[-1] > self.commission:

@@ -50,7 +50,6 @@ models = [
     ('RFR', RandomForestRegressor()),
     ('ABR', AdaBoostRegressor()),
     ('GBR', GradientBoostingRegressor()),
-    ('RFR', RandomForestRegressor()),
     ('ETR', ExtraTreesRegressor())
 ]
 

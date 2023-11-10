@@ -24,7 +24,7 @@ from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
 import warnings
-from data_forming import spliter, full_data, research_data
+from data_forming import X_train, X_test, Y_train, Y_test, research_data
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
@@ -75,11 +75,10 @@ plt.show()
 # Evaluate Algorithms and Models
 # Train Test Split
 # split out validation dataset for the end
-Y = dataset['signal']
-X = dataset.loc[:, dataset.columns != 'signal']
+# Y = dataset['signal']
+# X = dataset.loc[:, dataset.columns != 'signal']
 
 seed = 1
-X_train, X_validation, Y_train, Y_validation, bt_data = spliter(dataset, 5)
 # test options for classification
 num_folds = 10
 scoring = 'accuracy'
@@ -163,19 +162,20 @@ model = RandomForestClassifier(criterion='gini', n_estimators=80, max_depth=10, 
 model.fit(X_train, Y_train)
 
 # estimate accuracy on validation set
-predictions = model.predict(X_validation)
-print(accuracy_score(Y_validation, predictions))
-print(confusion_matrix(Y_validation, predictions))
-print(classification_report(Y_validation, predictions))
+print('predictions')
+predictions = model.predict(X_test)
+print(accuracy_score(Y_test, predictions))
+print(confusion_matrix(Y_test, predictions))
+print(classification_report(Y_test, predictions))
 
-df_cm = pd.DataFrame(confusion_matrix(Y_validation, predictions), columns=np.unique(Y_validation),
-                     index=np.unique(Y_validation))
+df_cm = pd.DataFrame(confusion_matrix(Y_test, predictions), columns=np.unique(Y_test),
+                     index=np.unique(Y_test))
 df_cm.index.name = 'Actual'
 df_cm.columns.name = 'Predicted'
 sns.heatmap(df_cm, cmap="Blues", annot=True, annot_kws={"size": 16})  # font sizes
 
 # Variable Intuition/Feature Importance
-Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X_train.columns)
 Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
 plt.xlabel('Variable Importance')
 plt.show()
@@ -183,11 +183,11 @@ plt.show()
 # Backtesting Results
 # Create column for Strategy Returns by multiplying the daily returns by the position that was held at close
 # of business the previous day
-backtestdata = pd.DataFrame(index=X_validation.index)
+backtestdata = pd.DataFrame(index=X_test.index)
 # backtestdata = pd.DataFrame()
 backtestdata['signal_pred'] = predictions
-backtestdata['signal_actual'] = Y_validation
-backtestdata['Market Returns'] = X_validation['Close'].pct_change()
+backtestdata['signal_actual'] = Y_test
+backtestdata['Market Returns'] = X_test['Close'].pct_change()
 backtestdata['Actual Returns'] = backtestdata['Market Returns'] * backtestdata['signal_actual'].shift(1)
 backtestdata['Strategy Returns'] = backtestdata['Market Returns'] * backtestdata['signal_pred'].shift(1)
 backtestdata = backtestdata.reset_index()
