@@ -133,28 +133,28 @@ def spliter(full_data, research_data, signal, part):
         print('Give part number 1 to 5 only.')
 
 
-def evaluate_arima_model(Xt, Yt, arima_order):
+def evaluate_arima_model(X_train, Y_train, arima_order):
     """
     evaluate an ARIMA model for a given order (p,d,q)
     Assuming that the train and Test Data is already defined before
-    :param Yt:
-    :param Xt:
+    :param Y_train:
+    :param X_train:
     :param arima_order: (p,d,q)
     :return: mean_squared_error
     """
     # predicted = list()
-    modelARIMA = ARIMA(endog=Yt, exog=Xt, order=arima_order)
+    modelARIMA = ARIMA(endog=Y_train, exog=X_train, order=arima_order)
     model_fit = modelARIMA.fit()
-    error = mean_squared_error(Yt, model_fit.fittedvalues)
+    error = mean_squared_error(Y_train, model_fit.fittedvalues)
     return error
 
 
 #
-def evaluate_arima_models(Xtr, Ytr, p_values, d_values, q_values):
+def evaluate_arima_models(X_train, Y_train, p_values, d_values, q_values):
     """
     evaluate combinations of p, d and q values for an ARIMA model
-    :param Ytr: Y training
-    :param Xtr: X training
+    :param Y_train:
+    :param X_train:
     :param p_values:
     :param d_values:
     :param q_values:
@@ -165,17 +165,17 @@ def evaluate_arima_models(Xtr, Ytr, p_values, d_values, q_values):
         for d in d_values:
             for q in q_values:
                 order = (p, d, q)
-                mse = evaluate_arima_model(Xtr, Ytr, order)
+                mse = evaluate_arima_model(X_train, Y_train, order)
                 if mse < best_score:
                     best_score, best_cfg = mse, order
                 print('ARIMA%s MSE=%.7f' % (order, mse))
     print('Best ARIMA%s MSE=%.7f' % (best_cfg, best_score))
 
 
-def create_LSTMmodel(Xtr, neurons, learn_rate, momentum):
+def create_LSTMmodel(X_train, neurons, learn_rate, momentum):
     # create model
     mdl = Sequential()
-    mdl.add(LSTM(neurons, input_shape=(Xtr.shape[1], Xtr.shape[2])))
+    mdl.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
     # Number of cells can be added if needed
     mdl.add(Dense(1))
     mdl.add(Dense(1))
@@ -187,27 +187,27 @@ def create_LSTMmodel(Xtr, neurons, learn_rate, momentum):
     return mdl
 
 
-def evaluate_LSTM(Xtr, Xts, Yts, nr, lrn, mom):
-    LSTM_Model = create_LSTMmodel(Xtr, nr, lrn, mom)
-    pred = LSTM_Model.predict(Xts)
-    error = mean_squared_error(pred, Yts)
+def evaluate_LSTM(X_train, X_test, Y_test, nr, lrn, mom):
+    LSTM_Model = create_LSTMmodel(X_train, nr, lrn, mom)
+    pred = LSTM_Model.predict(X_test)
+    error = mean_squared_error(pred, Y_test)
     return error
 
 
-def evaluate_LSTM_combinations(Xtr, Xts, Yts, neurons_list, learn_rate_list, momentum_list):
+def evaluate_LSTM_combinations(X_train, X_test, Y_test, neurons_list, learn_rate_list, momentum_list):
     best_score, best_cfg = float('inf'), None
     for n in neurons_list:
         for lr in learn_rate_list:
             for m in momentum_list:
                 combination = (n, lr, m)
-                mse = evaluate_LSTM(Xtr, Xts, Yts, n, lr, m)
+                mse = evaluate_LSTM(X_train, X_test, Y_test, n, lr, m)
                 if mse < best_score:
                     best_score, best_cfg = mse, combination
                 print('LSTM: {} mse: {}'.format(combination, mse))
     print('Best LSTM: {} mse: {}'.format(best_cfg, best_score))
 
 
-def create_ANN(X_tr, Y_tr, units=6, batch=10, epochs=100):
+def create_ANN(X_train, Y_train, units=6, batch=10, epochs=100):
     # Initialization
     model = Sequential()
     # Input layer
@@ -223,10 +223,10 @@ def create_ANN(X_tr, Y_tr, units=6, batch=10, epochs=100):
     # Compilation
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     # Fitting
-    model.fit(X_tr, Y_tr, batch_size=batch, epochs=epochs)
+    model.fit(X_train, Y_train, batch_size=batch, epochs=epochs)
 
 
-def evaluate_ANN(X_tr, Y_tr, X_tst, Y_tst, units, batch, epochs):
+def evaluate_ANN(X_train, Y_train, X_test, Y_test, units, batch, epochs):
     for u in units:
         for b in batch:
             for e in epochs:
@@ -245,12 +245,12 @@ def evaluate_ANN(X_tr, Y_tr, X_tst, Y_tst, units, batch, epochs):
                 # Compilation
                 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
                 # Fitting
-                model.fit(X_tr, Y_tr, batch_size=b, epochs=e)
+                model.fit(X_train, Y_train, batch_size=b, epochs=e)
                 # Evaluation
-                y_pred = model.predict(X_tst)
+                y_pred = model.predict(X_test)
                 y_pred = pd.DataFrame(y_pred)
                 print(y_pred.describe())
-                scores = model.evaluate(X_tst, Y_tst)
+                scores = model.evaluate(X_test, Y_test)
                 print(model.metrics_names[1], scores[1])
 
 
