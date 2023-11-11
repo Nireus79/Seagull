@@ -101,7 +101,7 @@ def spliter(full_data, research_data, signal, part):
     X = research_data.loc[:, research_data.columns != signal]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
-    X.drop(columns=['Open', 'High', 'Low', 'Close', 'bb_cross', 'Volume'], axis=1, inplace=True)
+    X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume'], axis=1, inplace=True)
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
     if part == 1:
@@ -211,7 +211,7 @@ def create_ANN(X_train, Y_train, units=6, batch=10, epochs=100):
     # Initialization
     model = Sequential()
     # Input layer
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu', input_dim=5))
+    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu', input_dim=4))
     # Hidden layers
     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))

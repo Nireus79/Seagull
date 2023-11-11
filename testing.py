@@ -45,9 +45,6 @@ class Seagull(Strategy):
 
 
 class Prelder(Strategy):
-    upper_bound = 100
-    lower_bound = 0
-    commission = 4.5
 
     def init(self):
         self.model = LinearRegression(fit_intercept=True)
@@ -65,12 +62,12 @@ class Prelder(Strategy):
 
         forecast = self.model.predict([[mac, K, D, rsi]])
 
-        if not self.position.is_long and ret != 0 and bb_cross > 0 and forecast > 0 and K > D:
+        if not self.position.is_long and ret != 0 and bb_cross == 1 and forecast > 0 and K > D:
             # forecast / self.data.Close[-1] > self.commission:
             self.buy_price = self.data.Close[-1]
             backtest_data['b'].loc[self.data.index[-1]] = True
             self.buy()
-        elif not self.position.is_short and ret != 0 and bb_cross < 0 and forecast < 0 and D > K:
+        elif not self.position.is_short and ret != 0 and bb_cross == -1 and forecast < 0 and D > K:
             # forecast / self.data.Close[-1] < self.commission:
             self.sell_price = self.data.Close[-1]
             # print(self.data.index[-1], 'Trade profit: ', self.sell_price - self.buy_price)

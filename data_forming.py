@@ -55,7 +55,7 @@ eth['1D_Close'] = eth1D['Close']
 eth = eth.ffill()
 
 cpus = 1
-ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
+ptsl = [2, 1]  # profit-taking and stop loss limit multipliers
 minRet = .01  # The minimum target return (volatility) required for running a triple barrier search
 vertical_days = 1
 span = 100
@@ -134,8 +134,8 @@ research_data = data.loc[events.index]
 # cusum + bb events
 # research_data = research_data.loc[research_data.apply(lambda x: x.bb_cross != 0, axis=1)]
 
-signal = 'ret'
-# signal = 'bin'
+# signal = 'ret'
+signal = 'bin'
 X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
 print('total events', np.sum(np.array(research_data[signal]) != 0, axis=0))

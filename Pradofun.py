@@ -353,7 +353,6 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
     else:
         common_indexes = set(side).intersection(trgt.index)
         common_indexes = list(common_indexes)
-        print(common_indexes)
         # control of common indexes between target and side before filtering
         side_, ptSl_ = trgt.loc[common_indexes], ptSl[:2]
         # TODO check if original side_ = side.loc[trgt.index] is correct
