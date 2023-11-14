@@ -351,7 +351,7 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
     if side is None:
         side_, ptSl_ = pd.Series(1., index=trgt.index), [ptSl[0], ptSl[0]]
     else:
-        common_indexes = set(side).intersection(trgt.index)
+        common_indexes = set(side.index).intersection(trgt.index)
         common_indexes = list(common_indexes)
         # control of common indexes between target and side before filtering
         side_, ptSl_ = trgt.loc[common_indexes], ptSl[:2]
