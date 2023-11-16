@@ -12,10 +12,10 @@ from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
 from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
-from data_forming import X, Y, research_data
+from data_forming import X, Y, research_data, full_data
 
 
-data = research_data
+data = full_data
 
 # research------------------------------------------------------------------------------------
 print('data.describe()--------------------------------------------------------------------')
@@ -57,7 +57,7 @@ scatter_matrix(data, figsize=(12, 12))
 
 # 3.3. Time Series Analysis ------------------------------------------------------------------
 # Time series broken down into different time series comonent.
-res = sm.tsa.seasonal_decompose(Y, period=365)
+res = sm.tsa.seasonal_decompose(Y, period=30)
 fig = res.plot()
 fig.set_figheight(8)
 fig.set_figwidth(15)

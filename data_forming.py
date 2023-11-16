@@ -7,8 +7,9 @@ from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, n
     spliter
 from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, getEvents, getBins, \
     bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj, \
-    getDailyVolCGPT
+    getDailyVolCGPT, metaBins
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -55,7 +56,7 @@ eth['1D_Close'] = eth1D['Close']
 eth = eth.ffill()
 
 cpus = 1
-ptsl = [2, 1]  # profit-taking and stop loss limit multipliers
+ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
 minRet = .01  # The minimum target return (volatility) required for running a triple barrier search
 vertical_days = 1
 span = 100
@@ -101,6 +102,7 @@ bb_down = get_down_cross_bol(data, 'Close')
 bb_up = get_up_cross_bol(data, 'Close')
 bb_side_up = pd.Series(-1, index=bb_up.index)  # sell on up cross for mean reversion
 bb_side_down = pd.Series(1, index=bb_down.index)  # buy on down cross for mean reversion
+bb_side_raw = pd.concat([bb_side_up, bb_side_down]).sort_index()
 data['bb_cross'] = pd.concat([bb_side_up, bb_side_down]).sort_index()
 # data['diff'] = np.log(data['Close']).diff()
 # data['cusum'] = data['Close'].cumsum()
@@ -111,9 +113,10 @@ data['bb_cross'] = pd.concat([bb_side_up, bb_side_down]).sort_index()
 threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
-events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=None)
-labels = getBins(events, data['Close'])
-clean_labels = dropLabels(labels, c_labels)
+events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_side_raw)
+# labels = getBins(events, data['Close'])
+labels = metaBins(events, eth.Close, t1)
+clean_labels = dropLabels(labels, .05)
 data['ret'] = clean_labels['ret']
 data['bin'] = clean_labels['bin']
 
@@ -132,16 +135,28 @@ full_data = data.copy()
 # cusum events
 research_data = data.loc[events.index]
 # cusum + bb events
-# research_data = research_data.loc[research_data.apply(lambda x: x.bb_cross != 0, axis=1)]
+research_data = research_data.loc[research_data.apply(lambda x: x.bb_cross != 0, axis=1)]
 
 # signal = 'ret'
 signal = 'bin'
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
+# X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
-print('total events', np.sum(np.array(research_data[signal]) != 0, axis=0))
-print('no events', np.sum(np.array(research_data[signal]) == 0, axis=0))
-print('positive event', np.sum(np.array(research_data[signal]) > 0, axis=0))
-print('negative event', np.sum(np.array(research_data[signal]) < 0, axis=0))
+Y = research_data.loc[:, signal]
+Y.name = Y.name
+X = research_data.loc[:, research_data.columns != signal]
+
+# X = standardizer(X)
+# X = normalizer(X)
+# X = rescaler(X, (-1, 1))
+
+Y = research_data.loc[:, Y.name]
+X = research_data.loc[:, X.columns]
+X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, shuffle=False)
+
+# print('total events', np.sum(np.array(research_data[signal]) != 0, axis=0))
+# print('no events', np.sum(np.array(research_data[signal]) == 0, axis=0))
+print('positive event', np.sum(np.array(research_data[signal]) == 1, axis=0))
+print('negative event', np.sum(np.array(research_data[signal]) == 0, axis=0))
 print(X.columns)
-
-

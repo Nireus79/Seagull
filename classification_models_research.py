@@ -49,11 +49,11 @@ models = [
     ('AB', AdaBoostClassifier()),
     ('GBM', GradientBoostingClassifier()),
     ('RF', RandomForestClassifier(n_jobs=-1)),
-    ('LR', LogisticRegression(n_jobs=-1)),
+    ('LR', LogisticRegression(max_iter=10000, n_jobs=-1)),
     ('LDA', LinearDiscriminantAnalysis()),
     ('KNC', KNeighborsClassifier()),
     ('NB', GaussianNB()),
-    ('NN', MLPClassifier())
+    ('NN', MLPClassifier(max_iter=10000))
 ]
 
 # K-folds cross validation
@@ -67,18 +67,22 @@ for name, model in models:
     results.append(cv_results)
     names.append(name)
     res = model.fit(X_train, Y_train)
-    # print(name, '-----------------------------------------------------------------------------------------------')
-    # if name == 'CART_C' or name == 'AB' or name == 'GBM' or name == 'RF':
-    #     Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X_train.columns)
-    #     Importance.sort_values('Importance', axis=0, ascending=True)
-    #     print(Importance)
+    print(name, '-----------------------------------------------------------------------------------------------')
+    if name == 'CART_C' or name == 'AB' or name == 'GBM' or name == 'RF':
+        Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X_train.columns)
+        Importance.sort_values('Importance', axis=0, ascending=True)
+        print(Importance)
     train_result = mean_squared_error(res.predict(X_train), Y_train)
     train_results.append(train_result)
     # Test results
     test_result = mean_squared_error(res.predict(X_test), Y_test)
     test_results.append(test_result)
     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
+    y_pred_rf = model.predict_proba(X_test)[:, 1]
+    y_pred = model.predict(X_test)
     print(msg)
+    print(classification_report(Y_test, y_pred, target_names=['no_trade', 'trade']))
+
 
 # compare algorithms
 fig = plt.figure()
