@@ -390,7 +390,7 @@ def polynomial():
 
 
 def GS_MLP_classifier():
-    mlp = MLPClassifier(max_iter=100)
+    mlp = MLPClassifier(max_iter=10000)
     parameter_space = {
         'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100,)],
         'activation': ['tanh', 'relu'],
@@ -413,4 +413,5 @@ def GS_MLP_classifier():
     print(classification_report(y_true, y_pred))
 
 
-GS_Linear_regression()
+GS_MLP_classifier()
+

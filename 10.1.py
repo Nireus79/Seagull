@@ -28,7 +28,9 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # dataset = read_csv('data/SP500.csv', index_col=0)
-dataset = read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
+dataset = read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')[:100]
+dataset.time = pd.to_datetime(dataset.time, unit='ms')
+dataset.set_index('time', inplace=True)
 print(dataset.shape)
 
 set_option('display.width', 100)
@@ -213,7 +215,7 @@ for e in range(episode_count + 1):
             print("Total Profit: " + formatPrice(total_profit))
             print("--------------------------------")
             # set_trace()
-            print(pd.DataFrame(np.array(agent.memory)).to_csv("Agent" + str(e) + ".csv"))
+            # print(pd.DataFrame(np.array(agent.memory)).to_csv("Agent" + str(e) + ".csv"))
             # Chart to show how the model performs with the stock goin up and down for each
             plot_behavior(data, states_buy, states_sell, total_profit)
         if len(agent.memory) > batch_size:

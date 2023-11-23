@@ -57,12 +57,11 @@ eth = eth.ffill()
 
 cpus = 1
 ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
-minRet = .01  # The minimum target return (volatility) required for running a triple barrier search
+minRet = c_labels = .01  # The minimum target return (volatility) required for running a triple barrier search
 vertical_days = 1
 span = 100
 window = 20
-bb_stddev = 2
-c_labels = .01
+bb_stddev = 1
 
 asset1 = 'etheur'
 asset2 = 'btceur'
@@ -74,13 +73,13 @@ data = eth
 # data[asset2 + '_close'] = bit['close']
 # data[asset3 + '_close'] = eur['close']
 # data['ema9'] = data['Close'].rolling(9).mean()
-# data['Dema9'] = data['1D_Close'].rolling(9).mean()
+data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
 # data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
@@ -88,7 +87,7 @@ data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
 # data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
+# data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
@@ -134,20 +133,26 @@ data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'Volati
 full_data = data.copy()
 # cusum events
 research_data = data.loc[events.index]
+
 # cusum + bb events
-research_data = research_data.loc[research_data.apply(lambda x: x.bb_cross != 0, axis=1)]
+research_data = research_data[research_data['bb_cross'] != 0]
 
 # signal = 'ret'
 signal = 'bin'
 # X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
+# BALANCE CLASSES
+# minority = research_data[research_data[signal] == 0]
+# majority = research_data[research_data[signal] == 1].sample(n=len(minority), replace=True)
+# research_data = pd.concat([minority, majority])
+# print(research_data)
 Y = research_data.loc[:, signal]
 Y.name = Y.name
 X = research_data.loc[:, research_data.columns != signal]
 
 # X = standardizer(X)
 # X = normalizer(X)
-# X = rescaler(X, (-1, 1))
+X = rescaler(X, (0, 1))
 
 Y = research_data.loc[:, Y.name]
 X = research_data.loc[:, X.columns]
@@ -155,8 +160,9 @@ X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inp
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, shuffle=False)
 
-# print('total events', np.sum(np.array(research_data[signal]) != 0, axis=0))
-# print('no events', np.sum(np.array(research_data[signal]) == 0, axis=0))
-print('positive event', np.sum(np.array(research_data[signal]) == 1, axis=0))
-print('negative event', np.sum(np.array(research_data[signal]) == 0, axis=0))
+print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
+print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
+# print('event -1', np.sum(np.array(research_data[signal]) == -1, axis=0))
 print(X.columns)
+# print(research_data)
+
