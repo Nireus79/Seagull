@@ -90,18 +90,15 @@ def spliter(full_data, research_data, signal, part):
     :param part: 1 to 5
     :return: X, Y, X_train, X_test, Y_train, Y_test, backtest_data
     """
-    if signal == 'ret':
-        full_data.drop(columns=['bin'], axis=1, inplace=True)
-        research_data.drop(columns=['bin'], axis=1, inplace=True)
-    elif signal == 'bin':
-        full_data.drop(columns=['ret'], axis=1, inplace=True)
-        research_data.drop(columns=['ret'], axis=1, inplace=True)
     Y = research_data.loc[:, signal]
     Y.name = Y.name
     X = research_data.loc[:, research_data.columns != signal]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
-    X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume'], axis=1, inplace=True)
+    if signal == 'ret':
+        X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
+    elif signal == 'bin':
+        X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
     if part == 1:
@@ -177,12 +174,15 @@ def create_LSTMmodel(X_train, neurons, learn_rate, momentum):
     mdl = Sequential()
     mdl.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
     # Number of cells can be added if needed
+    # mdl.add(Dense(1))
+    # mdl.add(Dense(1))
+    # mdl.add(Dense(1))
+    # mdl.add(Dense(1))
     mdl.add(Dense(1))
     mdl.add(Dense(1))
     mdl.add(Dense(1))
     mdl.add(Dense(1))
-    mdl.add(Dense(1))
-    optimizer = SGD(learning_rate=learn_rate, momentum=momentum)
+    # optimizer = SGD(learning_rate=learn_rate, momentum=momentum)
     mdl.compile(loss='mse', optimizer='adam')
     return mdl
 

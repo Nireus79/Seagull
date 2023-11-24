@@ -83,7 +83,7 @@ data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
-data['4H%D'] = data['4H%K'].rolling(3).mean()
+# data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
 # data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
@@ -117,6 +117,7 @@ events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpu
 labels = metaBins(events, eth.Close, t1)
 clean_labels = dropLabels(labels, .05)
 data['ret'] = clean_labels['ret']
+# data['event'] = data.apply(lambda x: True if x['ret'] != 0 else False, axis=0)
 data['bin'] = clean_labels['bin']
 
 data = data.fillna(0)
@@ -139,30 +140,31 @@ research_data = research_data[research_data['bb_cross'] != 0]
 
 # signal = 'ret'
 signal = 'bin'
-# X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
 # BALANCE CLASSES
 # minority = research_data[research_data[signal] == 0]
 # majority = research_data[research_data[signal] == 1].sample(n=len(minority), replace=True)
 # research_data = pd.concat([minority, majority])
 # print(research_data)
-Y = research_data.loc[:, signal]
-Y.name = Y.name
-X = research_data.loc[:, research_data.columns != signal]
+
 
 # X = standardizer(X)
 # X = normalizer(X)
-X = rescaler(X, (0, 1))
+# X = rescaler(X, (0, 1))
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
-Y = research_data.loc[:, Y.name]
-X = research_data.loc[:, X.columns]
-X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, shuffle=False)
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, shuffle=False)
+# seq_len = 2
+# Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
+# X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
+# X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
+# for i in range(seq_len):
+#     X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
+#     X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
 
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
 # print('event -1', np.sum(np.array(research_data[signal]) == -1, axis=0))
 print(X.columns)
 # print(research_data)
-

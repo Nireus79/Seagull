@@ -45,8 +45,7 @@ from statsmodels.tsa.arima.model import ARIMA
 # Error Metrics
 from sklearn.metrics import mean_squared_error, accuracy_score, classification_report
 from toolbox import evaluate_ANN, evaluate_LSTM, evaluate_LSTM_combinations, evaluate_arima_models
-from data_forming import X_train, Y_train, X_test, Y_test
-
+from data_forming import X, Y, X_train, Y_train, X_test, Y_test, X_train_LSTM, X_test_LSTM, Y_train_LSTM, Y_test_LSTM
 
 # Saving the Model
 from pickle import dump
@@ -413,5 +412,21 @@ def GS_MLP_classifier():
     print(classification_report(y_true, y_pred))
 
 
-GS_MLP_classifier()
+def GS_LSTM(X_tr, X_ts, Y_ts):
+    print('LSTM parameters evaluation -------------------------------------------------------')
+    neurons_list = [15]
+    learn_rate_list = [0.2]
+    momentum_list = [0.5]
+    # dense_list = [1, 5]
+    # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    # verbose_list = [0, 1]
+    # epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    evaluate_LSTM_combinations(X_tr, X_ts, Y_ts, neurons_list, learn_rate_list, momentum_list)
 
+
+GS_LSTM(X_train_LSTM, X_test_LSTM, Y_test_LSTM)
+# 5 cells Best LSTM: (10, 0.5, 0.0) mse: 0.24753957921450484
+# 4 cells Best LSTM: (10, 0.3, 0.3) mse: 0.2289767111110404
+# 4 cells standard(X) Best LSTM: (15, 0.2, 0.5) mse: 0.22787054039092122
+
+# GS_MLP_classifier()
