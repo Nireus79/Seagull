@@ -29,16 +29,15 @@ X3 = test_data.loc[:, X3.columns]
 model1 = MLPClassifier()
 model1.fit(X1, Y1)
 
-X2['P'] = model1.predict(X2)
-X2['T'] = Y2
-X2['M'] = X2.apply(lambda x: 1 if x['P'] == x['T'] else 0, axis=1)
-X2.drop(columns=['P', 'T'], axis=1, inplace=True)
+X2['Pseudo'] = model1.predict(X2)
+X2['True'] = Y2
+X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['True'] else 0, axis=1)
+X2.drop(columns=['Pseudo', 'True'], axis=1, inplace=True)
 
 model2 = MLPClassifier()
 model2.fit(X2, Y2)
-predictions2 = model2.predict(X2)
-# predictions3 = model2.predict(X3)
-# X3['P'] = predictions3
+X3['Meta'] = model1.predict(X3)
 
-print(classification_report(Y3, predictions2, target_names=['no_trade', 'trade']))
-# print(classification_report(Y3, predictions3, target_names=['no_trade', 'trade']))
+predictions = model2.predict(X3)
+
+print(classification_report(Y3, predictions, target_names=['no_trade', 'trade']))
