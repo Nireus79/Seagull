@@ -84,7 +84,7 @@ def spliter(full_data, research_data, signal, part):
     Then splits the research_data into X (features) and Y(labels),
     drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
     Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
-    :param full_data: full dataset
+    :param full_data:
     :param research_data: dataset containing only cases for training and testing
     :param signal:
     :param part: 1 to 5

@@ -2,7 +2,7 @@ import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
-from data_forming import X_train, Y_train, full_data, backtest_data
+from data_forming import X_train1, Y_train1, full_data
 from sklearn.linear_model import LinearRegression
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from toolbox import create_LSTMmodel
@@ -18,7 +18,7 @@ class Seagull(Strategy):
         # self.model = ARIMA(endog=Y_train, exog=X_train_ARIMA, order=[2, 1, 1])
         # self.model_fit = self.model.fit()
         self.model = LinearRegression(fit_intercept=False)
-        self.model.fit(X_train, Y_train)
+        self.model.fit(X_train1, Y_train1)
         self.buy_price = 0
         self.sell_price = 0
 
@@ -51,7 +51,7 @@ class Prelder(Strategy):
 
     def init(self):
         self.model = MLPClassifier()
-        self.model.fit(X_train, Y_train)
+        self.model.fit(X_train1, Y_train1)
         self.buy_price = 0
         self.sell_price = 0
 

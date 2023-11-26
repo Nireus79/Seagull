@@ -148,10 +148,11 @@ signal = 'bin'
 # print(research_data)
 
 
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
+
 # X = standardizer(X)
 # X = normalizer(X)
 # X = rescaler(X, (0, 1))
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 
 # X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, shuffle=False)
 
@@ -165,6 +166,7 @@ X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, resea
 
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
+
 # print('event -1', np.sum(np.array(research_data[signal]) == -1, axis=0))
 print(X.columns)
 # print(research_data)
