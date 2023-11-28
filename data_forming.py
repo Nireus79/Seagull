@@ -108,6 +108,8 @@ data['bb_cross'] = pd.concat([bb_side_up, bb_side_down]).sort_index()
 # data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
 # data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
 # data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
+# data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
+# data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
 
 threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
@@ -129,7 +131,8 @@ data = data.loc[~data.index.duplicated(keep='first')]
 # data = standardizer(data)
 # data = normalizer(data)
 # data = rescaler(data, minmax=(-1, 1))
-data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'Volatility', 'ave', 'upper', 'lower'],
+data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price',
+                   'Volatility', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 full_data = data.copy()
 # cusum events
