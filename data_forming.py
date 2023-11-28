@@ -110,7 +110,6 @@ data['bb_cross'] = pd.concat([bb_side_up, bb_side_down]).sort_index()
 # data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
 # data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
 # data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
-
 threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)

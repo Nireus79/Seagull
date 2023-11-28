@@ -3,10 +3,11 @@ from sklearn.metrics import classification_report
 from data_forming import research_data
 
 research_data.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+train_set = research_data[:int(len(research_data) * 0.8)]
+research_data1 = train_set[:int(len(train_set) * 0.5)]
+research_data2 = train_set[int(len(train_set) * 0.5):]
+test_data = research_data[int(len(research_data) * 0.8):]
 
-research_data1 = research_data[:300]
-research_data2 = research_data[300:600]
-test_data = research_data[600:]
 signal = 'bin'
 
 Y1 = research_data1.loc[:, signal]
