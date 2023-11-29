@@ -61,9 +61,9 @@ class Prelder(Strategy):
         close = self.data.Close[-1]
         Dema9 = self.data['Dema9'][-1]
         K = self.data['4H%K'][-1]
-        # D = self.data['4H%D'][-1]
-        pseudo = self.modelA.predict([[close, Dema9, K]])[-1]
-        forecast = self.modelB.predict([[close, Dema9, K, pseudo]])
+        D = self.data['4H%D'][-1]
+        meta = self.modelA.predict([[close, Dema9, K, D]])[-1]
+        forecast = self.modelB.predict([[close, Dema9, K, D, meta]])
 
         if not self.position.is_long and ret != 0 and forecast == 1:
             # forecast / self.data.Close[-1] > self.commission:

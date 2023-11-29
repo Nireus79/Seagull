@@ -70,7 +70,7 @@ for name, model in models:
     if name == 'CART_C' or name == 'AB' or name == 'GBM' or name == 'RF':
         Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X_train.columns)
         Importance.sort_values('Importance', axis=0, ascending=True)
-    #     print(Importance)
+        print(Importance)
     train_result = mean_squared_error(res.predict(X_train), Y_train)
     train_results.append(train_result)
     # Test results

@@ -130,6 +130,84 @@ def spliter(full_data, research_data, signal, part):
         print('Give part number 1 to 5 only.')
 
 
+def meta_spliter(full_data, research_data, signal, part):
+    """
+    spliter takes a full dataset, and a dataset containing only cases for training and testing.
+    drops the column of returns if classification is researched
+    or bins if regression is researched.
+    Then splits the research_data into X (features) and Y(labels),
+    drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
+    Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
+    :param full_data:
+    :param research_data: dataset containing only cases for training and testing
+    :param signal:
+    :param part: 1 to 5
+    :return: X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    """
+    train_size = 0.8
+    train_split = 0.5
+    if part == 5:
+        train_set = research_data[:int(len(research_data) * train_size)]
+        research_data1 = train_set[:int(len(train_set) * train_split)]
+        research_data2 = train_set[int(len(train_set) * train_split):]
+        test_data = research_data[int(len(research_data) * train_size):]
+
+        Y1 = research_data1.loc[:, signal]
+        Y1.name = Y1.name
+        X1 = research_data1.loc[:, research_data1.columns != signal]
+        Y1 = research_data1.loc[:, Y1.name]
+        X1 = research_data1.loc[:, X1.columns]
+
+        Y2 = research_data2.loc[:, signal]
+        Y2.name = Y2.name
+        X2 = research_data2.loc[:, research_data2.columns != signal]
+        Y2 = research_data2.loc[:, Y2.name]
+        X2 = research_data2.loc[:, X2.columns]
+
+        Y3 = test_data.loc[:, signal]
+        Y3.name = Y3.name
+        X3 = test_data.loc[:, test_data.columns != signal]
+        Y3 = test_data.loc[:, Y3.name]
+        X3 = test_data.loc[:, X3.columns]
+        if signal == 'ret':
+            X1.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
+            X2.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
+            X3.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
+        elif signal == 'bin':
+            X1.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+            X2.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+            X3.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+        backtest_data = full_data[X3.index[0]:X3.index[-1]]
+        return X1, Y1, X2, Y2, X3, Y3, backtest_data
+    # if part == 1:
+    #     X_test, X_train = X[:test_size], X[test_size:]
+    #     Y_test, Y_train = Y[:test_size], Y[test_size:]
+    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    # elif part == 2:
+    #     X_test, X_train = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
+    #     Y_test, Y_train = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
+    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    # elif part == 3:
+    #     X_test, X_train = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
+    #     Y_test, Y_train = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
+    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    # elif part == 4:
+    #     X_test, X_train = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
+    #     Y_test, Y_train = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
+    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    # elif part == 5:
+    #     X_test, X_train = X[test_size * 4:], X[:test_size * 4]
+    #     Y_test, Y_train = Y[test_size * 4:], Y[:test_size * 4]
+    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    else:
+        print('Give part number 1 to 5 only.')
+
+
 def evaluate_arima_model(X_train, Y_train, arima_order):
     """
     evaluate an ARIMA model for a given order (p,d,q)

@@ -79,9 +79,9 @@ data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
-data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
+# data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
 # data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
@@ -127,9 +127,6 @@ data = data.loc[~data.index.duplicated(keep='first')]
 # print(data)
 # print(data.isnull().sum())
 
-# data = standardizer(data)
-# data = normalizer(data)
-# data = rescaler(data, minmax=(-1, 1))
 data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price',
                    'Volatility', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
