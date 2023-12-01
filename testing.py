@@ -27,9 +27,10 @@ class Prelder(Strategy):
         close = self.data.Close[-1]
         Dema9 = self.data['Dema9'][-1]
         K = self.data['4H%K'][-1]
+        vol = self.data['Volatility'][-1]
         atr = self.data['4H_atr'][-1]
         # D = self.data['%D'][-1]
-        forecast = self.model.predict([[close, Dema9, K]])
+        forecast = self.model.predict([[close, Dema9, K, vol]])
         if not self.position.is_long and ret != 0 and forecast == 1:
             # forecast / self.data.Close[-1] > self.commission:
             self.buy_price = self.data.Close[-1]
@@ -52,6 +53,8 @@ class Prelder(Strategy):
             full_data['s'].loc[self.data.index[-1]] = True
             self.stop = 0
             self.sell()
+        # elif not self.position.is_short:
+        #     self.stop = self.data.Low[-1] - atr
 
 
 # class MetaPrelder(Strategy):

@@ -114,7 +114,7 @@ data['bb_cross'] = bb_sides
 # data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
 # data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
 # data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
-threshold = data['Volatility'].mean()
+threshold = data['Volatility']
 tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
@@ -130,7 +130,7 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 # print(data)
 # print(data.isnull().sum())
-data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'Volatility', 'ave', 'upper', 'lower'],
+data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 
 full_data = data.copy()
@@ -152,7 +152,7 @@ signal = 'bin'
 # print(research_data)
 
 
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 4)
 # X1, Y1, X2, Y2, X3, Y3, backtest_data = meta_spliter(full_data, research_data, 'bin', 5)
 # X = standardizer(X)
 # X_train = standardizer(X_train)

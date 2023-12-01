@@ -279,10 +279,10 @@ signal processing to detect significant changes in time series data.
             print(sNeg + diff.loc[i], type(sNeg + diff.loc[i]))
             break
         sPos, sNeg = max(0., pos), min(0., neg)
-        if sNeg < -h:  # .loc[i] gives threshold relative to data['Volatility'].rolling(window).mean()
+        if sNeg < -h.loc[i]:  # .loc[i] # gives threshold relative to data['Volatility'].rolling(window).mean()
             sNeg = 0
             tEvents.append(i)
-        elif sPos > h:
+        elif sPos > h.loc[i]:
             sPos = 0
             tEvents.append(i)
     return pd.DatetimeIndex(tEvents)
