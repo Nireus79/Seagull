@@ -49,7 +49,7 @@ models = [
     ('AB', AdaBoostClassifier()),
     ('GBM', GradientBoostingClassifier()),
     ('RF', RandomForestClassifier(n_jobs=-1)),
-    ('LR', LogisticRegression(max_iter=10000, n_jobs=-1)),
+    ('LR', LogisticRegression(max_iter=10000, n_jobs=-1, solver='saga')),
     ('LDA', LinearDiscriminantAnalysis()),
     ('KNC', KNeighborsClassifier()),
     ('NB', GaussianNB()),

@@ -13,7 +13,7 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import ElasticNet
 from sklearn.tree import DecisionTreeRegressor
@@ -429,4 +429,31 @@ def GS_LSTM(X_tr, X_ts, Y_ts):
 # 4 cells Best LSTM: (10, 0.3, 0.3) mse: 0.2289767111110404
 # 4 cells standard(X) Best LSTM: (15, 0.2, 0.5) mse: 0.22787054039092122
 
-GS_MLP_classifier()
+# GS_MLP_classifier()
+# TODO GS_Logistic_reg() 'Close', 'Dema9', '4H%K', '4H_rsi'
+def GS_logreg():
+    logreg = LogisticRegression()
+    parameters = [{'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga']},
+                  {'penalty': ['none', 'elasticnet', 'l1', 'l2']},
+                  {'C': [0.001, 0.01, 0.1, 1, 10, 100]}]
+
+    grid_search = GridSearchCV(estimator=logreg,
+                               param_grid=parameters,
+                               scoring='accuracy',
+                               cv=5,
+                               verbose=0)
+
+    grid_search.fit(X_train, Y_train)
+    print('Best parameters found:\n', grid_search.best_params_)
+    # All results
+    means = grid_search.cv_results_['mean_test_score']
+    stds = grid_search.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, grid_search.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
+    y_true, y_pred = Y_test, grid_search.predict(X_test)
+
+    print('Results on the test set:')
+    print(classification_report(y_true, y_pred))
+
+
+GS_logreg()

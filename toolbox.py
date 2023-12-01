@@ -92,13 +92,13 @@ def spliter(full_data, research_data, signal, part):
     """
     Y = research_data.loc[:, signal]
     Y.name = Y.name
-    X = research_data.loc[:, research_data.columns != signal]
+    X = research_data.loc[:, research_data.columns != signal, ]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
     if signal == 'ret':
-        X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
+        X.drop(columns=['4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'bin'], axis=1, inplace=True)
     elif signal == 'bin':
-        X.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
+        X.drop(columns=['4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'ret'], axis=1, inplace=True)
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
     if part == 1:
@@ -170,42 +170,15 @@ def meta_spliter(full_data, research_data, signal, part):
         Y3 = test_data.loc[:, Y3.name]
         X3 = test_data.loc[:, X3.columns]
         if signal == 'ret':
-            X1.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
-            X2.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
-            X3.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'bin'], axis=1, inplace=True)
+            X1.drop(columns=['bin'], axis=1, inplace=True)
+            X2.drop(columns=['bin'], axis=1, inplace=True)
+            X3.drop(columns=['bin'], axis=1, inplace=True)
         elif signal == 'bin':
-            X1.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
-            X2.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
-            X3.drop(columns=['Open', 'High', 'Low', 'bb_cross', 'Volume', 'ret'], axis=1, inplace=True)
-        backtest_data = full_data[X3.index[0]:X3.index[-1]]
+            X1.drop(columns=['ret'], axis=1, inplace=True)
+            X2.drop(columns=['ret'], axis=1, inplace=True)
+            X3.drop(columns=['ret'], axis=1, inplace=True)
+        backtest_data = full_data[X3.index[0]:]
         return X1, Y1, X2, Y2, X3, Y3, backtest_data
-    # if part == 1:
-    #     X_test, X_train = X[:test_size], X[test_size:]
-    #     Y_test, Y_train = Y[:test_size], Y[test_size:]
-    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
-    # elif part == 2:
-    #     X_test, X_train = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
-    #     Y_test, Y_train = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
-    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
-    # elif part == 3:
-    #     X_test, X_train = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
-    #     Y_test, Y_train = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
-    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
-    # elif part == 4:
-    #     X_test, X_train = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
-    #     Y_test, Y_train = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
-    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
-    # elif part == 5:
-    #     X_test, X_train = X[test_size * 4:], X[:test_size * 4]
-    #     Y_test, Y_train = Y[test_size * 4:], Y[:test_size * 4]
-    #     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-    #     return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
-    else:
-        print('Give part number 1 to 5 only.')
 
 
 def evaluate_arima_model(X_train, Y_train, arima_order):
@@ -335,10 +308,38 @@ def evaluate_ANN(X_train, Y_train, X_test, Y_test, units, batch, epochs):
 def ROC(df, n):
     M = df.diff(n - 1)
     N = df.shift(n - 1)
-    ROC = pd.Series(((M / N) * 100), name='ROC_' + str(n))
-    return ROC
+    roc = pd.Series(((M / N) * 100), name='ROC_' + str(n))
+    return roc
 
 
 def MOM(df, n):
-    MOM = pd.Series(df.diff(n), name='Momentum_' + str(n))
-    return MOM
+    mom = pd.Series(df.diff(n), name='Momentum_' + str(n))
+    return mom
+
+
+def crossing2(df, col1, col2, col3):
+    crit1 = df[col2].shift(1) < df[col3].shift(1)
+    crit2 = df[col2] > df[col3]
+    up_cross = df[col1][crit1 & crit2]
+    side_up = pd.Series(1, index=up_cross.index)
+
+    crit3 = df[col2].shift(1) > df[col3].shift(1)
+    crit4 = df[col2] < df[col3]
+    down_cross = df[col1][crit3 & crit4]
+    side_down = pd.Series(-1, index=down_cross.index)
+
+    return pd.concat([side_up, side_down]).sort_index()
+
+
+def crossing3(df, col1, col2, col3):
+    crit1 = df[col1].shift(1) < df[col2].shift(1)
+    crit2 = df[col1] > df[col2]
+    up_cross = df[col1][crit1 & crit2]
+    side_up = pd.Series(1, index=up_cross.index)
+
+    crit3 = df[col1].shift(1) > df[col3].shift(1)
+    crit4 = df[col1] < df[col3]
+    down_cross = df[col1][crit3 & crit4]
+    side_down = pd.Series(-1, index=down_cross.index)
+
+    return pd.concat([side_up, side_down]).sort_index()

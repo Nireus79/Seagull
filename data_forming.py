@@ -4,7 +4,7 @@ from ta.momentum import rsi, stoch
 from ta.trend import macd_diff
 from ta.volatility import average_true_range
 from toolbox import asset_merger, primary_asset_merger, data_merger, rescaler, normalizer, standardizer, ROC, MOM, \
-    spliter
+    spliter, crossing2, crossing3, meta_spliter
 from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, getEvents, getBins, \
     bbands, get_up_cross_bol, get_down_cross_bol, df_rolling_autocorr, returns, applyPtSlOnT1, mpPandasObj, \
     getDailyVolCGPT, metaBins
@@ -79,9 +79,9 @@ data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
-# data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
+data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
 # data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
@@ -89,7 +89,7 @@ data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, win
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 # data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
-# data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
+data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 # data['roc10'] = ROC(data['Close'], 10)
 # data['roc30'] = ROC(data['Close'], 30)
@@ -97,12 +97,16 @@ data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'],
 # data['mom30'] = MOM(data['Close'], 30)
 # data['Volatility_prcnt'] = getDailyVol(data['Close'], span, vertical_days, 'p')
 data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm')
-bb_down = get_down_cross_bol(data, 'Close')
-bb_up = get_up_cross_bol(data, 'Close')
-bb_side_up = pd.Series(-1, index=bb_up.index)  # sell on up cross for mean reversion
-bb_side_down = pd.Series(1, index=bb_down.index)  # buy on down cross for mean reversion
-bb_side_raw = pd.concat([bb_side_up, bb_side_down]).sort_index()
-data['bb_cross'] = pd.concat([bb_side_up, bb_side_down]).sort_index()
+# bb_down = get_down_cross_bol(data, 'Close')
+# bb_up = get_up_cross_bol(data, 'Close')
+# bb_side_up = pd.Series(-1, index=bb_up.index)  # sell on up cross for mean reversion
+# bb_side_down = pd.Series(1, index=bb_down.index)  # buy on down cross for mean reversion
+# bb_sides = pd.concat([bb_side_up, bb_side_down]).sort_index()
+bb_sides = crossing3(data, 'Close', 'upper', 'lower')
+# stoch_sides = crossing2(data, 'Close', '%K', '%D')
+data['bb_cross'] = bb_sides
+# print(bb_sides)
+
 # data['diff'] = np.log(data['Close']).diff()
 # data['cusum'] = data['Close'].cumsum()
 # data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
@@ -113,7 +117,7 @@ data['bb_cross'] = pd.concat([bb_side_up, bb_side_down]).sort_index()
 threshold = data['Volatility'].mean()
 tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
-events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_side_raw)
+events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
 # labels = getBins(events, data['Close'])
 labels = metaBins(events, eth.Close, t1)
 clean_labels = dropLabels(labels, .05)
@@ -126,16 +130,17 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 # print(data)
 # print(data.isnull().sum())
-
-data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price',
-                   'Volatility', 'ave', 'upper', 'lower'],
+data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'Volatility', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
+
 full_data = data.copy()
+
 # cusum events
 research_data = data.loc[events.index]
 
 # cusum + bb events
 research_data = research_data[research_data['bb_cross'] != 0]
+
 
 # signal = 'ret'
 signal = 'bin'
@@ -148,8 +153,11 @@ signal = 'bin'
 
 
 X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
-
+# X1, Y1, X2, Y2, X3, Y3, backtest_data = meta_spliter(full_data, research_data, 'bin', 5)
 # X = standardizer(X)
+# X_train = standardizer(X_train)
+# backtest_data = standardizer(backtest_data)
+# X_test = standardizer(X_test)
 # X = normalizer(X)
 # X = rescaler(X, (0, 1))
 
@@ -167,5 +175,6 @@ print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
 
 # print('event -1', np.sum(np.array(research_data[signal]) == -1, axis=0))
-print(X.columns)
+print('full_data.columns', full_data.columns)
+print('X.columns', X.columns)
 # print(research_data)
