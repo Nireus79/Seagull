@@ -18,7 +18,12 @@ class Prelder(Strategy):
     def init(self):
         self.buy_price = 0
         self.sell_price = 0
-        self.model = LogisticRegression(solver='saga')
+        self.model = MLPClassifier(
+            activation='relu',
+            alpha=0.0001, hidden_layer_sizes=(100,),
+            learning_rate='adaptive',
+            solver='adam'
+        )
         self.model.fit(X_train, Y_train)
         self.stop = 0
 

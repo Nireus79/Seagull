@@ -457,3 +457,4 @@ def GS_logreg():
 
 
 GS_logreg()
+GS_MLP_classifier()
