@@ -89,7 +89,7 @@ data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=1
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 # data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
-data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
+# data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 # data['roc10'] = ROC(data['Close'], 10)
 # data['roc30'] = ROC(data['Close'], 30)
@@ -106,7 +106,8 @@ bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 # stoch_sides = crossing2(data, 'Close', '%K', '%D')
 data['bb_cross'] = bb_sides
 # print(bb_sides)
-
+# data['elder'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] and x['Close'] > x['Dema9'] else
+# (-1 if x['4H%K'] < x['4H%D'] or x['Close'] > x['Dema9'] else 0), axis=1)
 # data['diff'] = np.log(data['Close']).diff()
 # data['cusum'] = data['Close'].cumsum()
 # data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
@@ -141,7 +142,6 @@ research_data = data.loc[events.index]
 # cusum + bb events
 research_data = research_data[research_data['bb_cross'] != 0]
 
-
 # signal = 'ret'
 signal = 'bin'
 
@@ -152,7 +152,7 @@ signal = 'bin'
 # print(research_data)
 
 
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 4)
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 1)
 # X1, Y1, X2, Y2, X3, Y3, backtest_data = meta_spliter(full_data, research_data, 'bin', 5)
 # X = standardizer(X)
 # X_train = standardizer(X_train)
@@ -160,16 +160,6 @@ X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, resea
 # X_test = standardizer(X_test)
 # X = normalizer(X)
 # X = rescaler(X, (0, 1))
-
-# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, shuffle=False)
-
-# seq_len = 2
-# Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
-# X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
-# X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
-# for i in range(seq_len):
-#     X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
-#     X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
 
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))

@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.metrics import classification_report, mean_squared_error
 from toolbox import create_LSTMmodel, standardizer
-# from meta import model1, model2, X3, Y3
+# from meta import model1, model2, meta_backtest_data
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -16,16 +16,17 @@ warnings.filterwarnings('ignore')
 class Prelder(Strategy):
 
     def init(self):
-        self.buy_price = 0
-        self.sell_price = 0
         self.model = MLPClassifier(
             activation='relu',
-            alpha=0.0001, hidden_layer_sizes=(100,),
-            learning_rate='adaptive',
+            alpha=0.0001,
+            hidden_layer_sizes=(100,),
+            learning_rate='constant',
             solver='adam'
         )
         self.model.fit(X_train, Y_train)
-        self.stop = 0
+        self.cond = 'B'
+        self.buy_price = 0
+        self.sell_price = 0
 
     def next(self):
         ret = self.data['ret'][-1]
@@ -33,61 +34,24 @@ class Prelder(Strategy):
         Dema9 = self.data['Dema9'][-1]
         K = self.data['4H%K'][-1]
         vol = self.data['Volatility'][-1]
-        atr = self.data['4H_atr'][-1]
-        # D = self.data['%D'][-1]
+        # atr = self.data['4H_atr'][-1]
         forecast = self.model.predict([[close, Dema9, K, vol]])
-        if not self.position.is_long and ret != 0 and forecast == 1:
-            # forecast / self.data.Close[-1] > self.commission:
-            self.buy_price = self.data.Close[-1]
-            full_data['b'].loc[self.data.index[-1]] = True
-            self.stop = self.data.Low[-1] - atr
-            self.buy()
-        elif not self.position.is_short and close < self.stop and forecast == 0:
-            # forecast / self.data.Close[-1] < self.commission:
-            self.sell_price = self.data.Close[-1]
-            # print(self.data.index[-1], 'Trade profit: ', self.sell_price - self.buy_price)
-            self.sell_price, self.buy_price = 0, 0
-            full_data['s'].loc[self.data.index[-1]] = True
-            self.stop = 0
-            self.sell()
-        elif not self.position.is_short and ret != 0 and forecast == 0:
-            # forecast / self.data.Close[-1] < self.commission:
-            self.sell_price = self.data.Close[-1]
-            # print(self.data.index[-1], 'Trade profit: ', self.sell_price - self.buy_price)
-            self.sell_price, self.buy_price = 0, 0
-            full_data['s'].loc[self.data.index[-1]] = True
-            self.stop = 0
-            self.sell()
-        # elif not self.position.is_short:
-        #     self.stop = self.data.Low[-1] - atr
 
-
-# class MetaPrelder(Strategy):
-#
-#     def init(self):
-#         self.buy_price = 0
-#         self.sell_price = 0
-#
-#     def next(self):
-#         ret = self.data['ret'][-1]
-#         close = self.data.Close[-1]
-#         Dema9 = self.data['Dema9'][-1]
-#         K = self.data['%K'][-1]
-#         D = self.data['%D'][-1]
-#         meta = model1.predict([[close, Dema9, K, D]])[-1]
-#         forecast = model2.predict([[close, Dema9, K, D, meta]])
-#         if not self.position.is_long and ret != 0 and forecast == 1:
-#             # forecast / self.data.Close[-1] > self.commission:
-#             self.buy_price = self.data.Close[-1]
-#             full_data['b'].loc[self.data.index[-1]] = True
-#             self.buy()
-#         elif not self.position.is_short and ret != 0 and forecast == 0:
-#             # forecast / self.data.Close[-1] < self.commission:
-#             self.sell_price = self.data.Close[-1]
-#             # print(self.data.index[-1], 'Trade profit: ', self.sell_price - self.buy_price)
-#             self.sell_price, self.buy_price = 0, 0
-#             full_data['s'].loc[self.data.index[-1]] = True
-#             self.sell()
+        if self.cond == 'B':
+            if ret != 0 and forecast == 1:
+                self.buy_price = self.data.Close[-1]
+                print(self.data.index[-1], 'Buy at: ', self.buy_price)
+                self.cond = 'S'
+                full_data['b'].loc[self.data.index[-1]] = True
+                self.buy()
+        elif self.cond == 'S':
+            if ret != 0 and forecast == 0:
+                self.sell_price = self.data.Close[-1]
+                print(self.data.index[-1], 'Sell at:', self.sell_price, 'Profit: ', self.sell_price - self.buy_price)
+                self.sell_price = self.buy_price = 0
+                self.cond = 'B'
+                full_data['s'].loc[self.data.index[-1]] = True
+                self.sell()
 
 
 def statistics(data, strategy):

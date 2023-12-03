@@ -45,15 +45,15 @@ scoring = 'accuracy'
 # Compare Models and Algorithms
 # spot check the algorithms
 models = [
-    ('CART_C', DecisionTreeClassifier()),
-    ('AB', AdaBoostClassifier()),
-    ('GBM', GradientBoostingClassifier()),
-    ('RF', RandomForestClassifier(n_jobs=-1)),
-    ('LR', LogisticRegression(max_iter=10000, n_jobs=-1, solver='saga')),
-    ('LDA', LinearDiscriminantAnalysis()),
-    ('KNC', KNeighborsClassifier()),
-    ('NB', GaussianNB()),
-    ('NN', MLPClassifier(max_iter=10000))
+    ('DecisionTreeClassifier', DecisionTreeClassifier()),
+    ('AdaBoostClassifier', AdaBoostClassifier()),
+    ('GradientBoostingClassifier', GradientBoostingClassifier()),
+    ('RandomForestClassifier', RandomForestClassifier(n_jobs=-1)),
+    ('LogisticRegression', LogisticRegression(max_iter=10000, n_jobs=-1, solver='saga')),
+    ('LinearDiscriminantAnalysis', LinearDiscriminantAnalysis()),
+    ('KNeighborsClassifier', KNeighborsClassifier()),
+    ('GaussianNB', GaussianNB()),
+    ('MLPClassifier', MLPClassifier(max_iter=10000))
 ]
 
 # K-folds cross validation
@@ -76,7 +76,7 @@ for name, model in models:
     # Test results
     test_result = mean_squared_error(res.predict(X_test), Y_test)
     test_results.append(test_result)
-    msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
+    msg = "%s: cv_results.mean: %f (cv_results.std: %f)" % (name, cv_results.mean(), cv_results.std())
     y_pred_rf = model.predict_proba(X_test)[:, 1]
     y_pred = model.predict(X_test)
     print(msg)

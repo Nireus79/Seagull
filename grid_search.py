@@ -24,6 +24,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor, MLPClassifier
+from sklearn.naive_bayes import GaussianNB
 from sklearn.compose import ColumnTransformer
 
 # Libraries for Deep Learning Models
@@ -394,7 +395,7 @@ def GS_MLP_classifier():
         'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100,)],
         'activation': ['tanh', 'relu'],
         'solver': ['sgd', 'adam'],
-        'alpha': [0.0001, 0.05],
+        'alpha': [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.05],
         'learning_rate': ['constant', 'adaptive'],
     }
     clf = GridSearchCV(mlp, parameter_space, n_jobs=-1, cv=3)
@@ -414,9 +415,9 @@ def GS_MLP_classifier():
 
 def GS_LSTM(X_tr, X_ts, Y_ts):
     print('LSTM parameters evaluation -------------------------------------------------------')
-    neurons_list = [15]
-    learn_rate_list = [0.2]
-    momentum_list = [0.5]
+    neurons_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    momentum_list = [0.1, 0.2, 0.3, 0.4, 0.5]
     # dense_list = [1, 5]
     # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     # verbose_list = [0, 1]
@@ -424,13 +425,6 @@ def GS_LSTM(X_tr, X_ts, Y_ts):
     evaluate_LSTM_combinations(X_tr, X_ts, Y_ts, neurons_list, learn_rate_list, momentum_list)
 
 
-# GS_LSTM(X_train_LSTM, X_test_LSTM, Y_test_LSTM)
-# 5 cells Best LSTM: (10, 0.5, 0.0) mse: 0.24753957921450484
-# 4 cells Best LSTM: (10, 0.3, 0.3) mse: 0.2289767111110404
-# 4 cells standard(X) Best LSTM: (15, 0.2, 0.5) mse: 0.22787054039092122
-
-# GS_MLP_classifier()
-# TODO GS_Logistic_reg() 'Close', 'Dema9', '4H%K', '4H_rsi'
 def GS_logreg():
     logreg = LogisticRegression()
     parameters = [{'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga']},
@@ -456,5 +450,18 @@ def GS_logreg():
     print(classification_report(y_true, y_pred))
 
 
-GS_logreg()
-GS_MLP_classifier()
+seq_len = 2
+Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
+X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
+X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
+for i in range(seq_len):
+    X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
+    X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
+
+# GS_LSTM(X_train_LSTM, X_test_LSTM, Y_test_LSTM)
+# Best LSTM: (8, 0.7, 0.2) mse: 0.24176813995266408
+
+
+# GS_logreg()
+# GS_MLP_classifier()
+#  {'activation': 'relu', 'alpha': 0.0001, 'hidden_layer_sizes': (100,), 'learning_rate': 'constant', 'solver': 'adam'}
