@@ -392,11 +392,11 @@ def polynomial():
 def GS_MLP_classifier():
     mlp = MLPClassifier(max_iter=10000)
     parameter_space = {
-        'hidden_layer_sizes': [(50, 50, 50), (50, 100, 50), (100,)],
-        'activation': ['tanh', 'relu'],
+        'hidden_layer_sizes': [(50, 50, 50), (150, 100, 50), (120, 80, 40), (100, 50, 30), (50, 100, 50), (100,)],
+        'activation': ['logistic', 'tanh', 'relu'],
         'solver': ['sgd', 'adam'],
-        'alpha': [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.05],
-        'learning_rate': ['constant', 'adaptive'],
+        'alpha': [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0006, 0.0007, 0.0008, 0.0009, 0.001, 0.05],
+        'learning_rate': ['constant', 'invscaling', 'adaptive'],
     }
     clf = GridSearchCV(mlp, parameter_space, n_jobs=-1, cv=3)
     clf.fit(X_train, Y_train)
@@ -411,18 +411,6 @@ def GS_MLP_classifier():
 
     print('Results on the test set:')
     print(classification_report(y_true, y_pred))
-
-
-def GS_LSTM(X_tr, X_ts, Y_ts):
-    print('LSTM parameters evaluation -------------------------------------------------------')
-    neurons_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
-    learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    momentum_list = [0.1, 0.2, 0.3, 0.4, 0.5]
-    # dense_list = [1, 5]
-    # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    # verbose_list = [0, 1]
-    # epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    evaluate_LSTM_combinations(X_tr, X_ts, Y_ts, neurons_list, learn_rate_list, momentum_list)
 
 
 def GS_logreg():
@@ -450,18 +438,55 @@ def GS_logreg():
     print(classification_report(y_true, y_pred))
 
 
-seq_len = 2
-Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
-X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
-X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
-for i in range(seq_len):
-    X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
-    X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
+def GS_Gausian():
+    nb_classifier = GaussianNB()
+
+    params_NB = {'var_smoothing': np.logspace(0, -9, num=100)}
+    grid_search = GridSearchCV(estimator=nb_classifier,
+                               param_grid=params_NB,
+                               verbose=1,
+                               scoring='accuracy')
+    grid_search.fit(X_train, Y_train)
+
+    print('Best parameters: ', grid_search.best_params_)
+    means = grid_search.cv_results_['mean_test_score']
+    stds = grid_search.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, grid_search.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
+    y_true, y_pred = Y_test, grid_search.predict(X_test)
+
+    print('Results on the test set:')
+    print(classification_report(y_true, y_pred))
+
+
+def GS_LSTM(X_tr, X_ts, Y_ts):
+    print('LSTM parameters evaluation -------------------------------------------------------')
+    neurons_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    momentum_list = [0.1, 0.2, 0.3, 0.4, 0.5]
+    # dense_list = [1, 5]
+    # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    # verbose_list = [0, 1]
+    # epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    evaluate_LSTM_combinations(X_tr, X_ts, Y_ts, neurons_list, learn_rate_list, momentum_list)
+
+
+# seq_len = 2
+# Y_train_LSTM, Y_test_LSTM = np.array(Y_train)[seq_len - 1:], np.array(Y_test)
+# X_train_LSTM = np.zeros((X_train.shape[0] + 1 - seq_len, seq_len, X_train.shape[1]))
+# X_test_LSTM = np.zeros((X_test.shape[0], seq_len, X.shape[1]))
+# for i in range(seq_len):
+#     X_train_LSTM[:, i, :] = np.array(X_train)[i:X_train.shape[0] + i + 1 - seq_len, :]
+#     X_test_LSTM[:, i, :] = np.array(X)[X_train.shape[0] + i - 1:X.shape[0] + i + 1 - seq_len, :]
 
 # GS_LSTM(X_train_LSTM, X_test_LSTM, Y_test_LSTM)
 # Best LSTM: (8, 0.7, 0.2) mse: 0.24176813995266408
 
 
 # GS_logreg()
-# GS_MLP_classifier()
-#  {'activation': 'relu', 'alpha': 0.0001, 'hidden_layer_sizes': (100,), 'learning_rate': 'constant', 'solver': 'adam'}
+GS_MLP_classifier()
+# {'activation': 'logistic', 'alpha': 0.0004, 'hidden_layer_sizes': (100,), 'learning_rate': 'adaptive', 'solver': 'adam'}
+# {'activation': 'tanh', 'alpha': 0.0008, 'hidden_layer_sizes': (100, 50, 30), 'learning_rate': 'adaptive', 'solver': 'adam'}
+# {'activation': 'tanh', 'alpha': 0.0008, 'hidden_layer_sizes': (50, 100, 50), 'learning_rate': 'invscaling', 'solver': 'adam'}
+# {'activation': 'relu', 'alpha': 0.0001, 'hidden_layer_sizes': (100,), 'learning_rate': 'adaptive', 'solver': 'adam'}
+# {'activation': 'tanh', 'alpha': 0.0006, 'hidden_layer_sizes': (100, 50, 30), 'learning_rate': 'invscaling', 'solver': 'adam'}

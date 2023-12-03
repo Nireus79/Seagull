@@ -17,8 +17,8 @@ class Prelder(Strategy):
 
     def init(self):
         self.model = MLPClassifier(
-            activation='relu',
-            alpha=0.0001,
+            activation='tanh',
+            alpha=0.0005,
             hidden_layer_sizes=(100,),
             learning_rate='constant',
             solver='adam'
@@ -34,7 +34,6 @@ class Prelder(Strategy):
         Dema9 = self.data['Dema9'][-1]
         K = self.data['4H%K'][-1]
         vol = self.data['Volatility'][-1]
-        # atr = self.data['4H_atr'][-1]
         forecast = self.model.predict([[close, Dema9, K, vol]])
 
         if self.cond == 'B':

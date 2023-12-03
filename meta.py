@@ -33,31 +33,34 @@ X3 = test_data.loc[:, X3.columns]
 meta_backtest_data = full_data[X3.index[0]:X3.index[-1]]
 
 
-# model1 = MLPClassifier(
-#     activation='relu',
-#     alpha=0.0001, hidden_layer_sizes=(100,),
-#     learning_rate='adaptive',
-#     solver='adam'
-# )
-model1 = LogisticRegression(solver='saga')
+model1 = MLPClassifier(
+    activation='tanh',
+    alpha=0.0006,
+    hidden_layer_sizes=(100,),
+    learning_rate='adaptive',
+    solver='adam'
+)
+# model1 = LogisticRegression(solver='saga')
 model1.fit(X1, Y1)
-
-X2['Pseudo'] = model1.predict(X2)
+predictions1 = model1.predict(X2)
+X2['Pseudo'] = predictions1
 X2['True'] = Y2
 X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['True'] else 0, axis=1)
 X2.drop(columns=['Pseudo', 'True'], axis=1, inplace=True)
 
-# model2 = MLPClassifier(
-#     activation='relu',
-#     alpha=0.0001, hidden_layer_sizes=(100,),
-#     learning_rate='adaptive',
-#     solver='adam'
-# )
-model2 = LogisticRegression(solver='saga')
+model2 = MLPClassifier(
+    activation='tanh',
+    alpha=0.0006,
+    hidden_layer_sizes=(100,),
+    learning_rate='adaptive',
+    solver='adam'
+)
+# model2 = LogisticRegression(solver='saga')
 model2.fit(X2, Y2)
 X3['Meta'] = model1.predict(X3)
-predictions = model2.predict(X3)
+predictions2 = model2.predict(X3)
 print(X1.columns)
 print(X2.columns)
 print(X3.columns)
-print(classification_report(Y3, predictions, target_names=['no_trade', 'trade']))
+print(classification_report(Y2, predictions1, target_names=['no_trade', 'trade']))
+print(classification_report(Y3, predictions2, target_names=['no_trade', 'trade']))

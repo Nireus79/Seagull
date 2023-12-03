@@ -152,7 +152,7 @@ signal = 'bin'
 # print(research_data)
 
 
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 1)
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
 # X1, Y1, X2, Y2, X3, Y3, backtest_data = meta_spliter(full_data, research_data, 'bin', 5)
 # X = standardizer(X)
 # X_train = standardizer(X_train)
