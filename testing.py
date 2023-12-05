@@ -43,7 +43,7 @@ class Prelder(Strategy):
                 self.sell_price = self.buy_price = 0
                 self.cond = 'B'
                 full_data['s'].loc[self.data.index[-1]] = True
-                self.sell()
+                self.position.close()
 
 
 def statistics(data, strategy):

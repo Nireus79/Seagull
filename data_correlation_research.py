@@ -14,7 +14,6 @@ from pandas.plotting import scatter_matrix
 
 from data_forming import X, Y, research_data, full_data
 
-
 data = full_data
 
 # research------------------------------------------------------------------------------------
@@ -80,48 +79,11 @@ featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
 print('featureScores--------------------------------------------------------------------------')
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
 
-# f_regression
-# %D                4.395980
-# %DS               4.165696
-# srl_corr          4.097572
-# 4H_rsi            3.725800
-# %K                3.458746
-# 4H%K              3.374939
-# rsi               2.638277
-# 4Hmacd            2.589597
-# Volatility_prcnt  1.838390
-# diff              1.805653
-# Volatility        1.388872
-# atr               1.370621
-# 4H%D              1.074694
-# 4H_atr            1.045167
-# roc30             0.932461
-# Dema9             0.917592
-# roc10             0.862709
-# Dema13            0.831629
-# Dema20            0.684161
-# mom10             0.229371
-
-# f_classif
-# %D                4.395980
-# %DS               4.165696
-# srl_corr          4.097572
-# 4H_rsi            3.725800
-# %K                3.458746
-# 4H%K              3.374939
-# rsi               2.638277
-# 4Hmacd            2.589597
-# Volatility_prcnt  1.838390
-# diff              1.805653
-# Volatility        1.388872
-# atr               1.370621
-# 4H%D              1.074694
-# 4H_atr            1.045167
-# roc30             0.932461
-# Dema9             0.917592
-# roc10             0.862709
-# Dema13            0.831629
-# Dema20            0.684161
-# mom10             0.229371
-
+# f_classif Specs
+# trend       110.966150
+# elder        10.094178
+# momentum      5.518308
+# %D            4.395980
+# %DS           4.165696
+# srl_corr      4.097572
 

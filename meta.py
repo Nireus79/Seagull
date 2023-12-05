@@ -5,10 +5,10 @@ from data_forming import research_data, full_data
 
 research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', '%K', 'bb_cross', 'ret'],
                    axis=1, inplace=True)
-train_set = research_data[:int(len(research_data) * 0.8)]
+train_set = research_data[:int(len(research_data) * 0.9)]
 research_data1 = train_set[:int(len(train_set) * 0.5)]
 research_data2 = train_set[int(len(train_set) * 0.5):]
-test_data = research_data[int(len(research_data) * 0.8):]
+test_data = research_data[int(len(research_data) * 0.9):]
 print(len(research_data1), len(research_data2), len(test_data))
 
 signal = 'bin'
@@ -34,29 +34,17 @@ X3 = test_data.loc[:, X3.columns]
 meta_backtest_data = full_data[X3.index[0]:X3.index[-1]]
 
 
-model1 = MLPClassifier(
-    activation='tanh',
-    alpha=0.0006,
-    hidden_layer_sizes=(100,),
-    learning_rate='adaptive',
-    solver='adam'
-)
-# model1 = LogisticRegression(solver='saga')
+model1 = MLPClassifier()
+# model1 = LogisticRegression()
 model1.fit(X1, Y1)
 predictions1 = model1.predict(X2)
-X2['Pseudo'] = predictions1
-X2['True'] = Y2
-X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['True'] else 0, axis=1)
-X2.drop(columns=['Pseudo', 'True'], axis=1, inplace=True)
+X2['Meta'] = predictions1
+# X2['True'] = Y2
+# X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['True'] else 0, axis=1)
+# X2.drop(columns=['Pseudo', 'True'], axis=1, inplace=True)
 
-model2 = MLPClassifier(
-    activation='tanh',
-    alpha=0.0006,
-    hidden_layer_sizes=(100,),
-    learning_rate='adaptive',
-    solver='adam'
-)
-# model2 = LogisticRegression(solver='saga')
+model2 = MLPClassifier()
+# model2 = LogisticRegression()
 model2.fit(X2, Y2)
 X3['Meta'] = model1.predict(X3)
 predictions2 = model2.predict(X3)
