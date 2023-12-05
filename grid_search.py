@@ -20,7 +20,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor, MLPClassifier
@@ -482,11 +482,47 @@ def GS_LSTM(X_tr, X_ts, Y_ts):
 # GS_LSTM(X_train_LSTM, X_test_LSTM, Y_test_LSTM)
 # Best LSTM: (8, 0.7, 0.2) mse: 0.24176813995266408
 
+def GS_GradientBoostingClassifier():
+    """
+    n_estimators:
+
+        The number of boosting stages to perform. Gradient boosting
+        is fairly robust to over-fitting so a large number usually
+        results in better performance.
+    """
+    param_grid = {
+        "loss": ["deviance"],
+        "learning_rate": [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
+        "min_samples_split": np.linspace(0.1, 0.5, 12),
+        "min_samples_leaf": np.linspace(0.1, 0.5, 12),
+        "max_depth": [3, 5, 8],
+        "max_features": ["log2", "sqrt"],
+        "criterion": ["friedman_mse", "mae"],
+        "subsample": [0.5, 0.618, 0.8, 0.85, 0.9, 0.95, 1.0],
+        'n_estimators': [50, 100, 150, 200, 250, 300, 350, 400]}
+    model = GradientBoostingClassifier(random_state=seed)
+    kfold = KFold(n_splits=num_folds, shuffle=True, random_state=seed)
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring=scoring, cv=kfold)
+    grid_result = grid.fit(X_train, Y_train)
+    print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+    means = grid_result.cv_results_['mean_test_score']
+    stds = grid_result.cv_results_['std_test_score']
+    params = grid_result.cv_results_['params']
+    # Variable Intuition/Feature Importance
+    # Importance = pd.DataFrame({'Importance': model.feature_importances_ * 100}, index=X.columns)
+    # Importance.sort_values('Importance', axis=0, ascending=True).plot(kind='barh', color='r')
+    # plt.xlabel('Variable Importance')
+    # plt.show()
+    for mean, stdev, param in zip(means, stds, params):
+        print("%f (%f) with: %r" % (mean, stdev, param))
+
 
 # GS_logreg()
-GS_MLP_classifier()
+# GS_MLP_classifier()
 # {'activation': 'logistic', 'alpha': 0.0001, 'hidden_layer_sizes': (50, 50, 50), 'learning_rate': 'constant', 'solver': 'adam'}
 # {'activation': 'logistic', 'alpha': 0.0001, 'hidden_layer_sizes': (50, 50, 50), 'learning_rate': 'constant', 'solver': 'adam'}
 # {'activation': 'logistic', 'alpha': 0.0001, 'hidden_layer_sizes': (50, 50, 50), 'learning_rate': 'constant', 'solver': 'adam'}
 # {'activation': 'logistic', 'alpha': 0.0001, 'hidden_layer_sizes': (50, 50, 50), 'learning_rate': 'constant', 'solver': 'adam'}
 # {'activation': 'logistic', 'alpha': 0.0001, 'hidden_layer_sizes': (50, 50, 50), 'learning_rate': 'constant', 'solver': 'adam'}
+
+GS_GradientBoostingClassifier()

@@ -101,7 +101,7 @@ data['bb_cross'] = bb_sides
 
 data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
 data['momentum'] = data.apply(
-    lambda x: 1 if x['4H%D'] > x['4H%DS'] > 20 else (-1 if x['4H%D'] < x['4H%DS'] < 80 else 0), axis=1)
+    lambda x: 1 if x['4H%D'] > x['4H%DS'] else (-1 if x['4H%D'] < x['4H%DS'] else 0), axis=1)
 data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
 elder_sides = data['elder']
 
@@ -123,7 +123,7 @@ data = data.loc[~data.index.duplicated(keep='first')]
 data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 
-data[['4H%D', '4H%DS']] = standardizer(data[['4H%D', '4H%DS']])
+data[['4H%D', '4H%DS', 'Volatility', 'trend']] = standardizer(data[['4H%D', '4H%DS', 'Volatility', 'trend']])
 # data[['4H%D', '4H%DS']] = normalizer(data[['4H%D', '4H%DS']])
 # data[['4H%D', '4H%DS']] = rescaler(data[['4H%D', '4H%DS']], (0, 1))
 full_data = data.copy()
@@ -140,7 +140,7 @@ signal = 'bin'
 # print(research_data)
 
 
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 2)
 
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
