@@ -101,7 +101,7 @@ data['bb_cross'] = bb_sides
 
 data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
 data['momentum'] = data.apply(
-    lambda x: 1 if x['4H%D'] > x['4H%DS'] > 10 else (-1 if x['4H%D'] < x['4H%DS'] < 90 else 0), axis=1)
+    lambda x: 1 if x['4H%D'] > x['4H%DS'] > 20 else (-1 if x['4H%D'] < x['4H%DS'] < 80 else 0), axis=1)
 data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
 elder_sides = data['elder']
 
@@ -123,9 +123,9 @@ data = data.loc[~data.index.duplicated(keep='first')]
 data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 
-# data[['%D', '%DS']] = standardizer(data[['%D', '%DS']])
-# data[['%D', '%DS', 'srl_corr']] = normalizer(data[['%D', '%DS', 'srl_corr']])
-# data[['%D', '%DS', 'srl_corr']] = rescaler(data[['%D', '%DS', 'srl_corr']], (0, 1))
+data[['4H%D', '4H%DS']] = standardizer(data[['4H%D', '4H%DS']])
+# data[['4H%D', '4H%DS']] = normalizer(data[['4H%D', '4H%DS']])
+# data[['4H%D', '4H%DS']] = rescaler(data[['4H%D', '4H%DS']], (0, 1))
 full_data = data.copy()
 
 research_data = data.loc[events.index]

@@ -100,8 +100,8 @@ def spliter(full_data, research_data, signal, part):
                         'bb_cross', 'bin'],
                axis=1, inplace=True)
     elif signal == 'bin':
-        X.drop(columns=['Close', 'elder', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'Dema9', '4H%K', '4H%D', '4H%DS',
-                        'bb_cross', 'ret'],
+        X.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', 'Volatility', '4H%K', 'momentum',
+                        'elder', 'bb_cross', 'ret'],
                axis=1, inplace=True)
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
