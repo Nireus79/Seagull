@@ -73,48 +73,38 @@ data = eth
 # data[asset2 + '_close'] = bit['close']
 # data[asset3 + '_close'] = eur['close']
 # data['ema9'] = data['Close'].rolling(9).mean()
-data['Dema9'] = data['1D_Close'].rolling(9).mean()
+# data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
 # data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
-data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
-# data['%D'] = data['%K'].rolling(3).mean()
+data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
+# data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
+data['%D'] = data['%K'].rolling(3).mean()
 # data['4H%D'] = data['4H%K'].rolling(3).mean()
-# data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
+data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
 # data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-# data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
+data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
-# data['roc10'] = ROC(data['Close'], 10)
-# data['roc30'] = ROC(data['Close'], 30)
-# data['mom10'] = MOM(data['Close'], 10)
-# data['mom30'] = MOM(data['Close'], 30)
-# data['Volatility_prcnt'] = getDailyVol(data['Close'], span, vertical_days, 'p')
+
 data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(20).mean()
-# bb_down = get_down_cross_bol(data, 'Close')
-# bb_up = get_up_cross_bol(data, 'Close')
-# bb_side_up = pd.Series(-1, index=bb_up.index)  # sell on up cross for mean reversion
-# bb_side_down = pd.Series(1, index=bb_down.index)  # buy on down cross for mean reversion
-# bb_sides = pd.concat([bb_side_up, bb_side_down]).sort_index()
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
-# stoch_sides = crossing2(data, 'Close', '%K', '%D')
 data['bb_cross'] = bb_sides
-# print(bb_sides)
-# data['elder'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] and x['Close'] > x['Dema9'] else
-# (-1 if x['4H%K'] < x['4H%D'] or x['Close'] > x['Dema9'] else 0), axis=1)
+
+# data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
+# data['momentum'] = data.apply(lambda x: 1 if x['4H%D'] > x['4H%DS'] else 0, axis=1)
+# data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
+# elder_sides = data['elder']
+
 # data['diff'] = np.log(data['Close']).diff()
 # data['cusum'] = data['Close'].cumsum()
-# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
-# data['bol_up_cross'] = get_up_cross_bol(data, 'Close')
-# data['bol_down_cross'] = get_down_cross_bol(data, 'Close')
-# data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
-# data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
+data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+
 threshold = data['Volatility']
 tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
@@ -123,7 +113,6 @@ events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpu
 labels = metaBins(events, eth.Close, t1)
 clean_labels = dropLabels(labels, .05)
 data['ret'] = clean_labels['ret']
-# data['event'] = data.apply(lambda x: True if x['ret'] != 0 else False, axis=0)
 data['bin'] = clean_labels['bin']
 
 data = data.fillna(0)
@@ -134,6 +123,9 @@ data = data.loc[~data.index.duplicated(keep='first')]
 data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 
+# data[['%D', '%DS', '4H_rsi', 'srl_corr']] = standardizer(data[['%D', '%DS', '4H_rsi', 'srl_corr']])
+# data[['%D', '%DS', '4H_rsi', 'srl_corr']] = normalizer(data[['%D', '%DS', '4H_rsi', 'srl_corr']])
+# data[['%D', '%DS', '4H_rsi', 'srl_corr']] = rescaler(data[['%D', '%DS', '4H_rsi', 'srl_corr']], (0, 1))
 full_data = data.copy()
 
 # cusum events
@@ -141,6 +133,9 @@ research_data = data.loc[events.index]
 
 # cusum + bb events
 research_data = research_data[research_data['bb_cross'] != 0]
+
+# cusum + elder events
+# research_data = research_data[research_data['elder'] != -1]
 
 # signal = 'ret'
 signal = 'bin'
@@ -152,14 +147,7 @@ signal = 'bin'
 # print(research_data)
 
 
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
-# X1, Y1, X2, Y2, X3, Y3, backtest_data = meta_spliter(full_data, research_data, 'bin', 5)
-# X = standardizer(X)
-# X_train = standardizer(X_train)
-# backtest_data = standardizer(backtest_data)
-# X_test = standardizer(X_test)
-# X = normalizer(X)
-# X = rescaler(X, (0, 1))
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 4)
 
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
@@ -167,7 +155,3 @@ print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
 # print('event -1', np.sum(np.array(research_data[signal]) == -1, axis=0))
 print('full_data.columns', full_data.columns)
 print('X.columns', X.columns)
-# print(research_data['Volatility'].mean())
-# print(research_data['Volatility'].min())
-# print(research_data['Volatility'].max())
-# print(research_data['Volatility'])

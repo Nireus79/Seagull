@@ -485,8 +485,4 @@ def GS_LSTM(X_tr, X_ts, Y_ts):
 
 # GS_logreg()
 GS_MLP_classifier()
-# {'activation': 'logistic', 'alpha': 0.0004, 'hidden_layer_sizes': (100,), 'learning_rate': 'adaptive', 'solver': 'adam'}
-# {'activation': 'tanh', 'alpha': 0.0008, 'hidden_layer_sizes': (100, 50, 30), 'learning_rate': 'adaptive', 'solver': 'adam'}
-# {'activation': 'tanh', 'alpha': 0.0008, 'hidden_layer_sizes': (50, 100, 50), 'learning_rate': 'invscaling', 'solver': 'adam'}
-# {'activation': 'relu', 'alpha': 0.0001, 'hidden_layer_sizes': (100,), 'learning_rate': 'adaptive', 'solver': 'adam'}
-# {'activation': 'tanh', 'alpha': 0.0006, 'hidden_layer_sizes': (100, 50, 30), 'learning_rate': 'invscaling', 'solver': 'adam'}
+# {'activation': 'tanh', 'alpha': 0.0001, 'hidden_layer_sizes': (100, 50, 30), 'learning_rate': 'adaptive', 'solver': 'adam'}

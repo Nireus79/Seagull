@@ -2,42 +2,44 @@ import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
-from data_forming import X, Y, X_train, X_test, Y_train, Y_test, full_data, backtest_data
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.metrics import classification_report, mean_squared_error
 from toolbox import create_LSTMmodel, standardizer
+from data_forming import full_data
+from meta import model1, model2, meta_backtest_data
 import warnings
 
 warnings.filterwarnings('ignore')
 
 
-class Prelder(Strategy):
+class MetaPrelder(Strategy):
 
     def init(self):
-        self.model = MLPClassifier()
-        self.model.fit(X_train, Y_train)
         self.cond = 'B'
         self.buy_price = 0
         self.sell_price = 0
 
     def next(self):
         ret = self.data['ret'][-1]
+        close = self.data['Close'][-1]
+        # Dema9 = self.data['Dema9'][-1]
         D = self.data['%D'][-1]
         DS = self.data['%DS'][-1]
         rsi = self.data['4H_rsi'][-1]
         srl_corr = self.data['srl_corr'][-1]
-        forecast = self.model.predict([[D, DS, rsi, srl_corr]])
+        forecast1 = model1.predict([[D, DS, rsi, srl_corr]])[-1]
+        forecast2 = model2.predict([[D, DS, rsi, srl_corr, forecast1]])
 
         if self.cond == 'B':
-            if ret != 0 and forecast == 1:
+            if ret != 0 and forecast2 == 1:
                 self.buy_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Buy at: ', self.buy_price)
                 self.cond = 'S'
                 full_data['b'].loc[self.data.index[-1]] = True
                 self.buy()
         elif self.cond == 'S':
-            if ret != 0 and forecast == 0:
+            if ret != 0 and forecast2 == 0:
                 self.sell_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Sell at:', self.sell_price, 'Profit: ', self.sell_price - self.buy_price)
                 self.sell_price = self.buy_price = 0
@@ -72,7 +74,7 @@ def opt(data, strategy):
 
 full_data['b'] = 0
 full_data['s'] = 0
-statistics(backtest_data, Prelder)
+statistics(meta_backtest_data, MetaPrelder)
 # opt(backtest_data, Prelder)
 
 # print(backtest_data)
