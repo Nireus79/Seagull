@@ -3,8 +3,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from data_forming import research_data, full_data
 
-research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'bb_cross', 'ret',
-                            'Dema9', '4H%K', '4H%D', '4H%DS'],
+research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
+                            'elder', 'bb_cross', 'ret'],
                    axis=1, inplace=True)
 train_set = research_data[:int(len(research_data) * 0.9)]
 research_data1 = train_set[:int(len(train_set) * 0.5)]
