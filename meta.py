@@ -3,7 +3,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from data_forming import research_data, full_data
 
-research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', '%K', 'bb_cross', 'ret'],
+research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'bb_cross', 'ret',
+                            'Dema9', '4H%K', '4H%D', '4H%DS'],
                    axis=1, inplace=True)
 train_set = research_data[:int(len(research_data) * 0.9)]
 research_data1 = train_set[:int(len(train_set) * 0.5)]
@@ -33,23 +34,50 @@ X3 = test_data.loc[:, X3.columns]
 
 meta_backtest_data = full_data[X3.index[0]:X3.index[-1]]
 
+modelPrime = MLPClassifier()
+modelPrime.fit(X1, Y1)
+prime_predictions = modelPrime.predict(X2)
+X2['Meta'] = prime_predictions
 
-model1 = MLPClassifier()
-# model1 = LogisticRegression()
-model1.fit(X1, Y1)
-predictions1 = model1.predict(X2)
-X2['Meta'] = predictions1
-# X2['True'] = Y2
-# X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['True'] else 0, axis=1)
-# X2.drop(columns=['Pseudo', 'True'], axis=1, inplace=True)
+modelMeta = MLPClassifier()
+modelMeta.fit(X2, Y2)
 
-model2 = MLPClassifier()
-# model2 = LogisticRegression()
-model2.fit(X2, Y2)
-X3['Meta'] = model1.predict(X3)
-predictions2 = model2.predict(X3)
-print(X1.columns)
-print(X2.columns)
-print(X3.columns)
-print(classification_report(Y2, predictions1, target_names=['no_trade', 'trade']))
-print(classification_report(Y3, predictions2, target_names=['no_trade', 'trade']))
+X3['Meta'] = modelPrime.predict(X3)
+meta_predictions = modelMeta.predict(X3)
+
+print(classification_report(Y2, prime_predictions, target_names=['no_trade', 'trade']))
+print(classification_report(Y3, meta_predictions, target_names=['no_trade', 'trade']))
+
+# 3 models
+# modelPrime = MLPClassifier()
+# # model1 = LogisticRegression()
+# modelPrime.fit(X1, Y1)
+# prime_predictions = modelPrime.predict(X2)
+# X2['Meta'] = prime_predictions
+# X20 = X2.loc[X2['Meta'] == 0]
+# Y20 = Y2.loc[X20.index]
+# X21 = X2.loc[X2['Meta'] == 1]
+# Y21 = Y2.loc[X21.index]
+#
+#
+# modelMetaNeg = MLPClassifier()
+# # model2 = LogisticRegression()
+# modelMetaNeg.fit(X20, Y20)
+#
+# modelMetaPos = MLPClassifier()
+# # model2 = LogisticRegression()
+# modelMetaPos.fit(X21, Y21)
+#
+# X3['Meta'] = modelPrime.predict(X3)
+# X30 = X3.loc[X3['Meta'] == 0]
+# X31 = X3.loc[X3['Meta'] == 1]
+# Y30 = Y3.loc[X30.index]
+# Y31 = Y3.loc[X31.index]
+#
+# negPred = modelMetaNeg.predict(X30)
+# posPred = modelMetaPos.predict(X31)
+#
+#
+# print(classification_report(Y2, prime_predictions, target_names=['no_trade', 'trade']))
+# print(classification_report(Y30, negPred, target_names=['no_trade', 'trade']))
+# print(classification_report(Y31, posPred, target_names=['no_trade', 'trade']))

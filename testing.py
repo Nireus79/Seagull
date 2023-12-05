@@ -23,11 +23,10 @@ class Prelder(Strategy):
 
     def next(self):
         ret = self.data['ret'][-1]
-        D = self.data['%D'][-1]
-        DS = self.data['%DS'][-1]
-        rsi = self.data['4H_rsi'][-1]
-        srl_corr = self.data['srl_corr'][-1]
-        forecast = self.model.predict([[D, DS, rsi, srl_corr]])
+        trend = self.data['trend'][-1]
+        momentum = self.data['momentum'][-1]
+        elder = self.data['elder'][-1]
+        forecast = self.model.predict([[trend, momentum, elder]])
 
         if self.cond == 'B':
             if ret != 0 and forecast == 1:
@@ -43,7 +42,7 @@ class Prelder(Strategy):
                 self.sell_price = self.buy_price = 0
                 self.cond = 'B'
                 full_data['s'].loc[self.data.index[-1]] = True
-                self.position.close()
+                self.sell()
 
 
 def statistics(data, strategy):

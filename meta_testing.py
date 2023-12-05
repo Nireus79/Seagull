@@ -7,7 +7,7 @@ from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.metrics import classification_report, mean_squared_error
 from toolbox import create_LSTMmodel, standardizer
 from data_forming import full_data
-from meta import model1, model2, meta_backtest_data
+from meta import modelPrime, modelMeta, meta_backtest_data
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -22,14 +22,11 @@ class MetaPrelder(Strategy):
 
     def next(self):
         ret = self.data['ret'][-1]
-        close = self.data['Close'][-1]
-        # Dema9 = self.data['Dema9'][-1]
-        D = self.data['%D'][-1]
-        DS = self.data['%DS'][-1]
-        rsi = self.data['4H_rsi'][-1]
-        srl_corr = self.data['srl_corr'][-1]
-        forecast1 = model1.predict([[D, DS, rsi, srl_corr]])[-1]
-        forecast2 = model2.predict([[D, DS, rsi, srl_corr, forecast1]])
+        trend = self.data['trend'][-1]
+        momentum = self.data['momentum'][-1]
+        elder = self.data['elder'][-1]
+        forecast1 = modelPrime.predict([[trend, momentum, elder]])[-1]
+        forecast2 = modelMeta.predict([[trend, momentum, elder, forecast1]])
 
         if self.cond == 'B':
             if ret != 0 and forecast1 == forecast2 == 1:

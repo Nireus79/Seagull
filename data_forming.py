@@ -90,6 +90,9 @@ data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
 # data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
+# data['diff'] = np.log(data['Close']).diff()
+# data['cusum'] = data['Close'].cumsum()
+# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 
 data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(20).mean()
@@ -97,13 +100,10 @@ bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
 
 data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
-data['momentum'] = data.apply(lambda x: 1 if x['4H%D'] > x['4H%DS'] else 0, axis=1)
+data['momentum'] = data.apply(
+    lambda x: 1 if x['4H%D'] > x['4H%DS'] > 10 else (-1 if x['4H%D'] < x['4H%DS'] < 90 else 0), axis=1)
 data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
 elder_sides = data['elder']
-
-# data['diff'] = np.log(data['Close']).diff()
-# data['cusum'] = data['Close'].cumsum()
-# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
 
 threshold = data['Volatility']
 tEvents = getTEvents(data['Close'], h=threshold)
@@ -128,14 +128,7 @@ data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 
 # data[['%D', '%DS', 'srl_corr']] = rescaler(data[['%D', '%DS', 'srl_corr']], (0, 1))
 full_data = data.copy()
 
-# cusum events
 research_data = data.loc[events.index]
-
-# cusum + bb events
-# research_data = research_data[research_data['bb_cross'] != 0]
-
-# cusum + elder events
-# research_data = research_data[research_data['elder'] != -1]
 
 # signal = 'ret'
 signal = 'bin'
@@ -152,6 +145,5 @@ X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, resea
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
 
-# print('event -1', np.sum(np.array(research_data[signal]) == -1, axis=0))
 print('full_data.columns', full_data.columns)
 print('X.columns', X.columns)
