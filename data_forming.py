@@ -95,20 +95,19 @@ data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
 # data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 
-data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(20).mean()
+data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(window).mean()
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
 
 data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
-data['momentum'] = data.apply(
-    lambda x: 1 if x['4H%D'] > x['4H%DS'] else (-1 if x['4H%D'] < x['4H%DS'] else 0), axis=1)
-data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
-elder_sides = data['elder']
+# data['momentum'] = data.apply(lambda x: 1 if x['4H%D'] > x['4H%DS'] else 0, axis=1)
+# data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
+# elder_sides = data['elder']
 
 threshold = data['Volatility']
 tEvents = getTEvents(data['Close'], h=threshold)
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
-events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=elder_sides)
+events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
 # labels = getBins(events, data['Close'])
 labels = metaBins(events, eth.Close, t1)
 clean_labels = dropLabels(labels, .05)
@@ -134,9 +133,9 @@ research_data = data.loc[events.index]
 signal = 'bin'
 
 # BALANCE CLASSES
-# minority = research_data[research_data[signal] == 0]
-# majority = research_data[research_data[signal] == 1].sample(n=len(minority), replace=True)
-# research_data = pd.concat([minority, majority])
+minority = research_data[research_data[signal] == 1]
+majority = research_data[research_data[signal] == 0].sample(n=len(minority), replace=True)
+research_data = pd.concat([minority, majority])
 # print(research_data)
 
 

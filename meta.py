@@ -2,6 +2,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from data_forming import research_data, full_data
+import numpy as np
+import pandas as pd
 
 research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
                             'elder', 'bb_cross', 'ret'],
@@ -37,6 +39,12 @@ meta_backtest_data = full_data[X3.index[0]:X3.index[-1]]
 modelPrime = MLPClassifier()
 modelPrime.fit(X1, Y1)
 prime_predictions = modelPrime.predict(X2)
+
+# X2['Pseudo'] = prime_predictions
+# X2['Actual'] = Y2
+# X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['Actual'] else 0, axis=1)
+# X2.drop(columns=['Pseudo', 'Actual'], axis=1, inplace=True)
+
 X2['Meta'] = prime_predictions
 
 modelMeta = MLPClassifier()

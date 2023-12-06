@@ -95,14 +95,11 @@ def spliter(full_data, research_data, signal, part):
     X = research_data.loc[:, research_data.columns != signal, ]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
+    X.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K'], axis=1, inplace=True)
     if signal == 'ret':
-        X.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
-                        'elder', 'bb_cross', 'bin'],
-               axis=1, inplace=True)
+        X.drop(columns=['bin'], axis=1, inplace=True)
     elif signal == 'bin':
-        X.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
-                        'elder', 'bb_cross', 'ret'],
-               axis=1, inplace=True)
+        X.drop(columns=['ret'], axis=1, inplace=True)
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
     if part == 1:

@@ -28,20 +28,18 @@ class MetaPrelder(Strategy):
         vol = self.data['Volatility'][-1]
         forecast1 = modelPrime.predict([[D, DS, vol, trend]])[-1]
         forecast2 = modelMeta.predict([[D, DS, vol, trend, forecast1]])
-
-        if self.cond == 'B':
-            if ret != 0 and forecast2 == 1:
+        if ret != 0:
+            if not self.position and forecast1 == forecast2 == 1:
                 self.buy_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Buy at: ', self.buy_price)
-                self.cond = 'S'
+                # self.cond = 'S'
                 full_data['b'].loc[self.data.index[-1]] = True
                 self.buy()
-        elif self.cond == 'S':
-            if ret != 0 and forecast2 == 0:
+            elif forecast1 == forecast2 == 0:
                 self.sell_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Sell at:', self.sell_price, 'Profit: ', self.sell_price - self.buy_price)
                 self.sell_price = self.buy_price = 0
-                self.cond = 'B'
+                # self.cond = 'B'
                 full_data['s'].loc[self.data.index[-1]] = True
                 self.position.close()
 

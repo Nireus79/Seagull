@@ -1,0 +1,36 @@
+classification_report
+
+Precision — What percent of your predictions were correct?
+
+Precision is the ability of a classifier not to label an instance positive that is actually negative. For each class,
+ it is defined as the ratio of true positives to the sum of a true positive and false positive.
+
+Precision:- Accuracy of positive predictions.
+
+Precision = TP/(TP + FP)
+
+Recall — What percent of the positive cases did you catch?
+
+Recall is the ability of a classifier to find all positive instances. For each class it is defined as the ratio of
+ true positives to the sum of true positives and false negatives.
+
+Recall:- Fraction of positives that were correctly identified.
+
+Recall = TP/(TP+FN)
+
+F1 score — What percent of positive predictions were correct?
+
+The F1 score is a weighted harmonic mean of precision and recall such that
+ the best score is 1.0 and the worst is 0.0. F1 scores are lower than accuracy measures as
+  they embed precision and recall into their computation. As a rule of thumb, the weighted average of F1
+   should be used to compare classifier models, not global accuracy.
+
+F1 Score = 2*(Recall * Precision) / (Recall + Precision)
+
+Support
+
+Support is the number of actual occurrences of the class in the specified dataset. Imbalanced support
+ in the training data may indicate structural weaknesses in the reported scores of the classifier and could indicate
+  the need for stratified sampling or rebalancing. Support doesn’t change between models but instead diagnoses
+   the evaluation process.
+
