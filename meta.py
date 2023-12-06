@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
-                            'elder', 'bb_cross', 'ret'],
+                            'elder', 'ret'],
                    axis=1, inplace=True)
 train_set = research_data[:int(len(research_data) * 0.9)]
 research_data1 = train_set[:int(len(train_set) * 0.5)]
@@ -40,12 +40,12 @@ modelPrime = MLPClassifier()
 modelPrime.fit(X1, Y1)
 prime_predictions = modelPrime.predict(X2)
 
-# X2['Pseudo'] = prime_predictions
-# X2['Actual'] = Y2
-# X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['Actual'] else 0, axis=1)
-# X2.drop(columns=['Pseudo', 'Actual'], axis=1, inplace=True)
+X2['Pseudo'] = prime_predictions
+X2['Actual'] = Y2
+X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['Actual'] else 0, axis=1)
+X2.drop(columns=['Pseudo', 'Actual'], axis=1, inplace=True)
 
-X2['Meta'] = prime_predictions
+# X2['Meta'] = prime_predictions
 
 modelMeta = MLPClassifier()
 modelMeta.fit(X2, Y2)

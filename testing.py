@@ -17,32 +17,35 @@ class Prelder(Strategy):
     def init(self):
         self.model = MLPClassifier()
         self.model.fit(X_train, Y_train)
+        self.cond = 'B'
         self.buy_price = 0
         self.sell_price = 0
 
     def next(self):
         ret = self.data['ret'][-1]
-        # close = self.data['Close'][-1]
-        # Dema9 = self.data['Dema9'][-1]
-        # K = self.data['4H%K'][-1]
+        K = self.data['4H%K'][-1]
+        rsi = self.data['4H_rsi'][-1]
+        atr = self.data['4H_atr'][-1]
         trend = self.data['trend'][-1]
-        # momentum = self.data['momentum'][-1]
-        D = self.data['4H%D'][-1]
-        DS = self.data['4H%DS'][-1]
-        vol = self.data['Volatility'][-1]
-        bb = self.data['bb_cross'][-1]
-        forecast = self.model.predict([[D, DS, vol, bb, trend]])
-        if ret != 0:
-            if not self.position.is_long and forecast == 1:
+        momentum = self.data['momentum'][-1]
+        # elder = self.data['elder'][-1]
+        # D = self.data['4H%D'][-1]
+        # DS = self.data['4H%DS'][-1]
+        # vol = self.data['Volatility'][-1]
+        forecast = self.model.predict([[K, rsi, atr]])
+        if ret != 0 and trend == 1:
+            if self.cond == 'B' and momentum == 1 and forecast == 1:
                 self.buy_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Buy at: ', self.buy_price)
                 full_data['b'].loc[self.data.index[-1]] = True
+                self.cond = 'S'
                 self.buy()
-            elif not self.position.is_short and forecast == 0:
+            elif self.cond == 'S' and momentum == 0 and forecast == 0:
                 self.sell_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Sell at:', self.sell_price, 'Profit: ', self.sell_price - self.buy_price)
                 self.sell_price = self.buy_price = 0
                 full_data['s'].loc[self.data.index[-1]] = True
+                self.cond = 'B'
                 self.sell()
 
 

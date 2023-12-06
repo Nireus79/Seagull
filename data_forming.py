@@ -73,7 +73,7 @@ data = eth
 # data[asset2 + '_close'] = bit['close']
 # data[asset3 + '_close'] = eur['close']
 # data['ema9'] = data['Close'].rolling(9).mean()
-data['Dema9'] = data['1D_Close'].rolling(9).mean()
+# data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
 # data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
@@ -83,31 +83,31 @@ data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
-data['4H%D'] = data['4H%K'].rolling(3).mean()
+# data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()  # Stochastic slow.
-data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
+# data['4H%DS'] = data['4H%D'].rolling(3).mean()  # Stochastic slow.
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-# data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
+data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 # data['diff'] = np.log(data['Close']).diff()
 # data['cusum'] = data['Close'].cumsum()
-# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
-
-data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(window).mean()
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
+data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(window).mean()
 
-data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
-# data['momentum'] = data.apply(lambda x: 1 if x['4H%D'] > x['4H%DS'] else 0, axis=1)
+# data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
+# data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
 # data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
-# elder_sides = data['elder']
+# elder_sides = data.loc[data['trend'] == 1]
 
-threshold = data['Volatility']
-tEvents = getTEvents(data['Close'], h=threshold)
+tEvents = getTEvents(data['Close'], h=data['Volatility'])
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
+
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
+
 # labels = getBins(events, data['Close'])
 labels = metaBins(events, eth.Close, t1)
 clean_labels = dropLabels(labels, .05)
@@ -119,30 +119,32 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 # print(data)
 # print(data.isnull().sum())
-data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 'upper', 'lower'],
-          axis=1, inplace=True)
+data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', 'Price', 'ave', 'upper', 'lower'], axis=1, inplace=True)
 
-# data[['4H%D', '4H%DS', 'Volatility', 'trend']] = standardizer(data[['4H%D', '4H%DS', 'Volatility', 'trend']])
-# data[['4H%D', '4H%DS']] = normalizer(data[['4H%D', '4H%DS']])
-# data[['4H%D', '4H%DS']] = rescaler(data[['4H%D', '4H%DS']], (0, 1))
+# data[['Volume', 'rsi', '4H_atr', 'srl_corr']] = standardizer(data[['Volume', 'rsi', '4H_atr', 'srl_corr']])
+# data[['Volume', 'rsi', '4H_atr', 'srl_corr']] = normalizer(data[['Volume', 'rsi', '4H_atr', 'srl_corr']])
+# data[['Volume', 'rsi', '4H_atr', 'srl_corr']] = rescaler(data[['Volume', 'rsi', '4H_atr', 'srl_corr']], (0, 1))
 full_data = data.copy()
 
 research_data = data.loc[events.index]
 
+research_data = research_data.loc[research_data['bb_cross'] != 0]
+
 # signal = 'ret'
 signal = 'bin'
 
-# BALANCE CLASSES
-minority = research_data[research_data[signal] == 1]
-majority = research_data[research_data[signal] == 0].sample(n=len(minority), replace=True)
-research_data = pd.concat([minority, majority])
-# print(research_data)
-
-
 X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, research_data, signal, 5)
+
+# BALANCE CLASSES (down sampling)
+# minority = research_data[research_data[signal] == 1]
+# majority = research_data[research_data[signal] == 0].sample(n=len(minority), replace=True)
+# research_data = pd.concat([minority, majority])
+# print(research_data)
 
 print('event 1', np.sum(np.array(research_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(research_data[signal]) == 0, axis=0))
+print('research_data min ret', research_data.ret.min())
+print('research_data max ret', research_data.ret.max())
 
 print('full_data.columns', full_data.columns)
 print('X.columns', X.columns)
