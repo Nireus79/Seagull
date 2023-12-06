@@ -12,7 +12,7 @@ from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
 from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
-from data_forming import X, Y, research_data, full_data
+from data_forming import X, Y, events_data, full_data
 
 data = full_data
 

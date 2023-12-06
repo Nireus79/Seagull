@@ -24,7 +24,7 @@ from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
 import warnings
-from data_forming import X_train, X_test, Y_train, Y_test, research_data
+from data_forming import X_train, X_test, Y_train, Y_test, events_data
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
@@ -38,7 +38,7 @@ pd.set_option('display.max_columns', None)
 # describe data
 # set_option('precision', 3)
 # print(dataset.describe())
-dataset = research_data
+dataset = events_data
 # Data Cleaning
 # print('Null Values =', dataset.isnull().values.any())
 dataset[dataset.columns.values] = dataset[dataset.columns.values].ffill()

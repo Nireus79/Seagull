@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from data_forming import full_data, research_data, spliter
+from data_forming import full_data, events_data, spliter
 import pandas as pd
 import numpy as np
 import warnings

@@ -1,17 +1,17 @@
 from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
-from data_forming import research_data, full_data
+from data_forming import events_data, full_data
 import numpy as np
 import pandas as pd
 
-research_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
+events_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
                             'elder', 'ret'],
-                   axis=1, inplace=True)
-train_set = research_data[:int(len(research_data) * 0.9)]
+                 axis=1, inplace=True)
+train_set = events_data[:int(len(events_data) * 0.9)]
 research_data1 = train_set[:int(len(train_set) * 0.5)]
 research_data2 = train_set[int(len(train_set) * 0.5):]
-test_data = research_data[int(len(research_data) * 0.9):]
+test_data = events_data[int(len(events_data) * 0.9):]
 print(len(research_data1), len(research_data2), len(test_data))
 
 signal = 'bin'
