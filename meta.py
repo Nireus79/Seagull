@@ -1,5 +1,6 @@
 from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 from data_forming import events_data, full_data
 import numpy as np
@@ -36,7 +37,7 @@ X3 = test_data.loc[:, X3.columns]
 
 meta_backtest_data = full_data[X3.index[0]:X3.index[-1]]
 
-modelPrime = MLPClassifier()
+modelPrime = KNeighborsClassifier()
 modelPrime.fit(X1, Y1)
 prime_predictions = modelPrime.predict(X2)
 
@@ -47,7 +48,7 @@ X2.drop(columns=['Pseudo', 'Actual'], axis=1, inplace=True)
 
 # X2['Meta'] = prime_predictions
 
-modelMeta = MLPClassifier()
+modelMeta = KNeighborsClassifier()
 modelMeta.fit(X2, Y2)
 
 X3['Meta'] = modelPrime.predict(X3)

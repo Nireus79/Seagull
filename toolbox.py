@@ -76,7 +76,7 @@ def normalizer(data):
     return normalized
 
 
-def spliter(full_data, research_data, signal, part):
+def spliter(full_data, research_data, signal, part, drop_columns):
     """
     spliter takes a full dataset, and a dataset containing only cases for training and testing.
     drops the column of returns if classification is researched
@@ -95,8 +95,7 @@ def spliter(full_data, research_data, signal, part):
     X = research_data.loc[:, research_data.columns != signal, ]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
-    X.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', 'Volatility'],
-           axis=1, inplace=True)
+    X.drop(columns=drop_columns, axis=1, inplace=True)
     if signal == 'ret':
         X.drop(columns=['bin'], axis=1, inplace=True)
     elif signal == 'bin':
