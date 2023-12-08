@@ -90,7 +90,7 @@ ax = fig.add_subplot(111)
 plt.boxplot(results)
 ax.set_xticklabels(names)
 fig.set_size_inches(15, 8)
-plt.show()
+# plt.show()
 
 fig = plt.figure()
 
@@ -105,7 +105,18 @@ fig.set_size_inches(15, 8)
 plt.legend()
 ax.set_xticks(ind)
 ax.set_xticklabels(names)
-plt.show()
+# plt.show()
+
+# MLPClassifier: cv_results.mean: 0.629286 (cv_results.std: 0.081818)
+#               precision    recall  f1-score   support
+#
+#     no_trade       0.70      0.90      0.79        48
+#        trade       0.82      0.56      0.67        41
+#
+#     accuracy                           0.74        89
+#    macro avg       0.76      0.73      0.73        89
+# weighted avg       0.76      0.74      0.73        89
+# raw: ['Close', 'Dema9', '4H%K', '4H%D']
 
 # KNeighborsClassifier: cv_results.mean: 0.864449 (cv_results.std: 0.015995)
 #               precision    recall  f1-score   support
