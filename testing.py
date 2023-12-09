@@ -2,8 +2,8 @@ import winsound
 import numpy as np
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
-from data_forming import X_trainB, X_testB, Y_trainB, Y_testB, X_trainS, X_testS, Y_trainS, Y_testS, \
-    full_data, backtest_dataB, backtest_dataS
+from data_forming import X_train, X_test, Y_train, Y_test, \
+    full_data, backtest_data
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -14,15 +14,15 @@ import warnings
 warnings.filterwarnings('ignore')
 
 modelB = MLPClassifier()
-modelB.fit(X_trainB, Y_trainB)
-predB = modelB.predict(X_testB)
+modelB.fit(X_train, Y_train)
+predB = modelB.predict(X_test)
 modelS = KNeighborsClassifier()
-modelS.fit(X_trainS, Y_trainS)
-predS = modelS.predict(X_testS)
+modelS.fit(X_train, Y_train)
+predS = modelS.predict(X_test)
 print('Model B')
-print(classification_report(Y_testB, predB, target_names=['no_trade', 'trade']))
+print(classification_report(Y_test, predB, target_names=['no_trade', 'trade']))
 print('model S')
-print(classification_report(Y_testS, predS, target_names=['no_trade', 'trade']))
+print(classification_report(Y_test, predS, target_names=['no_trade', 'trade']))
 
 
 class Prelder(Strategy):
@@ -102,7 +102,7 @@ def opt(data, strategy):
 
 full_data['b'] = 0
 full_data['s'] = 0
-statistics(backtest_dataB, Prelder)
+statistics(backtest_data, Prelder)
 # opt(backtest_data, Prelder)
 
 # print(backtest_data)

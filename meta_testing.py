@@ -7,7 +7,7 @@ from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.metrics import classification_report, mean_squared_error
 from toolbox import create_LSTMmodel, standardizer
 from data_forming import full_data
-from meta import modelPrime, modelMeta, meta_backtest_data
+from meta import Prime_model, modelMeta, meta_backtest_data
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -26,7 +26,7 @@ class MetaPrelder(Strategy):
         D = self.data['4H%D'][-1]
         DS = self.data['4H%DS'][-1]
         vol = self.data['Volatility'][-1]
-        forecast1 = modelPrime.predict([[D, DS, vol, trend]])[-1]
+        forecast1 = Prime_model.predict([[D, DS, vol, trend]])[-1]
         forecast2 = modelMeta.predict([[D, DS, vol, trend, forecast1]])
         if ret != 0:
             if not self.position and forecast1 == forecast2 == 1:

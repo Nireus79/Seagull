@@ -24,7 +24,7 @@ from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
 import warnings
-from data_forming import events_dataB, X_train, Y_train, X_test, Y_test
+from data_forming import events_dataB, events_data, X_train, Y_train, X_test, Y_test
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)

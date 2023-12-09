@@ -79,7 +79,7 @@ data = eth
 # data['ema9'] = data['Close'].rolling(9).mean()
 data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
-data['Dema13'] = data['1D_Close'].rolling(13).mean()
+# data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
@@ -137,17 +137,19 @@ events_dataB = events_data.loc[events_data['bb_cross'] != 0]
 # signal = 'ret'
 signal = 'bin'
 
+feats_to_drop = ['4H_Low', '4H_atr', 'Close', 'Open', 'High', 'Low', 'Volume','Dema9', 'bb_cross', 'Volatility',
+                 'trend', 'momentum', 'elder']
 feats_to_dropB = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'trend', 'momentum',
                   'elder', '4H%K', '4H%D']
 feats_to_dropS = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'trend', 'momentum',
                   'elder', 'Close', 'Dema9']
 
-part = 4
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, events_data, signal, part, feats_to_dropB)
-XB, YB, X_trainB, X_testB, Y_trainB, Y_testB, backtest_dataB =\
-    spliter(full_data, events_dataB, signal, part, feats_to_dropB)
-XS, YS, X_trainS, X_testS, Y_trainS, Y_testS, backtest_dataS =\
-    spliter(full_data, events_data, signal, part, feats_to_dropS)
+part = 5
+X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, events_data, signal, part, feats_to_drop)
+# XB, YB, X_trainB, X_testB, Y_trainB, Y_testB, backtest_dataB = \
+#     spliter(full_data, events_dataB, signal, part, feats_to_dropB)
+# XS, YS, X_trainS, X_testS, Y_trainS, Y_testS, backtest_dataS = \
+#     spliter(full_data, events_data, signal, part, feats_to_dropS)
 
 # BALANCE CLASSES (down sampling)
 # minority = events_data[events_data[signal] == 1]
@@ -155,8 +157,8 @@ XS, YS, X_trainS, X_testS, Y_trainS, Y_testS, backtest_dataS =\
 # events_data = pd.concat([minority, majority])
 # print(research_data)
 
-print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
+print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 print('research_data min ret', events_data.ret.min())
 print('research_data max ret', events_data.ret.max())
 
