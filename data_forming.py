@@ -28,9 +28,9 @@ pd.set_option('display.max_columns', None)
 # merged_eurusd = asset_merger(eurusd_csv, 'eurusd')
 # merged_eurusd.to_csv('eur_usd_20_23_hours.csv')
 
-dot = pd.read_csv('csv/time_bars_30min/DOTEUR_full_30m.csv')
-dot.time = pd.to_datetime(dot.time, unit='ms')
-dot.set_index('time', inplace=True)
+# dot = pd.read_csv('csv/time_bars_30min/DOTEUR_full_30m.csv')
+# dot.time = pd.to_datetime(dot.time, unit='ms')
+# dot.set_index('time', inplace=True)
 
 eth = pd.read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
 eth.time = pd.to_datetime(eth.time, unit='ms')
@@ -79,7 +79,7 @@ data = eth
 # data['ema9'] = data['Close'].rolling(9).mean()
 data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
-# data['Dema13'] = data['1D_Close'].rolling(13).mean()
+data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
@@ -138,11 +138,11 @@ events_dataB = events_data.loc[events_data['bb_cross'] != 0]
 signal = 'bin'
 
 feats_to_dropB = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'trend', 'momentum',
-                  'elder']
+                  'elder', '4H%K', '4H%D']
 feats_to_dropS = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'trend', 'momentum',
                   'elder', 'Close', 'Dema9']
 
-part = 5
+part = 4
 X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, events_data, signal, part, feats_to_dropB)
 XB, YB, X_trainB, X_testB, Y_trainB, Y_testB, backtest_dataB =\
     spliter(full_data, events_dataB, signal, part, feats_to_dropB)

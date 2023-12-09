@@ -54,14 +54,18 @@ class Prelder(Strategy):
                 self.buy()
         elif self.cond == 'S':
             if close < self.stop:
+                self.sell_price = close
                 print(self.data.index[-1], 'Pillow sell at:', self.sell_price, 'Profit: ',
                       self.sell_price - self.buy_price)
+                self.sell_price = self.buy_price = 0
+                full_data['s'].loc[self.data.index[-1]] = True
                 self.stop = 0
                 self.cond = 'B'
                 self.sell()
             elif ret != 0 and self.MS.predict([[K, D]]) == 1:
                 self.sell_price = self.data.Close[-1]
-                print(self.data.index[-1], 'Sell at:', self.sell_price, 'Profit: ',
+                self.sell_price = close
+                print(self.data.index[-1], 'Model sell at:', self.sell_price, 'Profit: ',
                       self.sell_price - self.buy_price)
                 self.sell_price = self.buy_price = 0
                 full_data['s'].loc[self.data.index[-1]] = True

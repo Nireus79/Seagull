@@ -2,60 +2,74 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
-from data_forming import events_data, full_data
+from data_forming import events_data, full_data, X_train, X_test, Y_train, Y_test
 import numpy as np
 import pandas as pd
-
+# https://hudsonthames.org/meta-labeling-a-toy-example/
 events_data.drop(columns=['Close', 'Open', 'High', 'Low', 'Volume', 'Dema9', '4H%K', 'momentum',
-                            'elder', 'ret'],
+                          'elder', 'ret'],
                  axis=1, inplace=True)
-train_set = events_data[:int(len(events_data) * 0.9)]
+
+# modelPrime = KNeighborsClassifier()
+# modelPrime.fit(X_train, Y_train)
+# prime_predictions = modelPrime.predict(X_test)
+#
+# meta_df = pd.DataFrame()
+# meta_df['actual'] = Y_test
+# meta_df['predicted'] = prime_predictions
+# meta_df['meta'] = meta_df.apply(lambda x: 1 if x['actual'] == x['predicted'] else 0, axis=1)
+#
+# meta_labels = meta_df.iloc[:, 2]
+
+train_set = events_data[:int(len(events_data) * 0.8)]
 research_data1 = train_set[:int(len(train_set) * 0.5)]
 research_data2 = train_set[int(len(train_set) * 0.5):]
-test_data = events_data[int(len(events_data) * 0.9):]
+test_data = events_data[int(len(events_data) * 0.8):]
 print(len(research_data1), len(research_data2), len(test_data))
 
 signal = 'bin'
 
-Y1 = research_data1.loc[:, signal]
-Y1.name = Y1.name
-X1 = research_data1.loc[:, research_data1.columns != signal]
-Y1 = research_data1.loc[:, Y1.name]
-X1 = research_data1.loc[:, X1.columns]
+Y_meta_train_A = research_data1.loc[:, signal]
+Y_meta_train_A.name = Y_meta_train_A.name
+X_meta_train_A = research_data1.loc[:, research_data1.columns != signal]
+Y_meta_train_A = research_data1.loc[:, Y_meta_train_A.name]
+X_meta_train_A = research_data1.loc[:, X_meta_train_A.columns]
 
-Y2 = research_data2.loc[:, signal]
-Y2.name = Y2.name
-X2 = research_data2.loc[:, research_data2.columns != signal]
-Y2 = research_data2.loc[:, Y2.name]
-X2 = research_data2.loc[:, X2.columns]
+Y_meta_train_B = research_data2.loc[:, signal]
+Y_meta_train_B.name = Y_meta_train_B.name
+X_meta_train_B = research_data2.loc[:, research_data2.columns != signal]
+Y_meta_train_B = research_data2.loc[:, Y_meta_train_B.name]
+X_meta_train_B = research_data2.loc[:, X_meta_train_B.columns]
 
-Y3 = test_data.loc[:, signal]
-Y3.name = Y3.name
-X3 = test_data.loc[:, test_data.columns != signal]
-Y3 = test_data.loc[:, Y3.name]
-X3 = test_data.loc[:, X3.columns]
+Y_meta_test = test_data.loc[:, signal]
+Y_meta_test.name = Y_meta_test.name
+X_meta_test = test_data.loc[:, test_data.columns != signal]
+Y_meta_test = test_data.loc[:, Y_meta_test.name]
+X_meta_test = test_data.loc[:, X_meta_test.columns]
 
-meta_backtest_data = full_data[X3.index[0]:X3.index[-1]]
+meta_backtest_data = full_data[X_meta_test.index[0]:X_meta_test.index[-1]]
 
 modelPrime = KNeighborsClassifier()
-modelPrime.fit(X1, Y1)
-prime_predictions = modelPrime.predict(X2)
+modelPrime.fit(X_meta_train_A, Y_meta_train_A)
+prime_predictions = modelPrime.predict(X_meta_train_B)
 
-X2['Pseudo'] = prime_predictions
-X2['Actual'] = Y2
-X2['Meta'] = X2.apply(lambda x: 1 if x['Pseudo'] == x['Actual'] else 0, axis=1)
-X2.drop(columns=['Pseudo', 'Actual'], axis=1, inplace=True)
+# X_meta_train_B['PredA'] = prime_predictions
+meta_df = pd.DataFrame()
+meta_df['actual'] = Y_meta_train_B
+meta_df['predicted'] = prime_predictions
+meta_df['meta'] = meta_df.apply(lambda x: 1 if x['actual'] == x['predicted'] else 0, axis=1)
 
-# X2['Meta'] = prime_predictions
+meta_labels = meta_df.iloc[:, 2]
 
 modelMeta = KNeighborsClassifier()
-modelMeta.fit(X2, Y2)
+modelMeta.fit(X_meta_train_B, meta_labels)
+meta_predictions = modelMeta.predict(X_meta_test)
+test_pred = modelPrime.predict(X_meta_test)
 
-X3['Meta'] = modelPrime.predict(X3)
-meta_predictions = modelMeta.predict(X3)
-
-print(classification_report(Y2, prime_predictions, target_names=['no_trade', 'trade']))
-print(classification_report(Y3, meta_predictions, target_names=['no_trade', 'trade']))
+predictions = modelPrime.predict(X_meta_test)
+print(classification_report(Y_meta_test, predictions, target_names=['no_trade', 'trade']))
+print(classification_report(Y_meta_test, meta_predictions, target_names=['no_trade', 'trade']))
+print(classification_report(test_pred, meta_predictions, target_names=['prime', 'meta']))
 
 # 3 models
 # modelPrime = MLPClassifier()
