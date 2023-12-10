@@ -24,13 +24,13 @@ from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
 import warnings
-from data_forming import events_dataB, events_data, X_train, Y_train, X_test, Y_test
+from data_forming import events_data, X_train, Y_train, X_test, Y_test
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
-dataset = events_dataB
+dataset = events_data
 dataset[dataset.columns.values] = dataset[dataset.columns.values].ffill()
 
 seed = 1
@@ -117,6 +117,17 @@ ax.set_xticklabels(names)
 #    macro avg       0.76      0.73      0.73        89
 # weighted avg       0.76      0.74      0.73        89
 # raw: ['Close', 'Dema9', '4H%K', '4H%D']
+
+# MLPClassifier: cv_results.mean: 0.524841 (cv_results.std: 0.085284)
+#               precision    recall  f1-score   support
+#
+#     no_trade       0.00      0.00      0.00        42
+#        trade       0.54      1.00      0.70        50
+#
+#     accuracy                           0.54        92
+#    macro avg       0.27      0.50      0.35        92
+# weighted avg       0.30      0.54      0.38        92
+# raw: ['Dema9', 'Dema13', '4Hmacd']
 
 # KNeighborsClassifier: cv_results.mean: 0.864449 (cv_results.std: 0.015995)
 #               precision    recall  f1-score   support

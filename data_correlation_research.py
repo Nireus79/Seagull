@@ -12,8 +12,12 @@ from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
 from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
-from data_forming import X, Y, events_data, full_data
-
+from data_forming import events_data, full_data, signal
+Y = events_data.loc[:, signal]
+Y.name = Y.name
+X = events_data.loc[:, events_data.columns != signal, ]
+Y = events_data.loc[:, Y.name]
+X = events_data.loc[:, X.columns]
 data = full_data
 
 # research------------------------------------------------------------------------------------

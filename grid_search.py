@@ -46,7 +46,7 @@ from statsmodels.tsa.arima.model import ARIMA
 # Error Metrics
 from sklearn.metrics import mean_squared_error, accuracy_score, classification_report
 from toolbox import evaluate_ANN, evaluate_LSTM, evaluate_LSTM_combinations, evaluate_arima_models
-from data_forming import X, Y, X_train, Y_train, X_test, Y_test
+from data_forming import X_train, Y_train, X_test, Y_test
 
 # Saving the Model
 from pickle import dump

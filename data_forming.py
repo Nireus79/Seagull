@@ -79,11 +79,11 @@ data = eth
 # data['ema9'] = data['Close'].rolling(9).mean()
 data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
-# data['Dema13'] = data['1D_Close'].rolling(13).mean()
+data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
@@ -102,10 +102,10 @@ bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(window).mean()
 
-data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
-data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
-data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
-elder_sides = data.loc[data['trend'] == 1]
+# data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema9'] else 0, axis=1)
+# data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
+# data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
+# elder_sides = data.loc[data['trend'] == 1]
 
 tEvents = getTEvents(data['Close'], h=data['Volatility'])
 t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
@@ -132,25 +132,17 @@ full_data = data.copy()
 
 events_data = data.loc[events.index]
 
-events_dataB = events_data.loc[events_data['bb_cross'] != 0]
+# events_data = events_data.loc[events_data['bb_cross'] != 0]
 
 # signal = 'ret'
 signal = 'bin'
 
-feats_to_drop = ['4H_Low', '4H_atr', 'Close', 'Open', 'High', 'Low', 'Volume','Dema9', 'bb_cross', 'Volatility',
-                 'trend', 'momentum', 'elder']
-feats_to_dropB = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'trend', 'momentum',
-                  'elder', '4H%K', '4H%D']
-feats_to_dropS = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'trend', 'momentum',
-                  'elder', 'Close', 'Dema9']
+feats_to_drop = ['4H_Low', '4H_atr', 'Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility',
+                 'Dema9', 'Dema13', '4Hmacd']
 
-part = 5
-X, Y, X_train, X_test, Y_train, Y_test, backtest_data = spliter(full_data, events_data, signal, part, feats_to_drop)
-# XB, YB, X_trainB, X_testB, Y_trainB, Y_testB, backtest_dataB = \
-#     spliter(full_data, events_dataB, signal, part, feats_to_dropB)
-# XS, YS, X_trainS, X_testS, Y_trainS, Y_testS, backtest_dataS = \
-#     spliter(full_data, events_data, signal, part, feats_to_dropS)
-
+part = 4
+X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feats_to_drop)
+backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
 # BALANCE CLASSES (down sampling)
 # minority = events_data[events_data[signal] == 1]
 # majority = events_data[events_data[signal] == 0].sample(n=len(minority), replace=True)
@@ -163,4 +155,4 @@ print('research_data min ret', events_data.ret.min())
 print('research_data max ret', events_data.ret.max())
 
 print('full_data.columns', full_data.columns)
-print('X.columns', X.columns)
+print('X.columns', X_train.columns)

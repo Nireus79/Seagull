@@ -76,7 +76,7 @@ def normalizer(data):
     return normalized
 
 
-def spliter(full_data, research_data, signal, part, drop_columns):
+def spliter(research_data, signal, part, drop_columns):
     """
     spliter takes a full dataset, and a dataset containing only cases for training and testing.
     drops the column of returns if classification is researched
@@ -84,7 +84,7 @@ def spliter(full_data, research_data, signal, part, drop_columns):
     Then splits the research_data into X (features) and Y(labels),
     drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
     Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
-    :param full_data:
+    :param drop_columns:
     :param research_data: dataset containing only cases for training and testing
     :param signal:
     :param part: 1 to 5
@@ -105,28 +105,23 @@ def spliter(full_data, research_data, signal, part, drop_columns):
     if part == 1:
         X_test, X_train = X[:test_size], X[test_size:]
         Y_test, Y_train = Y[:test_size], Y[test_size:]
-        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+        return X_train, X_test, Y_train, Y_test
     elif part == 2:
         X_test, X_train = X[test_size:test_size * 2], pd.concat([X[:test_size], X[test_size * 2:]])
         Y_test, Y_train = Y[test_size:test_size * 2], pd.concat([Y[:test_size], Y[test_size * 2:]])
-        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+        return X_train, X_test, Y_train, Y_test
     elif part == 3:
         X_test, X_train = X[test_size * 2:test_size * 3], pd.concat([X[:test_size * 2], X[test_size * 3:]])
         Y_test, Y_train = Y[test_size * 2:test_size * 3], pd.concat([Y[:test_size * 2], Y[test_size * 3:]])
-        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+        return X_train, X_test, Y_train, Y_test
     elif part == 4:
         X_test, X_train = X[test_size * 3:test_size * 4], pd.concat([X[:test_size * 3], X[test_size * 4:]])
         Y_test, Y_train = Y[test_size * 3:test_size * 4], pd.concat([Y[:test_size * 3], Y[test_size * 4:]])
-        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+        return X_train, X_test, Y_train, Y_test
     elif part == 5:
         X_test, X_train = X[test_size * 4:], X[:test_size * 4]
         Y_test, Y_train = Y[test_size * 4:], Y[:test_size * 4]
-        backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-        return X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+        return X_train, X_test, Y_train, Y_test
     else:
         print('Give part number 1 to 5 only.')
 
