@@ -13,12 +13,15 @@ from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
 from data_forming import events_data, full_data, signal
+print(events_data)
 Y = events_data.loc[:, signal]
 Y.name = Y.name
 X = events_data.loc[:, events_data.columns != signal, ]
 Y = events_data.loc[:, Y.name]
 X = events_data.loc[:, X.columns]
-data = full_data
+data = events_data
+# data = data.loc[data['bin'] == 0]
+print(data)
 
 # research------------------------------------------------------------------------------------
 print('data.describe()--------------------------------------------------------------------')
@@ -82,12 +85,3 @@ featureScores = pd.concat([dfcolumns, dfscores], axis=1)
 featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
 print('featureScores--------------------------------------------------------------------------')
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
-
-# f_classif Specs
-# trend       110.966150
-# elder        10.094178
-# momentum      5.518308
-# %D            4.395980
-# %DS           4.165696
-# srl_corr      4.097572
-

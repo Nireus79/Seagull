@@ -21,23 +21,25 @@ class Prelder(Strategy):
 
     def next(self):
         ret = self.data['ret'][-1]
+        bbc = self.data['bb_cross'][-1]
         close = self.data['Close'][-1]
-        Dema9 = self.data['Dema9'][-1]
-        Dema13 = self.data['Dema13'][-1]
-        mac = self.data['4Hmacd'][-1]
+        T_diff = self.data['T_diff'][-1]
+        M_diff = self.data['M_diff'][-1]
         K = self.data['4H%K'][-1]
         D = self.data['4H%D'][-1]
-        # forecastB = self.MB.predict([[close, Dema9, K, D]])
-        # forecastS = self.MS.predict([[K, D]])
-        if self.cond == 'B' and ret != 0 and \
-                self.PMB.predict([[Dema9, Dema13, mac]]) == self.MMB.predict([[Dema9, Dema13, mac]]) == 1:
-            self.buy_price = self.data.Close[-1]
-            print(self.data.index[-1], 'Buy at: ', self.buy_price)
-            full_data['b'].loc[self.data.index[-1]] = True
-            self.cond = 'S'
-            self.buy()
-        elif self.cond == 'S':
-            if ret != 0 and self.PMS.predict([[K, D]]) == self.MMS.predict([[K, D]]) == 1:
+        if self.cond == 'B' and ret != 0 and bbc != 0:
+            primaryPB = self.PMB.predict([[T_diff, M_diff]])[-1]
+            metaPB = self.MMB.predict([[T_diff, M_diff, primaryPB]])[-1]
+            if primaryPB == metaPB != 1:
+                self.buy_price = self.data.Close[-1]
+                print(self.data.index[-1], 'Buy at: ', self.buy_price)
+                full_data['b'].loc[self.data.index[-1]] = True
+                self.cond = 'S'
+                self.buy()
+        elif self.cond == 'S' and ret != 0:
+            primaryPS = self.PMS.predict([[K, D]])[-1]
+            metaPS = self.MMS.predict([[K, D, primaryPS]])[-1]
+            if primaryPS == 0 and metaPS == 1:
                 self.sell_price = self.data.Close[-1]
                 self.sell_price = close
                 print(self.data.index[-1], 'Model sell at:', self.sell_price, 'Profit: ',

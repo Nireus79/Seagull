@@ -107,28 +107,7 @@ ax.set_xticks(ind)
 ax.set_xticklabels(names)
 # plt.show()
 
-# MLPClassifier: cv_results.mean: 0.629286 (cv_results.std: 0.081818)
-#               precision    recall  f1-score   support
-#
-#     no_trade       0.70      0.90      0.79        48
-#        trade       0.82      0.56      0.67        41
-#
-#     accuracy                           0.74        89
-#    macro avg       0.76      0.73      0.73        89
-# weighted avg       0.76      0.74      0.73        89
-# raw: ['Close', 'Dema9', '4H%K', '4H%D']
-
-# MLPClassifier: cv_results.mean: 0.524841 (cv_results.std: 0.085284)
-#               precision    recall  f1-score   support
-#
-#     no_trade       0.00      0.00      0.00        42
-#        trade       0.54      1.00      0.70        50
-#
-#     accuracy                           0.54        92
-#    macro avg       0.27      0.50      0.35        92
-# weighted avg       0.30      0.54      0.38        92
-# raw: ['Dema9', 'Dema13', '4Hmacd']
-
+# Sell model --------------------------------------------------------------------------------------------
 # KNeighborsClassifier: cv_results.mean: 0.864449 (cv_results.std: 0.015995)
 #               precision    recall  f1-score   support
 #
@@ -138,4 +117,4 @@ ax.set_xticklabels(names)
 #     accuracy                           0.89       406
 #    macro avg       0.55      0.51      0.49       406
 # weighted avg       0.82      0.89      0.84       406
-# : raw ['4H%K', '4H%D']
+# : raw ['4H%K', '4H%D'], events = events

@@ -339,6 +339,13 @@ In summary, the getEvents function is responsible for generating events for a tr
 of target levels, sides (buy/sell), and profit-taking/stop-loss factors. It also supports parallel processing for
 efficiency. The specific logic for trading and event generation would depend on the larger context of the trading
 strategy and the specific implementation of applyPtSlOnT1. :param close: :param tEvents: :param ptSl: :param trgt:
+    :param side:
+    :param t1:
+    :param numThreads:
+    :param trgt:
+    :param ptSl:
+    :param tEvents:
+    :param close:
 :param minRet: :param numThreads: :param t1: :param side: :return: df with event timestamp t1 timestamp target and side
     """
     # 1) get target
