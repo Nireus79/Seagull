@@ -4,8 +4,8 @@ from ta.momentum import rsi, stoch
 from ta.trend import macd_diff, macd_signal, macd, adx
 from ta.volatility import average_true_range
 from toolbox import rescaler, normalizer, standardizer, ROC, MOM, spliter, crossing3
-from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, getEvents, bbands, metaBins, \
-    df_rolling_autocorr, returns
+from Pradofun import getDailyVol, getDailyVolRows, getTEvents, addVerticalBarrier, addVerticalBarrierRows, dropLabels,\
+    getEvents, bbands, metaBins, df_rolling_autocorr, returns, getDailyTimeBarVolatilityRows
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -16,25 +16,22 @@ warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
-# csv = 'D:/crypto_DATA/time/30m/ETHEUR/'
-# merged = primary_asset_merger(csv)
-# merged.to_csv('ETHEUR_full_30m.csv')
-
-# merged_doteur.to_csv('doteur_20_23_hours.csv')
-# merged_btceur = asset_merger(btceur_csv, 'btceur')
-# merged_btceur.to_csv('btc_eur_20_23_hours.csv')
-# merged_etheur = asset_merger(etheur_csv, 'etheur')
-# merged_etheur.to_csv('eth_eur_20_23_hours.csv')
-# merged_eurusd = asset_merger(eurusd_csv, 'eurusd')
-# merged_eurusd.to_csv('eur_usd_20_23_hours.csv')
-
-# dot = pd.read_csv('csv/time_bars_30min/DOTEUR_full_30m.csv')
-# dot.time = pd.to_datetime(dot.time, unit='ms')
-# dot.set_index('time', inplace=True)
-
 eth = pd.read_csv('csv/time_bars_30min/ETHEUR_full_30m.csv')
 eth.time = pd.to_datetime(eth.time, unit='ms')
 eth.set_index('time', inplace=True)
+
+# eur_usd1H = pd.read_csv('csv/time_bars_1h/eur_usd_20_23_hours.csv')
+# eur_usd1H.rename(columns={'eurusd_open': 'Open', 'eurusd_high': 'High', 'eurusd_low': 'Low', 'eurusd_close': 'Close',
+#                           'volume': 'Volume'}, inplace=True)
+# eur_usd1H.time = pd.to_datetime(eur_usd1H.time, unit='ms')
+# eur_usd1H.set_index('time', inplace=True)
+#
+# btc_eur1H = pd.read_csv('csv/time_bars_1h/btc_eur_20_23_hours.csv')
+# btc_eur1H.rename(columns={'btceur_open': 'Open', 'btceur_high': 'High', 'btceur_low': 'Low', 'btceur_close': 'Close',
+#                           'volume': 'Volume'}, inplace=True)
+# btc_eur1H.time = pd.to_datetime(btc_eur1H.time, unit='ms')
+# btc_eur1H.set_index('time', inplace=True)
+
 
 ohlc = {
     'Open': 'first',
@@ -47,38 +44,30 @@ eth4h = eth.resample('4H').apply(ohlc)
 eth['4H_Close'] = eth4h['Close']
 eth['4H_Low'] = eth4h['Low']
 eth['4H_High'] = eth4h['High']
+
 eth1D = eth.resample('D').apply(ohlc)
 eth['1D_Close'] = eth1D['Close']
 eth['1D_High'] = eth1D['High']
 eth['1D_Low'] = eth1D['Low']
 eth = eth.ffill()
 
-# dot4h = dot.resample('4H').apply(ohlc)
-# dot['4H_Close'] = dot4h['Close']
-# dot['4H_Low'] = dot4h['Low']
-# dot['4H_High'] = dot4h['High']
-# dot1D = dot.resample('D').apply(ohlc)
-# dot['1D_Close'] = dot1D['Close']
-# dot = dot.ffill()
+# eur_usd4H = eur_usd1H.resample('4H').apply(ohlc)
+# eth['4H_eurusd_Close'] = eur_usd4H['Close']
+#
+# btc_eur4H = btc_eur1H.resample('4H').apply(ohlc)
+# eth['4H_btc_eur_Close'] = btc_eur4H['Close']
 
 cpus = 1
 ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
 minRet = c_labels = .01  # The minimum target return(def .01) (volatility) required for running a triple barrier search
 vertical_days = 1
+rows = 48
 span = 100
 window = 20
 bb_stddev = 1
-part = 3
-
-asset1 = 'etheur'
-asset2 = 'btceur'
-asset3 = 'eurusd'
+part = 5
 
 data = eth
-# data['Dot'] = dot['Close']  # .loc[data.index]
-# data[asset1 + '_close'] = eth['close']
-# data[asset2 + '_close'] = bit['close']
-# data[asset3 + '_close'] = eur['close']
 # data['ema3'] = data['Close'].rolling(3).mean()
 # data['H4_ema3'] = data['4H_Close'].rolling(3).mean()
 # data['H4_ema6'] = data['4H_Close'].rolling(6).mean()
@@ -89,11 +78,15 @@ data = eth
 # data['ema9'] = data['Close'].rolling(9).mean()
 data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
-# data['Dema13'] = data['1D_Close'].rolling(13).mean()
+data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 data['4Hmacd_diff'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['4Hbit_macd_diff'] = macd_diff(data['4H_btc_eur_Close'], window_slow=26, window_fast=12, window_sign=9,
+# fillna=False)
+# data['4H$_macd_diff'] = macd_diff(data['4H_btc_eur_Close'], window_slow=26, window_fast=12, window_sign=9,
+# fillna=False)
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
@@ -110,15 +103,15 @@ data['4H%D'] = data['4H%K'].rolling(3).mean()
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
-data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(window).mean()
+data['Volatility'] = getDailyVolRows(data['Close'], span, rows, 'ewm').rolling(window).mean()
 # data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema13'] else 0, axis=1)
 # data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
 # data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
 # elder_sides = data.loc[data['trend'] == 1]
-data['T_diff'] = data.apply(lambda x: x['Close'] - x['Dema9'], axis=1)
+data['T_diff'] = data.apply(lambda x: x['Dema9'] - x['Dema13'], axis=1)
 data['M_diff'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
 tEvents = getTEvents(data['Close'], h=data['Volatility'])
-t1 = addVerticalBarrier(tEvents, data['Close'], numDays=vertical_days)
+t1 = addVerticalBarrierRows(tEvents, data['Close'], rows)
 
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
 
@@ -133,10 +126,11 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 # print(data)
 # print(data.isnull().sum())
-data.drop(columns=['4H_Close', '4H_High', '1D_Close', '1D_High', '1D_Low', 'Price', 'ave', 'upper', 'lower'],
+data.drop(columns=['4H_Close', '4H_High', '1D_Close', '1D_High', '1D_Low',
+                   'Price', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 
-# data[['4H%K', '4H%D', '4Hmacd']] = standardizer(data[['4H%K', '4H%D', '4Hmacd']])
+# data[['4H%K', '4H%D', 'Dema9', 'Dema13']] = standardizer(data[['4H%K', '4H%D', 'Dema9', 'Dema13']])
 # data[['4H%K', '4H%D', '4Hmacd']] = normalizer(data[['4H%K', '4H%D', '4Hmacd']])
 # data[['4H%K', '4H%D', '4Hmacd']] = rescaler(data[['4H%K', '4H%D', '4Hmacd']], (0, 1))
 full_data = data.copy()
@@ -147,7 +141,7 @@ events_data = data.loc[events.index]
 # signal = 'ret'
 signal = 'bin'
 
-feats_to_drop = ['4H_Low', 'Open', 'High', 'Low', 'Close', 'Volume', 'Volatility', 'bb_cross', 'Dema9']
+feats_to_drop = ['4H_Low', 'Open', 'High', 'Low', 'Close', 'Volume', 'Volatility', 'Dema9']
 
 X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feats_to_drop)
 backtest_data = full_data[X_test.index[0]:X_test.index[-1]]

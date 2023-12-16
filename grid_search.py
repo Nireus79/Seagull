@@ -515,3 +515,16 @@ def GS_GradientBoostingClassifier():
     # plt.show()
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
+
+
+GS_MLP_classifier()
+# 5
+# {'activation': 'relu', 'alpha': 0.0005, 'hidden_layer_sizes': (50, 50, 50), 'learning_rate': 'adaptive', 'solver': 'sgd'}
+# 4
+# {'activation': 'relu', 'alpha': 0.0007, 'hidden_layer_sizes': (150, 100, 50), 'learning_rate': 'constant', 'solver': 'sgd'}
+# 3 1.0       0.70      0.81      0.75       191
+# {'activation': 'logistic', 'alpha': 0.0005, 'hidden_layer_sizes': (100,), 'learning_rate': 'adaptive', 'solver': 'sgd'}
+# 2 1 66 78
+# {'activation': 'relu', 'alpha': 0.0003, 'hidden_layer_sizes': (120, 80, 40), 'learning_rate': 'constant', 'solver': 'adam'}
+# 1
+# {'activation': 'logistic', 'alpha': 0.05, 'hidden_layer_sizes': (120, 80, 40), 'learning_rate': 'invscaling', 'solver': 'adam'}

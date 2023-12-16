@@ -12,10 +12,10 @@ import pandas as pd
 # Two train sets
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model --------------------------------------------------------------------------------------------------')
-feats_to_dropSell = ['4H_Low', 'Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'Dema9',
-                     'T_diff', 'M_diff']
-feats_to_dropBuy = ['4H_Low', 'Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'Dema9',
-                    '4H%K', '4H%D']
+feats_to_dropSell = ['4H_Low', 'Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility',
+                     'Dema9', 'Dema13', '4Hmacd_diff', 'T_diff', 'M_diff']
+feats_to_dropBuy = ['4H_Low', 'Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility',
+                    'Dema9', 'Dema13', '4H%K', '4H%D']
 X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_data, signal, part, feats_to_dropSell)
 
 X_train_ASell, Y_train_ASell = X_trainSell[:int(len(X_trainSell) * 0.5)], Y_trainSell[:int(len(Y_trainSell) * 0.5)]
@@ -54,7 +54,7 @@ print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0'
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')
 
-events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
+events_dataBuy = events_data.loc[events_data['bb_cross'] == 1]
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, feats_to_dropBuy)
 
 X_train_ABuy, Y_train_ABuy = X_trainBuy[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]

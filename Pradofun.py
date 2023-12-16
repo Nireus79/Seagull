@@ -179,7 +179,7 @@ def getDailyVol(close, span0, days, m):
         return df0ewm
 
 
-def getDailyVolCGPT(close, span0, rows, m):
+def getDailyVolRows(close, span0, rows, m):
     """
     The formula used in the function to calculate daily volatility is based on the exponential moving standard
     deviation (EMS). The function calculates daily volatility as an estimate of the standard deviation of daily
@@ -384,6 +384,17 @@ in getEvents."""
     return t1
 
 
+def addVerticalBarrierRows(tEvents, close, rows):
+    """For each index in tEvents,
+it finds the timestamp of the next price bar at or immediately after a number
+of days numDays. This vertical barrier can be passed as optional argument t1
+in getEvents."""
+    t1 = close.index.searchsorted(tEvents + pd.DateOffset(rows))
+    t1 = t1[t1 < close.shape[0]]
+    t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
+    return t1
+
+
 def getBins(events, close):
     """
     Compute event's outcome (including side information, if provided).
@@ -470,6 +481,23 @@ def getDailyTimeBarVolatility(close, span0):
     :return:
     """
     df0 = close.index.searchsorted(close.index - pd.Timedelta(days=1))
+    df0 = df0[df0 > 0]
+    df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
+    df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
+    df0 = df0.ewm(span=span0).std()
+    return df0
+
+
+def getDailyTimeBarVolatilityRows(close, span0, rows):
+    """
+    DYNAMIC THRESHOLDS for time bars
+    daily vol, reindexed to close
+    :param rows:
+    :param close:
+    :param span0:
+    :return:
+    """
+    df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
     df0 = df0[df0 > 0]
     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
