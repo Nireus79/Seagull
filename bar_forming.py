@@ -222,12 +222,11 @@ def dollar_bar_df(df, value_column, m):
 
 def db_creator(csv, vol):
     columns = ['id', 'price', 'qty', 'base_qty', 'time', 'is_buyer_maker', '7']
-    data = pd.read_csv(csv, header=None, names=columns)
+    data = pd.read_csv(csv, header=None, names=columns, sep=',', dtype={'is_buyer_maker': bool, '7': bool})
     data = data.drop(columns=['id', 'base_qty', 'is_buyer_maker', '7'], axis=1)
     # data.time = pd.to_datetime(data.time, unit='ms')
     # data.set_index('time', inplace=True)
     data['value'] = data['price'] * data['qty']
-    # print(data)
     # mad = mad_outlier(data.price.values.reshape(-1, 1))
     # data = data.loc[~mad]
     # print(data)

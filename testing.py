@@ -2,7 +2,7 @@ import winsound
 from backtesting import Backtest, Strategy
 from backtesting.lib import crossover
 from data_forming import full_data, backtest_data
-from meta import PrimeModelBuy, PrimeModelSell, MetaModelBuy, MetaModelSell
+from meta import PrimeModelBuy, MetaModelBuy, PrimeModelSell, MetaModelSell
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -23,16 +23,13 @@ class Prelder(Strategy):
         ret = self.data['ret'][-1]
         bbc = self.data['bb_cross'][-1]
         close = self.data['Close'][-1]
-        # Dema9 = self.data['Dema9'][-1]
-        # Dema13 = self.data['Dema13'][-1]
-        T_diff = self.data['T_diff'][-1]
-        M_diff = self.data['M_diff'][-1]
-        mac = self.data['4Hmacd_diff'][-1]
+        rsi = self.data['4H_rsi'][-1]
+        vol = self.data['Volatility'][-1]
         K = self.data['4H%K'][-1]
         D = self.data['4H%D'][-1]
-        if self.cond == 'B' and ret != 0 and bbc != 0:
-            primaryPB = self.PMB.predict([[mac, T_diff, M_diff]])[-1]
-            metaPB = self.MMB.predict([[mac, T_diff, M_diff, primaryPB]])[-1]
+        if self.cond == 'B' and ret != 0 and bbc == -1:
+            primaryPB = self.PMB.predict([[K, D, rsi, vol]])[-1]
+            metaPB = self.MMB.predict([[K, D, rsi, vol, primaryPB]])[-1]
             if primaryPB == metaPB == 1:
                 self.buy_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Buy at: ', self.buy_price)

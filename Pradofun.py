@@ -215,9 +215,7 @@ smoothing these returns using an exponential moving standard deviation to estima
     """
     df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
     df0 = df0[df0 >= 0]  # df0 >= 0 includes the first row in the index
-
     df0 = (pd.Series(close.index[df0 - rows], index=close.index[close.shape[0] - df0.shape[0]:]))
-
     try:
         df0 = close.loc[df0.index] / close.loc[df0.values].values - 1
     except Exception as e:
@@ -378,7 +376,7 @@ def addVerticalBarrier(tEvents, close, numDays):
 it finds the timestamp of the next price bar at or immediately after a number
 of days numDays. This vertical barrier can be passed as optional argument t1
 in getEvents."""
-    t1 = close.index.searchsorted(tEvents + pd.Timedelta(days=numDays))
+    t1 = close.index.searchsorted(tEvents + pd.Timedelta(numDays))
     t1 = t1[t1 < close.shape[0]]
     t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
     return t1
@@ -472,15 +470,16 @@ def dropLabels(events, minPct):
     return events
 
 
-def getDailyTimeBarVolatility(close, span0):
+def getDailyTimeBarVolatility(close, span0, days):
     """
     DYNAMIC THRESHOLDS for time bars
     daily vol, reindexed to close
+    :param days:
     :param close:
     :param span0:
     :return:
     """
-    df0 = close.index.searchsorted(close.index - pd.Timedelta(days=1))
+    df0 = close.index.searchsorted(close.index - pd.Timedelta(days))
     df0 = df0[df0 > 0]
     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns

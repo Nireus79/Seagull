@@ -12,8 +12,9 @@ from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
 from matplotlib import pyplot
 from pandas.plotting import scatter_matrix
 
-from data_forming import events_data, full_data, signal
-print(events_data)
+from data_forming import events_data, full_data
+signal = 'bin'
+# print(events_data)
 Y = events_data.loc[:, signal]
 Y.name = Y.name
 X = events_data.loc[:, events_data.columns != signal, ]
@@ -21,29 +22,29 @@ Y = events_data.loc[:, Y.name]
 X = events_data.loc[:, X.columns]
 data = events_data
 # data = data.loc[data['bin'] == 0]
-print(data)
-
-# research------------------------------------------------------------------------------------
-print('data.describe()--------------------------------------------------------------------')
-print(data.describe())
-print('data-------------------------------------------------------------------------------')
-print(data)
-
-# 3. Exploratory Data Analysis ---------------------------------------------------------------
-# 3.1. Descriptive Statistics
-# shape
-print('data.shape-------------------------------------------------------------------------')
-print(data.shape)
-# peek at data
-pd.set_option('display.width', 100)
-print('data.head(2)-----------------------------------------------------------------------')
-print(data.head(2))
-# types
-pd.set_option('display.max_rows', 500)
-print('data.dtypes------------------------------------------------------------------------')
-print(data.dtypes)
-print('data.describe()--------------------------------------------------------------------')
-print(data.describe())
+# print(data)
+#
+# # research------------------------------------------------------------------------------------
+# print('data.describe()--------------------------------------------------------------------')
+# print(data.describe())
+# print('data-------------------------------------------------------------------------------')
+# print(data)
+#
+# # 3. Exploratory Data Analysis ---------------------------------------------------------------
+# # 3.1. Descriptive Statistics
+# # shape
+# print('data.shape-------------------------------------------------------------------------')
+# print(data.shape)
+# # peek at data
+# pd.set_option('display.width', 100)
+# print('data.head(2)-----------------------------------------------------------------------')
+# print(data.head(2))
+# # types
+# pd.set_option('display.max_rows', 500)
+# print('data.dtypes------------------------------------------------------------------------')
+# print(data.dtypes)
+# print('data.describe()--------------------------------------------------------------------')
+# print(data.describe())
 
 # 3.2. Data Visualization --------------------------------------------------------------------
 # histograms
@@ -75,7 +76,8 @@ print(data.describe())
 with the output variable.The scikit-learn library provides the SelectKBest class that can be used with a suite of
 different statistical tests to select a specific number of features. The example below uses the chi-squared (chi²)
 statistical test for non-negative features to select the best features from the Dataset."""
-
+X.drop(columns=['Open', 'High', 'Low', 'Close', 'Volume', 'ret'], axis=1, inplace=True)
+print(X.columns)
 bestfeatures = SelectKBest(k='all', score_func=f_classif)
 fit = bestfeatures.fit(X, Y)
 dfscores = pd.DataFrame(fit.scores_)
@@ -85,3 +87,39 @@ featureScores = pd.concat([dfcolumns, dfscores], axis=1)
 featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
 print('featureScores--------------------------------------------------------------------------')
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
+
+# bb = -1
+# Specs
+# 4H_rsi       31.561384
+# 4H%K         21.853448
+# 4H%D         16.996173
+# 4H%DS        11.427634
+# srl_corr      7.522237
+# macd          6.076092
+# 4Hmacd_diff   5.826797
+# 4M_diff       5.497436
+# adx           4.446873
+# Volatility    1.230380
+
+#bb = 1
+# Specs
+# 4H%K         17.188775
+# 4H%D         10.148062
+# 4Hmacd_diff   9.115304
+# 4M_diff       6.767452
+# 4H_rsi        6.150274
+# 4H%DS         5.617976
+# rsi           4.583238
+# 1D_Close      3.859218
+# Dema3         3.797740
+# Dema6         3.727843
+# Dema9         3.697064
+# Dema13        3.687299
+# 1D_High       3.619445
+# 4H_Close      3.600882
+# Dema20        3.569223
+# 4H_High       3.454920
+# H4_ema3       3.428998
+# 1D_Low        3.405874
+# H4_ema6       3.354515
+# 4H_Low        3.274641

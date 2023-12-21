@@ -4,13 +4,14 @@ from ta.momentum import rsi, stoch
 from ta.trend import macd_diff, macd_signal, macd, adx
 from ta.volatility import average_true_range
 from toolbox import rescaler, normalizer, standardizer, ROC, MOM, spliter, crossing3
-from Pradofun import getDailyVol, getDailyVolRows, getTEvents, addVerticalBarrier, addVerticalBarrierRows, dropLabels,\
-    getEvents, bbands, metaBins, df_rolling_autocorr, returns, getDailyTimeBarVolatilityRows
+from Pradofun import getDailyVol, getDailyVolRows, getTEvents, addVerticalBarrier, addVerticalBarrierRows, dropLabels, \
+    getEvents, bbands, metaBins, df_rolling_autocorr, returns, getDailyTimeBarVolatilityRows, getBins
 import warnings
 
 warnings.filterwarnings('ignore')
 
 # https://data.binance.vision/
+# https://github.com/BlackArbsCEO/Adv_Fin_ML_Exercises/blob/master/notebooks/Labeling%20and%20MetaLabeling%20for%20Supervised%20Classification.ipynb
 
 
 # pd.set_option('display.max_rows', None)
@@ -58,12 +59,12 @@ eth = eth.ffill()
 # eth['4H_btc_eur_Close'] = btc_eur4H['Close']
 
 cpus = 1
-ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
+ptsl = [1, 2]  # profit-taking and stop loss limit multipliers
 minRet = c_labels = .01  # The minimum target return(def .01) (volatility) required for running a triple barrier search
 vertical_days = 1
 rows = 48
 span = 100
-window = 20
+window = 40
 bb_stddev = 1
 part = 5
 
@@ -71,22 +72,18 @@ data = eth
 # data['ema3'] = data['Close'].rolling(3).mean()
 # data['H4_ema3'] = data['4H_Close'].rolling(3).mean()
 # data['H4_ema6'] = data['4H_Close'].rolling(6).mean()
-# data['Dadx'] = adx(data['High'], data['Low'], data['Close'], window=14, fillna=False)
+# data['adx'] = adx(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['Dema3'] = data['1D_Close'].rolling(3).mean()
 # data['ema6'] = data['Close'].rolling(6).mean()
 # data['Dema6'] = data['1D_Close'].rolling(6).mean()
 # data['ema9'] = data['Close'].rolling(9).mean()
-data['Dema9'] = data['1D_Close'].rolling(9).mean()
+# data['Dema9'] = data['1D_Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
-data['Dema13'] = data['1D_Close'].rolling(13).mean()
+# data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-data['4Hmacd_diff'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['4Hbit_macd_diff'] = macd_diff(data['4H_btc_eur_Close'], window_slow=26, window_fast=12, window_sign=9,
-# fillna=False)
-# data['4H$_macd_diff'] = macd_diff(data['4H_btc_eur_Close'], window_slow=26, window_fast=12, window_sign=9,
-# fillna=False)
+# data['4Hmacd_diff'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 # data['%D'] = data['%K'].rolling(3).mean()
@@ -94,7 +91,7 @@ data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()
 # data['4H%DS'] = data['4H%D'].rolling(3).mean()
 # data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-# data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
+data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 # data['diff'] = np.log(data['Close']).diff()
@@ -103,15 +100,16 @@ data['4H%D'] = data['4H%K'].rolling(3).mean()
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
-data['Volatility'] = getDailyVolRows(data['Close'], span, rows, 'ewm').rolling(window).mean()
-# data['trend'] = data.apply(lambda x: 1 if x['Close'] > x['Dema13'] else 0, axis=1)
-# data['momentum'] = data.apply(lambda x: 1 if x['4H%K'] > x['4H%D'] else 0, axis=1)
-# data['elder'] = data.apply(lambda x: 1 if x['trend'] == 1 and x['momentum'] == 1 else 0, axis=1)
-# elder_sides = data.loc[data['trend'] == 1]
-data['T_diff'] = data.apply(lambda x: x['Dema9'] - x['Dema13'], axis=1)
-data['M_diff'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
+data['Volatility'] = getDailyVol(data['Close'], span, vertical_days, 'ewm').rolling(window).mean()
+# data['Volatility'] = getDailyVolRows(data['Close'], span, rows, 'ewm').rolling(window).mean()
+
+# data['DT_diff'] = data.apply(lambda x: x['Dema9'] - x['Dema13'], axis=1)
+# data['4M_diff'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
+# data['T_diff'] = data.apply(lambda x: x['ema9'] - x['ema13'], axis=1)
+# data['M_diff'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
 tEvents = getTEvents(data['Close'], h=data['Volatility'])
-t1 = addVerticalBarrierRows(tEvents, data['Close'], rows)
+t1 = addVerticalBarrier(tEvents, data['Close'], vertical_days)
+# t1 = addVerticalBarrierRows(tEvents, data['Close'], rows)
 
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
 
@@ -126,22 +124,21 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 # print(data)
 # print(data.isnull().sum())
-data.drop(columns=['4H_Close', '4H_High', '1D_Close', '1D_High', '1D_Low',
-                   'Price', 'ave', 'upper', 'lower'],
-          axis=1, inplace=True)
+data.drop(columns=['4H_Close', '4H_Low', '4H_High', '1D_Close', '1D_High', '1D_Low',
+                   'Price', 'ave', 'upper', 'lower'], axis=1, inplace=True)
 
-# data[['4H%K', '4H%D', 'Dema9', 'Dema13']] = standardizer(data[['4H%K', '4H%D', 'Dema9', 'Dema13']])
-# data[['4H%K', '4H%D', '4Hmacd']] = normalizer(data[['4H%K', '4H%D', '4Hmacd']])
-# data[['4H%K', '4H%D', '4Hmacd']] = rescaler(data[['4H%K', '4H%D', '4Hmacd']], (0, 1))
+data[['4H%K', '4H%D', '4H_rsi', 'Volatility']] = standardizer(data[['4H%K', '4H%D', '4H_rsi', 'Volatility']])
+# data[['4H%K', '4H%D', '4H_rsi']] = normalizer(data[['4H%K', '4H%D', '4H_rsi']])
+# data[['4H%K', '4H%D', '4H_rsi']] = rescaler(data[['4H%K', '4H%D', '4H_rsi']], (0, 1))
 full_data = data.copy()
 
 events_data = data.loc[events.index]
-# events_data = events_data.loc[events_data['bb_cross'] != 0]
+# events_data = events_data.loc[events_data['bb_cross'] == -1]
 
 # signal = 'ret'
 signal = 'bin'
 
-feats_to_drop = ['4H_Low', 'Open', 'High', 'Low', 'Close', 'Volume', 'Volatility', 'Dema9']
+feats_to_drop = ['Open', 'High', 'Low', 'Close', 'Volume', 'bb_cross', '4H_rsi', 'Volatility']
 
 X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feats_to_drop)
 backtest_data = full_data[X_test.index[0]:X_test.index[-1]]

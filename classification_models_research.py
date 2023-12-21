@@ -106,15 +106,3 @@ plt.legend()
 ax.set_xticks(ind)
 ax.set_xticklabels(names)
 # plt.show()
-
-# Sell model --------------------------------------------------------------------------------------------
-# KNeighborsClassifier: cv_results.mean: 0.864449 (cv_results.std: 0.015995)
-#               precision    recall  f1-score   support
-#
-#     no_trade       0.90      0.99      0.94       363
-#        trade       0.20      0.02      0.04        43
-#
-#     accuracy                           0.89       406
-#    macro avg       0.55      0.51      0.49       406
-# weighted avg       0.82      0.89      0.84       406
-# : raw ['4H%K', '4H%D'], events = events
