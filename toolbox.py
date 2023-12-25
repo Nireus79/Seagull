@@ -313,14 +313,14 @@ def MOM(df, n):
     return mom
 
 
-def crossing2(df, col1, col2, col3):
-    crit1 = df[col2].shift(1) < df[col3].shift(1)
-    crit2 = df[col2] > df[col3]
+def crossing_elder(df, col1, col2):
+    crit1 = df[col1].shift(1) < df[col2].shift(1)
+    crit2 = df[col2] > df[col1]
     up_cross = df[col1][crit1 & crit2]
     side_up = pd.Series(1, index=up_cross.index)
 
-    crit3 = df[col2].shift(1) > df[col3].shift(1)
-    crit4 = df[col2] < df[col3]
+    crit3 = df[col2].shift(1) > df[col1].shift(1)
+    crit4 = df[col2] < df[col1]
     down_cross = df[col1][crit3 & crit4]
     side_down = pd.Series(-1, index=down_cross.index)
 

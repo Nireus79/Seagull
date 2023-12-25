@@ -152,7 +152,7 @@ def applyPtSlOnT1(close, events, ptSl, molecule):
     return out
 
 
-def getDailyVol(close, span0, days, m):
+def getDailyVol(close, span0, days):
     """
     Daily Volatility Estimator [3.1]
     daily vol re-indexed to close
@@ -164,7 +164,7 @@ def getDailyVol(close, span0, days, m):
     :param span0:
     :return:
     """
-    df0 = close.index.searchsorted(close.index - pd.Timedelta(days))
+    df0 = close.index.searchsorted(close.index - pd.Timedelta(days=days))
     df0 = df0[df0 >= 0]  # df0 >= 0 includes first day in index
     # TODO check if original df0 = df0[df0 > 0] is correct
     df0 = (pd.Series(close.index[df0 - days], index=close.index[close.shape[0] - df0.shape[0]:]))
@@ -172,11 +172,8 @@ def getDailyVol(close, span0, days, m):
         df0 = close.loc[df0.index] / close.loc[df0.values].values - days  # daily rets
     except Exception as e:
         print(f'error: {e}\nplease confirm no duplicate indices')
-    df0ewm = df0.ewm(span=span0).std().rename('dailyVol')
-    if m == 'p':
-        return df0
-    elif m == 'ewm':
-        return df0ewm
+    df0 = df0.ewm(span=span0).std().rename('dailyVol')
+    return df0
 
 
 def getDailyVolRows(close, span0, rows, m):
@@ -356,16 +353,16 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
     if side is None:
         side_, ptSl_ = pd.Series(1., index=trgt.index), [ptSl[0], ptSl[0]]
     else:
-        common_indexes = set(side.index).intersection(trgt.index)
+        common_indexes = set(trgt.index).intersection(side.index)
         common_indexes = list(common_indexes)
         # control of common indexes between target and side before filtering
-        side_, ptSl_ = trgt.loc[common_indexes], ptSl[:2]
-        # TODO check if original side_ = side.loc[trgt.index] is correct
+        side_, ptSl_ = side.loc[common_indexes], ptSl[:2]
     events = (pd.concat({'t1': t1, 'trgt': trgt, 'side': side_}, axis=1).dropna(subset=['trgt']))
-    df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
-                      numThreads=numThreads, close=close, events=events,
-                      ptSl=ptSl_)
-    # events['t1'] = df0.dropna(how='all').min(axis=1)  # pd.min ignores nan (in pandas 2.0 does not!!!)
+    # TODO applyPtSlOnT1
+    # df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
+    #                   numThreads=numThreads, close=close, events=events,
+    #                   ptSl=ptSl_)
+    # events['t1'] = df0.dropna(how='all').min(axis=1)
     if side is None:
         events = events.drop('side', axis=1)
     return events
@@ -376,7 +373,7 @@ def addVerticalBarrier(tEvents, close, numDays):
 it finds the timestamp of the next price bar at or immediately after a number
 of days numDays. This vertical barrier can be passed as optional argument t1
 in getEvents."""
-    t1 = close.index.searchsorted(tEvents + pd.Timedelta(numDays))
+    t1 = close.index.searchsorted(tEvents + pd.Timedelta(days=numDays))
     t1 = t1[t1 < close.shape[0]]
     t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
     return t1

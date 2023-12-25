@@ -9,6 +9,35 @@ import winsound
 pd.set_option('display.max_columns', None)
 
 
+# https://data.binance.vision/
+def csv_merger(path):
+    names = glob.glob(path + "*.csv")  # get names of all CSV files under path
+    # If your CSV files use commas to split fields, then the sep argument can be omitted or set to ","
+    # columns = ['id', 'price', 'qty', 'base_qty', 'time', 'is_buyer_maker', '7'] # TICK columns
+    columns = ['time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Open time',
+               '0', '1', '2', '3', '4']
+    #     1499040000000,      // Open time # Klines columns
+    #     "0.01634790",       // Open
+    #     "0.80000000",       // High
+    #     "0.01575800",       // Low
+    #     "0.01577100",       // Close
+    #     "148976.11427815",  // Volume
+    #     1499644799999,      // Close time
+    #     "2434.19055334",    // Quote asset volume
+    #     308,                // Number of trades
+    #     "1756.87402397",    // Taker buy base asset volume
+    #     "28.46694368",      // Taker buy quote asset volume
+    #     "17928899.62484339" // Ignore.
+    data = pd.concat([pd.read_csv(filename, names=columns, sep=",") for filename in names])
+    data.drop(columns=['Open time', '0', '1', '2', '3', '4'], axis=1, inplace=True)
+    # save the DataFrame to a file
+    # data.to_csv("ETHEUR_5m.csv")
+    return data
+
+
+# print(csv_merger('D:/crypto_DATA/time/ETHEUR/months/5m/'))
+
+
 def mad_outlier(y, thresh=3.):
     """
     compute outliers based on mad
@@ -220,39 +249,28 @@ def dollar_bar_df(df, value_column, m):
 #     return dollar_bars_price
 
 
-def db_creator(csv, vol):
-    columns = ['id', 'price', 'qty', 'base_qty', 'time', 'is_buyer_maker', '7']
-    data = pd.read_csv(csv, header=None, names=columns, sep=',', dtype={'is_buyer_maker': bool, '7': bool})
-    data = data.drop(columns=['id', 'base_qty', 'is_buyer_maker', '7'], axis=1)
-    # data.time = pd.to_datetime(data.time, unit='ms')
-    # data.set_index('time', inplace=True)
+def form_dollar_bars(csv, vol):
+    data = pd.read_csv(csv)
+    data.time = pd.to_datetime(data.time, unit='ms')
+    data.set_index('time', inplace=True)
     data['value'] = data['price'] * data['qty']
     # mad = mad_outlier(data.price.values.reshape(-1, 1))
     # data = data.loc[~mad]
     # print(data)
     dbars = dollar_bar_df(data, 'value', vol).dropna()
+    dbars.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
+    # dbars.to_csv('DOTEUR_1mdb')
     return dbars
 
 
-def csv_merger(path):
-    # path = "E:/T/ETHUSDT/10mdb/"  # set this to the folder containing CSVs
-    names = glob.glob(path + "*.csv")  # get names of all CSV files under path
-    # If your CSV files use commas to split fields, then the sep
-    # argument can be ommitted or set to ","
-    file_list = pd.concat([pd.read_csv(filename, sep=",") for filename in names])
-    # save the DataFrame to a file
-    # csv = file_list.to_csv("sample.csv")
-    return file_list
+# print(db_creator('D:/crypto_DATA/tick/DOTEUR/DOTEUR_full_tick.csv', 1000000))
 
 
-def db_csv(csv, m, output):
-    db_creator(csv, m).to_csv(output)
-
-
-def form_time_bars(data, frequency):
+def form_time_bars(csv, frequency):
     """
     Takes tick to tick data frame and structures data by given time freq.
     param data:
+    :param csv:
     :param data: tick to tick data frame
     :param frequency: string ex: '5min'
     see doc https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
@@ -265,35 +283,17 @@ def form_time_bars(data, frequency):
     WARNING (works with datetime index only datetime_indexing function must be used as arg)
     WARNING Lopez de Prado suggests 1min bars as substitute for constructing market microstructural futures
     """
+    data = pd.read_csv(csv)
     data.time = pd.to_datetime(data.time, unit='ms')
     data.set_index('time', inplace=True)
+    data.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
     data = data.loc[~data.index.duplicated(keep='first')]
     time_bars = data.groupby(pd.Grouper(freq=frequency)).agg({'price': 'ohlc', 'qty': 'sum'})
     time_bars_price = time_bars.loc[:, 'price']
+    time_bars_price.ffill(inplace=True)
+    # time_bars_price.to_csv('EURUSDT_30m.csv')
     return time_bars_price
 
+# print(pd.read_csv('D:/crypto_DATA/tick/DOTEUR/DOTEUR_full_tick.csv'))
 
-def bar_former(asset):
-    for y in range(4):
-        for m in range(1, 13):
-            if y < 1 and m < 10:
-                pass
-            elif y > 2 and m > 9:
-                pass
-            else:
-                directory = 'D:/crypto_DATA/tick/'
-                asset = asset
-                file = '/months/'
-                year = '202' + str(y)
-                if m < 10:
-                    month = str(0) + str(m)
-                else:
-                    month = str(m)
-                name = asset + '-trades-' + year + '-' + month + '.csv'
-                full_dir = directory + asset + file + name
-                print(full_dir)
-                columns = ['id', 'price', 'qty', 'base_qty', 'time', 'is_buyer_maker', '7']
-                data = pd.read_csv(full_dir, header=None, names=columns)
-                data.drop(columns=['id', 'base_qty', 'is_buyer_maker', '7'], axis=1, inplace=True)
-                form_time_bars(data, '30min').to_csv(asset + '_' + year + '_' + month + '_30min_time_bars.csv')
-                print(data)
+# print(form_time_bars('D:/crypto_DATA/tick/EURUSDT/EURUSDT_full_tick.csv', '30min'))

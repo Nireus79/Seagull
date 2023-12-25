@@ -88,38 +88,46 @@ featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
 print('featureScores--------------------------------------------------------------------------')
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
 
-# bb = -1
-# Specs
-# 4H_rsi       31.561384
-# 4H%K         21.853448
-# 4H%D         16.996173
-# 4H%DS        11.427634
-# srl_corr      7.522237
-# macd          6.076092
-# 4Hmacd_diff   5.826797
-# 4M_diff       5.497436
-# adx           4.446873
-# Volatility    1.230380
+# bbc != 0
+# TrD6         256.962609
+# TrD3         248.268246
+# TrD9         243.180894
+# TrD13        226.627497
+# TrD20        195.419734
+# StD           22.607029
+# cusum         10.439449
+# roc30          7.588108
+# 4Hmacd_diff    7.292761
 
-#bb = 1
-# Specs
-# 4H%K         17.188775
-# 4H%D         10.148062
-# 4Hmacd_diff   9.115304
-# 4M_diff       6.767452
-# 4H_rsi        6.150274
-# 4H%DS         5.617976
-# rsi           4.583238
-# 1D_Close      3.859218
-# Dema3         3.797740
-# Dema6         3.727843
-# Dema9         3.697064
-# Dema13        3.687299
-# 1D_High       3.619445
-# 4H_Close      3.600882
-# Dema20        3.569223
-# 4H_High       3.454920
-# H4_ema3       3.428998
-# 1D_Low        3.405874
-# H4_ema6       3.354515
-# 4H_Low        3.274641
+# bbc == 1
+# TrD3         147.683369
+# TrD6         136.792228
+# TrD9         128.361185
+# TrD13        123.603026
+# TrD20        111.933259
+# 4H%K          39.811147
+# 4H%D          33.520830
+# 4H_rsi        28.968843
+# 4H%DS         23.369553
+# 4Hmacd_diff   16.344895
+
+# bbc == -1
+# TrD6         123.281671
+# TrD3         115.131158
+# TrD9         114.728591
+# TrD13        101.704586
+# TrD20         81.174263
+# 4Hmacd_diff   15.116768
+# StD           13.807081
+
+# full
+# TrD3      120.280969
+# TrD6      117.228333
+# TrD9      111.061182
+# TrD13     106.329219
+# TrD20      99.030422
+# srl_corr   32.244731
+# diff       24.341237
+# bb_cross   21.077353
+# %K         17.845789
+# adx        14.996010
