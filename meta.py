@@ -3,7 +3,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
-from toolbox import spliter
+from toolbox import spliter, standardizer, normalizer, rescaler
 from data_forming import events_data, part, signal
 import numpy as np
 import pandas as pd
@@ -12,21 +12,28 @@ import pandas as pd
 
 
 # Two train sets
+
+events_dataSell = events_data  # .loc[events_data['bb_cross'] != 0]
+
+feats_to_dropSell = ['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'Dema3', 'bb_cross',
+                     'macd', '%K', '4H%K', '4H%D', 'mom10']
+
+events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
+feats_to_dropBuy = ['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'Dema3', 'bb_cross',
+                    '%K', '%D', '4H%K', 'diff', 'srl_corr', 'roc20']
+
 # Train sell model ---------------------------------------------------------------------------------------
-# print('Sell model --------------------------------------------------------------------------------------------------')
-# events_dataSell = events_data.loc[events_data['bb_cross'] == 1]
-events_dataBuy = events_data.loc[events_data['bb_cross'] == -1]
-feats_to_dropSell = ['Open', 'High', 'Low', 'Close', 'Volume', 'Volatility', 'bb_cross', '4H_rsi']
-feats_to_dropBuy = ['Open', 'High', 'Low', 'Close', 'Volume', 'bb_cross']
-X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_data, signal, part, feats_to_dropSell)
+print('Sell model --------------------------------------------------------------------------------------------------')
+X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, feats_to_dropSell)
+# X_trainSell, X_testSell = standardizer(X_trainSell), standardizer(X_testSell)
 
 X_train_ASell, Y_train_ASell = X_trainSell[:int(len(X_trainSell) * 0.5)], Y_trainSell[:int(len(Y_trainSell) * 0.5)]
 X_train_BSell, Y_train_BSell = X_trainSell[int(len(X_trainSell) * 0.5):], Y_trainSell[int(len(Y_trainSell) * 0.5):]
-print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
-print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
+print('event 0', np.sum(np.array(events_dataSell[signal]) == 0, axis=0))
+print('event 1', np.sum(np.array(events_dataSell[signal]) == 1, axis=0))
 print('X.columns', X_trainSell.columns)
 
-PrimeModelSell = GaussianNB()
+PrimeModelSell = MLPClassifier()
 PrimeModelSell.fit(X_train_ASell, Y_train_ASell)
 prime_predictionsS = PrimeModelSell.predict(X_train_BSell)
 test_set_predS = PrimeModelSell.predict(X_testSell)
@@ -47,7 +54,7 @@ test_meta_dfS['meta'] = test_meta_dfS.apply(lambda x: 1 if x['actual'] == x['pre
 
 Y_test_metaS = test_meta_dfS.iloc[:, 2]
 
-MetaModelSell = GaussianNB()
+MetaModelSell = MLPClassifier()
 MetaModelSell.fit(X_train_BSell, Y_train_metaS)
 test_set_meta_predS = MetaModelSell.predict(X_testSell)
 print(classification_report(Y_testSell, test_set_predS, target_names=['0', '1']))
@@ -56,8 +63,8 @@ print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0'
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')
 
-
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, feats_to_dropBuy)
+# X_trainBuy, X_testBuy = standardizer(X_trainBuy), standardizer(X_testBuy)
 
 X_train_ABuy, Y_train_ABuy = X_trainBuy[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
 X_train_BBuy, Y_train_BBuy = X_trainBuy[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]
@@ -65,7 +72,7 @@ print('event 0', np.sum(np.array(events_dataBuy[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataBuy[signal]) == 1, axis=0))
 print('X.columns', X_trainBuy.columns)
 
-PrimeModelBuy = LogisticRegression()
+PrimeModelBuy = MLPClassifier()
 PrimeModelBuy.fit(X_train_ABuy, Y_train_ABuy)
 prime_predictionsBuy = PrimeModelBuy.predict(X_train_BBuy)
 test_set_predBuy = PrimeModelBuy.predict(X_testBuy)
@@ -86,7 +93,7 @@ test_meta_dfBuy['meta'] = test_meta_dfBuy.apply(lambda x: 1 if x['actual'] == x[
 
 Y_test_metaBuy = test_meta_dfBuy.iloc[:, 2]
 
-MetaModelBuy = LogisticRegression()
+MetaModelBuy = MLPClassifier()
 MetaModelBuy.fit(X_train_BBuy, Y_train_metaBuy)
 test_set_meta_predBuy = MetaModelBuy.predict(X_testBuy)
 print(classification_report(Y_testBuy, test_set_predBuy, target_names=['0', '1']))

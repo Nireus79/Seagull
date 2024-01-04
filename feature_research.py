@@ -7,6 +7,7 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import r_regression, f_regression, mutual_info_regression
 # classification selection
 from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
+from toolbox import standardizer, normalizer, rescaler
 
 # Plotting
 from matplotlib import pyplot
@@ -21,6 +22,11 @@ X = events_data.loc[:, events_data.columns != signal, ]
 Y = events_data.loc[:, Y.name]
 X = events_data.loc[:, X.columns]
 data = events_data
+
+X = standardizer(X)
+# X = normalizer(X)
+# X = rescaler(X, (-1, 1))
+
 # data = data.loc[data['bin'] == 0]
 # print(data)
 #
@@ -78,7 +84,7 @@ different statistical tests to select a specific number of features. The example
 statistical test for non-negative features to select the best features from the Dataset."""
 X.drop(columns=['Open', 'High', 'Low', 'Close', 'Volume', 'ret'], axis=1, inplace=True)
 print(X.columns)
-bestfeatures = SelectKBest(k='all', score_func=f_classif)
+bestfeatures = SelectKBest(mutual_info_classif, k='all')
 fit = bestfeatures.fit(X, Y)
 dfscores = pd.DataFrame(fit.scores_)
 dfcolumns = pd.DataFrame(X.columns)
@@ -89,45 +95,45 @@ print('featureScores------------------------------------------------------------
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
 
 # bbc != 0
-# TrD6         256.962609
-# TrD3         248.268246
-# TrD9         243.180894
-# TrD13        226.627497
-# TrD20        195.419734
-# StD           22.607029
-# cusum         10.439449
-# roc30          7.588108
-# 4Hmacd_diff    7.292761
+# 4H%K      0.035715
+# BTC4H%DS  0.028873
+# BTC4H%D   0.021451
+# roc20     0.018674
+# ema20     0.017499
+# ema3      0.017459
+# TrD13     0.015830
+# adx       0.015808
+# %D        0.014730
+# 4H_rsi    0.014578
+# BTCDema9  0.013545
+# 4H%D      0.012211
+# %K        0.010757
+# BTC4H%K   0.010464
+# H4_ema6   0.009665
+# TrD3      0.008909
+# mom10     0.008812
+# mom20     0.008753
+# roc10     0.007890
+# 4H%DS     0.007479
 
-# bbc == 1
-# TrD3         147.683369
-# TrD6         136.792228
-# TrD9         128.361185
-# TrD13        123.603026
-# TrD20        111.933259
-# 4H%K          39.811147
-# 4H%D          33.520830
-# 4H_rsi        28.968843
-# 4H%DS         23.369553
-# 4Hmacd_diff   16.344895
-
-# bbc == -1
-# TrD6         123.281671
-# TrD3         115.131158
-# TrD9         114.728591
-# TrD13        101.704586
-# TrD20         81.174263
-# 4Hmacd_diff   15.116768
-# StD           13.807081
-
-# full
-# TrD3      120.280969
-# TrD6      117.228333
-# TrD9      111.061182
-# TrD13     106.329219
-# TrD20      99.030422
-# srl_corr   32.244731
-# diff       24.341237
-# bb_cross   21.077353
-# %K         17.845789
-# adx        14.996010
+# full events
+# bb_cross  0.201304
+# roc10     0.026474
+# diff      0.023615
+# %K        0.023340
+# roc20     0.014551
+# 4H%K      0.013499
+# 4H_rsi    0.011702
+# ema20     0.010961
+# BTCTrD13  0.010719
+# TrD13     0.009496
+# ema3      0.009436
+# TrD3      0.007151
+# srl_corr  0.007055
+# macd      0.006882
+# 4Hmacd    0.006814
+# adx       0.005870
+# mom20     0.005419
+# atr       0.004886
+# ema13     0.003843
+# 4H_atr    0.003161

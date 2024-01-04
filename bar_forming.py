@@ -31,11 +31,11 @@ def csv_merger(path):
     data = pd.concat([pd.read_csv(filename, names=columns, sep=",") for filename in names])
     data.drop(columns=['Open time', '0', '1', '2', '3', '4'], axis=1, inplace=True)
     # save the DataFrame to a file
-    # data.to_csv("ETHEUR_5m.csv")
+    # data.to_csv("BTCEUR_5m.csv")
     return data
 
 
-# print(csv_merger('D:/crypto_DATA/time/ETHEUR/months/5m/'))
+# print(csv_merger('D:/crypto_DATA/time/BTCEUR/5m/'))
 
 
 def mad_outlier(y, thresh=3.):
