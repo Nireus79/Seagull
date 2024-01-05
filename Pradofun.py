@@ -356,7 +356,7 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
         common_indexes = set(side.index).intersection(trgt.index)
         common_indexes = list(common_indexes)
         # control of common indexes between target and side before filtering
-        side_, ptSl_ = trgt.loc[common_indexes], ptSl[:2]
+        side_, ptSl_ = side.loc[common_indexes], ptSl[:2]  # TODO check side.loc / trgt.loc
     events = (pd.concat({'t1': t1, 'trgt': trgt, 'side': side_}, axis=1).dropna(subset=['trgt']))
     # TODO applyPtSlOnT1
     # df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),

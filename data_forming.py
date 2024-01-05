@@ -82,17 +82,15 @@ data['Dema3'] = data['1D_Close'].rolling(3).mean()
 # data['Dema6'] = data['1D_Close'].rolling(6).mean()
 # data['ema9'] = data['Close'].rolling(9).mean()
 # data['Dema9'] = data['1D_Close'].rolling(9).mean()
+# data['ema13'] = data['Close'].rolling(13).mean()
+# data['Dema13'] = data['1D_Close'].rolling(13).mean()
+# data['ema20'] = data['Close'].rolling(20).mean()
+# data['Dema20'] = data['1D_Close'].rolling(20).mean()
 
 # data['BTCDema3'] = data['BTC1D_Close'].rolling(3).mean()
 # data['BTCDema6'] = data['BTC1D_Close'].rolling(6).mean()
 # data['BTCDema9'] = data['BTC1D_Close'].rolling(9).mean()
-
-# data['ema13'] = data['Close'].rolling(13).mean()
-# data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['BTCDema13'] = data['BTC1D_Close'].rolling(13).mean()
-
-# data['ema20'] = data['Close'].rolling(20).mean()
-# data['Dema20'] = data['1D_Close'].rolling(20).mean()
 # data['BTCDema20'] = data['BTC1D_Close'].rolling(20).mean()
 
 # data['adx'] = adx(data['High'], data['Low'], data['Close'], window=14, fillna=False)
@@ -113,10 +111,10 @@ data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 data['diff'] = np.log(data['Close']).diff()
-# data['cusum'] = data['Close'].cumsum()
+data['cusum'] = data['Close'].cumsum()
 data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
-# data['roc10'] = ROC(data['Close'], 10)
-data['roc20'] = ROC(data['Close'], 20)
+data['roc10'] = ROC(data['Close'], 10)
+# data['roc20'] = ROC(data['Close'], 20)
 # data['roc30'] = ROC(data['Close'], 30)
 data['mom10'] = MOM(data['Close'], 10)
 # data['mom20'] = MOM(data['Close'], 20)
@@ -128,7 +126,6 @@ data['bb_cross'] = bb_sides
 # data['bbc'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta).rolling(window).mean()
 
-# data['Tr3_20'] = data.apply(lambda x: x['ema3'] - x['ema20'], axis=1)
 data['TrD3'] = data.apply(lambda x: x['Close'] - x['Dema3'], axis=1)
 # data['TrD6'] = data.apply(lambda x: x['Close'] - x['Dema6'], axis=1)
 # data['TrD9'] = data.apply(lambda x: x['Close'] - x['Dema9'], axis=1)
@@ -160,13 +157,12 @@ data.drop(columns=['1D_Close', '4H_Close', '4H_Low', '4H_High', 'Price', 'ave', 
           axis=1, inplace=True)
 # data.drop(columns=['BTC1D_Close', 'BTC4H_Close', 'BTC4H_Low', 'BTC4H_High',
 #                    'BTC_High', 'BTC_Low', 'BTC_Close'], axis=1, inplace=True)
-feats_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'bb_cross',
-                 'Dema3', 'macd', '%K', '4H%K', '4H%D', 'mom10']
+feats_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume']
 
 full_data = data.copy()
 
 events_data = data.loc[events.index]
-# events_data = events_data.loc[events_data['bb_cross'] != 0]
+events_data = events_data.loc[events_data['bb_cross'] != 0]
 
 # signal = 'ret'
 signal = 'bin'

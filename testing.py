@@ -23,23 +23,23 @@ class Prelder(Strategy):
         ret = self.data['ret'][-1]
         bbc = self.data['bb_cross'][-1]
         close = self.data['Close'][-1]
-        rsi = self.data['4H_rsi'][-1]
-        mac = self.data['4Hmacd'][-1]
-        roc = self.data['roc10'][-1]
-        mom = self.data['mom10'][-1]
-        Tr = self.data['TrD9'][-1]
-        if self.cond == 'B' and ret != 0 and bbc != 0:
-            primaryPB = self.PMB.predict([[mac, rsi, roc, mom, Tr]])[-1]
-            metaPB = self.MMB.predict([[mac, rsi, roc, mom, Tr, primaryPB]])[-1]
+        rsi = self.data['rsi'][-1]
+        mac = self.data['macd'][-1]
+        diff = self.data['diff'][-1]
+        d = self.data['4H%D'][-1]
+        Tr = self.data['TrD3'][-1]
+        if self.cond == 'B' and ret != 0 and bbc == -1:
+            primaryPB = self.PMB.predict([[mac, d, rsi, Tr]])[-1]
+            metaPB = self.MMB.predict([[mac, d, rsi, Tr, primaryPB]])[-1]
             if primaryPB == metaPB == 1:
                 self.buy_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Buy at: ', self.buy_price)
                 full_data['b'].loc[self.data.index[-1]] = True
                 self.cond = 'S'
                 self.buy()
-        elif self.cond == 'S' and ret != 0 and bbc != 0:
-            primaryPS = self.PMS.predict([[mac, rsi, roc, mom, Tr]])[-1]
-            metaPS = self.MMS.predict([[mac, rsi, roc, mom, Tr, primaryPS]])[-1]
+        elif self.cond == 'S' and ret != 0 and bbc == 1:
+            primaryPS = self.PMS.predict([[rsi, diff, Tr]])[-1]
+            metaPS = self.MMS.predict([[rsi, diff, Tr, primaryPS]])[-1]
             if primaryPS == 0 and metaPS == 1:
                 self.sell_price = self.data.Close[-1]
                 self.sell_price = close

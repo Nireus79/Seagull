@@ -1,139 +1,133 @@
+from data_forming import X_train, X_test, Y_train, Y_test
+from sklearn.feature_selection import SelectKBest, mutual_info_classif, RFE
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import f1_score
+from boruta import BorutaPy
+import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
-import statsmodels.api as sm
-# Feature Selection
-from sklearn.feature_selection import SelectKBest
-# regression selection
-from sklearn.feature_selection import r_regression, f_regression, mutual_info_regression
-# classification selection
-from sklearn.feature_selection import chi2, f_classif, mutual_info_classif
-from toolbox import standardizer, normalizer, rescaler
+import numpy as np
 
-# Plotting
-from matplotlib import pyplot
-from pandas.plotting import scatter_matrix
+# https://www.youtube.com/watch?v=hCwTDTdYirg&t=11s
 
-from data_forming import events_data, full_data
-signal = 'bin'
-# print(events_data)
-Y = events_data.loc[:, signal]
-Y.name = Y.name
-X = events_data.loc[:, events_data.columns != signal, ]
-Y = events_data.loc[:, Y.name]
-X = events_data.loc[:, X.columns]
-data = events_data
+#      # features-# Categorical  - # Numerical
+# target         -               -
+#                -               -
+# Categorical    -# Chi squared  - # t-test
+#                -# Mutual info  - # Mutual info
+# ---------------------------------------------------------------
+# Numerical      -# t-test       - # Pearson correlation
+#                -# Mutual info  - # Spearman rank correlation
+#                -               - # Mutual info
+# ---------------------------------------------------------------
+# VARIANCE ------------------------------------------------------
+# XVar = X_train.var(axis=0)
+# print(XVar)
 
-X = standardizer(X)
-# X = normalizer(X)
-# X = rescaler(X, (-1, 1))
-
-# data = data.loc[data['bin'] == 0]
-# print(data)
-#
-# # research------------------------------------------------------------------------------------
-# print('data.describe()--------------------------------------------------------------------')
-# print(data.describe())
-# print('data-------------------------------------------------------------------------------')
-# print(data)
-#
-# # 3. Exploratory Data Analysis ---------------------------------------------------------------
-# # 3.1. Descriptive Statistics
-# # shape
-# print('data.shape-------------------------------------------------------------------------')
-# print(data.shape)
-# # peek at data
-# pd.set_option('display.width', 100)
-# print('data.head(2)-----------------------------------------------------------------------')
-# print(data.head(2))
-# # types
-# pd.set_option('display.max_rows', 500)
-# print('data.dtypes------------------------------------------------------------------------')
-# print(data.dtypes)
-# print('data.describe()--------------------------------------------------------------------')
-# print(data.describe())
-
-# 3.2. Data Visualization --------------------------------------------------------------------
-# histograms
-# data.hist(sharex=False, sharey=False, xlabelsize=1, ylabelsize=1, figsize=(12, 12))
-# # density
-# data.plot(kind='density', subplots=True, layout=(20, 20), sharex=False, legend=True, fontsize=1, figsize=(15, 15))
-# # Box and Whisker Plots
-# data.plot(kind='box', subplots=True, layout=(20, 20), sharex=False, sharey=False, figsize=(15, 15))
-# # correlation
-# correlation = data.corr()
-# pyplot.figure(figsize=(15, 15))
-# pyplot.title('Correlation Matrix')
-# sns.heatmap(correlation, vmax=1, square=True, annot=True, cmap='cubehelix')
-# # Scatterplot Matrix
-# pyplot.figure(figsize=(15, 15))
-# scatter_matrix(data, figsize=(12, 12))
-
-# 3.3. Time Series Analysis ------------------------------------------------------------------
-# Time series broken down into different time series comonent.
-# res = sm.tsa.seasonal_decompose(Y, period=30)
-# fig = res.plot()
-# fig.set_figheight(8)
-# fig.set_figwidth(15)
-
-# pyplot.show()
-
-# 4.2 Feature Selection ---------------------------------------------------------------------
-"""Statistical tests can be used to select those features that have the strongest relationship
-with the output variable.The scikit-learn library provides the SelectKBest class that can be used with a suite of
-different statistical tests to select a specific number of features. The example below uses the chi-squared (chi²)
-statistical test for non-negative features to select the best features from the Dataset."""
-X.drop(columns=['Open', 'High', 'Low', 'Close', 'Volume', 'ret'], axis=1, inplace=True)
-print(X.columns)
+# K-best ------------------------------------------------------------
+X_trainK, X_testK, Y_trainK, Y_testK = X_train.copy(), X_test.copy(), Y_train.copy(), Y_test.copy()
 bestfeatures = SelectKBest(mutual_info_classif, k='all')
-fit = bestfeatures.fit(X, Y)
-dfscores = pd.DataFrame(fit.scores_)
-dfcolumns = pd.DataFrame(X.columns)
+fit = bestfeatures.fit(X_trainK, Y_trainK)
+scores = pd.DataFrame(fit.scores_)
+Xcolumns = pd.DataFrame(X_train.columns)
 # concat two dataframes for better visualization
-featureScores = pd.concat([dfcolumns, dfscores], axis=1)
+featureScores = pd.concat([Xcolumns, scores], axis=1)
 featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
 print('featureScores--------------------------------------------------------------------------')
 print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
 
-# bbc != 0
-# 4H%K      0.035715
-# BTC4H%DS  0.028873
-# BTC4H%D   0.021451
-# roc20     0.018674
-# ema20     0.017499
-# ema3      0.017459
-# TrD13     0.015830
-# adx       0.015808
-# %D        0.014730
-# 4H_rsi    0.014578
-# BTCDema9  0.013545
-# 4H%D      0.012211
-# %K        0.010757
-# BTC4H%K   0.010464
-# H4_ema6   0.009665
-# TrD3      0.008909
-# mom10     0.008812
-# mom20     0.008753
-# roc10     0.007890
-# 4H%DS     0.007479
 
-# full events
-# bb_cross  0.201304
-# roc10     0.026474
-# diff      0.023615
-# %K        0.023340
-# roc20     0.014551
-# 4H%K      0.013499
-# 4H_rsi    0.011702
-# ema20     0.010961
-# BTCTrD13  0.010719
-# TrD13     0.009496
-# ema3      0.009436
-# TrD3      0.007151
-# srl_corr  0.007055
-# macd      0.006882
-# 4Hmacd    0.006814
-# adx       0.005870
-# mom20     0.005419
-# atr       0.004886
-# ema13     0.003843
-# 4H_atr    0.003161
+f1_score_list = []
+for k in range(1, len(X_trainK.columns)):
+    model = MLPClassifier()
+    selector = SelectKBest(mutual_info_classif, k=k)
+    fit = selector.fit(X_trainK, Y_trainK)
+    dfscores = pd.DataFrame(fit.scores_)
+    dfcolumns = pd.DataFrame(X_trainK.columns)
+    featureScores = pd.concat([dfcolumns, dfscores], axis=1)
+    featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
+    print('featureScores--------------------------------------------------------------------------')
+    print(featureScores.nlargest(20, 'Score').set_index('Specs'))  # print 20 best features
+
+    sel_XtrainK = selector.transform(X_trainK)
+    sel_XtestK = selector.transform(X_testK)
+
+    model.fit(sel_XtrainK, Y_trainK)
+    preds = model.predict(sel_XtestK)
+    score = f1_score(Y_testK, preds)
+    print(score)
+    f1_score_list.append(score)
+
+fig, ax = plt.subplots()
+
+x = np.arange(1, len(X_trainK.columns))
+y = f1_score_list
+
+ax.bar(x, y, width=0.2)
+ax.set_xlabel('Number of features selected using mutual information')
+ax.set_ylabel('F1-Score (weighted)')
+ax.set_ylim(0, 1.2)
+ax.set_xticks(np.arange(1, len(X_trainK.columns)))
+ax.set_xticklabels(np.arange(1, len(X_trainK.columns)), fontsize=12)
+
+for i, v in enumerate(y):
+    plt.text(x=i + 1, y=v + 0.05, s=str(v), ha='center')
+
+plt.tight_layout()
+plt.show()
+
+# Recursive feature elimination RFE --------------------------------------------------------------------------
+# X_trainR, X_testR, Y_trainR, Y_testR = X_train.copy(), X_test.copy(), Y_train.copy(), Y_test.copy()
+# gbc = GradientBoostingClassifier(max_depth=5, random_state=42)
+# rfe_f1score_list = []
+# for k in range(1, len(X_trainR)):
+#     RFE_selector = RFE(estimator=gbc, n_features_to_select=k, step=1)
+#     RFE_selector.fit(X_trainR, Y_trainR)
+#     sel_XtrainR = RFE_selector.transform(X_trainR)
+#     sel_XtestR = RFE_selector.transform(X_testR)
+#     gbc.fit(sel_XtrainR, Y_trainR)
+#     RFE_preds = gbc.predict(sel_XtestR)
+#
+#     f1_score_rfe = round(f1_score(Y_testR, RFE_preds, average='weighted'), 3)
+#     print(k, f1_score_rfe)
+#     rfe_f1score_list.append(f1_score_rfe)
+#
+# fig, ax = plt.subplots()
+#
+# x = np.arange(1, len(X_trainR))
+# y = rfe_f1score_list
+#
+# ax.bar(x, y, width=0.2)
+# ax.set_xlabel('Number of features selected using RFE')
+# ax.set_ylabel('F1-Score (weighted)')
+# ax.set_ylim(0, 1.2)
+# ax.set_xticks(np.arange(1, len(X_trainR)))
+# ax.set_xticklabels(np.arange(1, len(X_trainR)), fontsize=12)
+#
+# for i, v in enumerate(y):
+#     plt.text(x=i + 1, y=v + 0.05, s=str(v), ha='center')
+#
+# plt.tight_layout()
+# plt.show()
+
+# BORUTA --------------------------------------------------------------------------------------------
+# X_trainB, X_testB, Y_trainB, Y_testB = X_train.copy(), X_test.copy(), Y_train.copy(), Y_test.copy()
+# gbc = GradientBoostingClassifier(max_depth=5, random_state=42)
+#
+# boruta_selector = BorutaPy(gbc, random_state=42)
+# boruta_selector.fit(X_trainB.values, Y_trainB.values.ravel())
+# sel_XtrainB = boruta_selector.transform(X_trainB.values)
+# sel_XtestB = boruta_selector.transform(X_testB.values)
+# gbc.fit(sel_XtrainB, Y_trainB)
+# boruta_preds = gbc.predict(sel_XtestB)
+# boruta_f1_score = round(f1_score(Y_testB, boruta_preds, average='weighted'), 3)
+#
+# RFE_selector = RFE(estimator=gbc, n_features_to_select=5, step=10)
+# RFE_selector.fit(X_trainB, Y_trainB)
+# selected_features_mask = boruta_selector.support_
+# selected_features = X_trainB.columns[selected_features_mask]
+# print('selected_features:', selected_features)
+
+# full selected_features: '%D', 'rsi', 'diff', 'srl_corr', 'roc20', 'TrD3'
+# bb != 0 selected_features: 'macd', '4H%D', 'rsi', 'mom10', 'TrD3'
+# side. bb != 0: 'macd', '%K', '4H%K', '%D', 'roc10', 'TrD3'
