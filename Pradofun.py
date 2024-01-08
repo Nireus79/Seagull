@@ -52,8 +52,8 @@ def reportProgress(jobNum, numJobs, time0, task):
     msg = [float(jobNum) / numJobs, (time.time() - time0) / 60.]
     msg.append(msg[1] * (1 / msg[0] - 1))
     timeStamp = str(dt.datetime.fromtimestamp(time.time()))
-    msg = timeStamp + ' ' + str(round(msg[0] * 100, 2)) + '% ' + task + ' done after ' + \
-          str(round(msg[1], 2)) + ' minutes. Remaining ' + str(round(msg[2], 2)) + ' minutes.'
+    msg = timeStamp + ' ' + str(round(msg[0] * 100, 2)) + '% ' + task + ' done after ' + str(round(msg[1], 2)) + \
+          ' minutes. Remaining ' + str(round(msg[2], 2)) + ' minutes.'
     if jobNum < numJobs:
         sys.stderr.write(msg + '\r')
     else:
@@ -116,57 +116,19 @@ def mpPandasObj(func, pdObj, numThreads=24, mpBatches=1, linMols=True, **kargs):
     return df0
 
 
-def applyPtSlOnT1(close, events, ptSl, molecule):
-    """
-    TRIPLE-BARRIER LABELING METHOD
-    apply stop loss/profit taking, if it takes place before t1 (end of event)
-    :param close: A pandas series of prices.
-    :param events: A pandas dataframe, with columns,
-         t1: The timestamp of vertical barrier. When the value is nan, there will not be a vertical barrier.
-         trgt: The unit width of the horizontal barriers.
-    :param ptSl: A list of two non-negative float values
-        ptSl[0]: The factor that multiplies trgt to set the width of the upper barrier.
-        If 0, there will not be an upper barrier
-        ptSl[1]: The factor that multiplies trgt to set the width of the lower barrier.
-        If 0, there will not be a lower barrier
-    :param molecule: A list with the subset of event indices that will be processed by a single thread
-        (a list consists of indices of events in dataframe "events".
-         It is to remove unnecessary events such as rare events.)
-    :return: a pandas dataframe containing the timestamps (if any) at which each barrier was touched
-    """
-    events_ = events.loc[molecule]
-    out = events_[['t1']].copy(deep=True)
-    if ptSl[0] > 0:
-        pt = ptSl[0] * events_['trgt']
-    else:
-        pt = pd.Series(index=events.index)  # NaNs
-    if ptSl[1] > 0:
-        sl = -ptSl[1] * events_['trgt']
-    else:
-        sl = pd.Series(index=events.index)  # NaNs
-    for loc, t1 in events_['t1'].fillna(close.index[-1]).items():
-        df0 = close[loc:t1]  # path prices
-        df0 = (df0 / close[loc] - 1) * events_.at[loc, 'side']  # path returns
-        out.loc[loc, 'sl'] = df0[df0 < sl[loc]].index.min()  # earliest stop loss.
-        out.loc[loc, 'pt'] = df0[df0 > pt[loc]].index.min()  # earliest profit taking.
-    return out
-
-
 def getDailyVol(close, span0, days):
     """
     Daily Volatility Estimator [3.1]
     daily vol re-indexed to close
     Original df0 = df0[df0 > 0] does not include first day indexes
     was changed to df0 = df0[df0 >= 0]
-    :param m: mode
     :param days:
     :param close:
     :param span0:
     :return:
     """
     df0 = close.index.searchsorted(close.index - pd.Timedelta(days=days))
-    df0 = df0[df0 >= 0]  # df0 >= 0 includes first day in index
-    # TODO check if original df0 = df0[df0 > 0] is correct
+    df0 = df0[df0 > 0]
     df0 = (pd.Series(close.index[df0 - days], index=close.index[close.shape[0] - df0.shape[0]:]))
     try:
         df0 = close.loc[df0.index] / close.loc[df0.values].values - days  # daily rets
@@ -174,54 +136,6 @@ def getDailyVol(close, span0, days):
         print(f'error: {e}\nplease confirm no duplicate indices')
     df0 = df0.ewm(span=span0).std().rename('dailyVol')
     return df0
-
-
-def getDailyVolRows(close, span0, rows, m):
-    """
-    The formula used in the function to calculate daily volatility is based on the exponential moving standard
-    deviation (EMS). The function calculates daily volatility as an estimate of the standard deviation of daily
-    returns.
-
-Here's a breakdown of the formula and the steps involved:
-
-Calculate the Number of Rows/Periods: The function takes a parameter called rows, which represents the number of
-previous rows or periods to consider for calculating daily volatility.
-
-Find Start Date for Volatility Calculation: The function searches for the index position where the calculation should
-start. It does this by finding the index position where the time series (in this case, the close prices) is a certain
-number of rows before the current time.
-
-Create a Reindexed Series: The function creates a new Series called df0, which contains the index positions from the
-original close Series corresponding to the start date determined in step 2.
-
-Calculate Daily Returns: It calculates daily returns as the percentage change in the close prices between the start
-date and the current date. This is done by taking the ratio of the close prices on the current date and the close
-prices on the start date and subtracting 1. This step helps calculate the daily returns of the asset.
-
-Calculate Exponential Moving Standard Deviation: Finally, it calculates the daily volatility by applying an
-exponential moving standard deviation (EMS) to the daily returns. The ewm method is used for this purpose with a
-given span0 parameter. The span0 parameter controls the weighting of the data points in the moving standard
-deviation. It essentially determines how quickly the influence of older data diminishes. A smaller span0 value will
-give more weight to recent data, while a larger span0 value will give more weight to historical data.
-
-The resulting Series, named 'dailyVol', contains the estimated daily volatility. It measures the variability of daily
-returns, providing an indication of the asset's risk and price fluctuations over time.
-
-In summary, the formula is based on calculating the daily returns over a specified number of rows/periods and then
-smoothing these returns using an exponential moving standard deviation to estimate the asset's daily volatility.
-    """
-    df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
-    df0 = df0[df0 >= 0]  # df0 >= 0 includes the first row in the index
-    df0 = (pd.Series(close.index[df0 - rows], index=close.index[close.shape[0] - df0.shape[0]:]))
-    try:
-        df0 = close.loc[df0.index] / close.loc[df0.values].values - 1
-    except Exception as e:
-        print(f'Error: {e}\nPlease confirm there are no duplicate indices.')
-    df0ewm = df0.ewm(span=span0).std().rename('dailyVol')
-    if m == 'p':
-        return df0
-    elif m == 'ewm':
-        return df0ewm
 
 
 def getTEvents(gRaw, h):
@@ -281,6 +195,42 @@ signal processing to detect significant changes in time series data.
             sPos = 0
             tEvents.append(i)
     return pd.DatetimeIndex(tEvents)
+
+
+def applyPtSlOnT1(close, events, ptSl, molecule):
+    """
+    TRIPLE-BARRIER LABELING METHOD
+    apply stop loss/profit taking, if it takes place before t1 (end of event)
+    :param close: A pandas series of prices.
+    :param events: A pandas dataframe, with columns,
+         t1: The timestamp of vertical barrier. When the value is nan, there will not be a vertical barrier.
+         trgt: The unit width of the horizontal barriers.
+    :param ptSl: A list of two non-negative float values
+        ptSl[0]: The factor that multiplies trgt to set the width of the upper barrier.
+        If 0, there will not be an upper barrier
+        ptSl[1]: The factor that multiplies trgt to set the width of the lower barrier.
+        If 0, there will not be a lower barrier
+    :param molecule: A list with the subset of event indices that will be processed by a single thread
+        (a list consists of indices of events in dataframe "events".
+         It is to remove unnecessary events such as rare events.)
+    :return: a pandas dataframe containing the timestamps (if any) at which each barrier was touched
+    """
+    events_ = events.loc[molecule]
+    out = events_[['t1']].copy(deep=True)
+    if ptSl[0] > 0:
+        pt = ptSl[0] * events_['trgt']
+    else:
+        pt = pd.Series(index=events.index)  # NaNs
+    if ptSl[1] > 0:
+        sl = -ptSl[1] * events_['trgt']
+    else:
+        sl = pd.Series(index=events.index)  # NaNs
+    for loc, t1 in events_['t1'].fillna(close.index[-1]).items():
+        df0 = close[loc:t1]  # path prices
+        df0 = (df0 / close[loc] - 1) * events_.at[loc, 'side']  # path returns
+        out.loc[loc, 'sl'] = df0[df0 < sl[loc]].index.min()  # earliest stop loss.
+        out.loc[loc, 'pt'] = df0[df0 > pt[loc]].index.min()  # earliest profit taking.
+    return out
 
 
 def getEvents(close, tEvents, ptSl, trgt, minRet, numThreads, t1, side):
@@ -358,7 +308,6 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
         # control of common indexes between target and side before filtering
         side_, ptSl_ = side.loc[common_indexes], ptSl[:2]  # TODO check side.loc / trgt.loc
     events = (pd.concat({'t1': t1, 'trgt': trgt, 'side': side_}, axis=1).dropna(subset=['trgt']))
-    # TODO applyPtSlOnT1
     # df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
     #                   numThreads=numThreads, close=close, events=events,
     #                   ptSl=ptSl_)
@@ -374,17 +323,6 @@ it finds the timestamp of the next price bar at or immediately after a number
 of days numDays. This vertical barrier can be passed as optional argument t1
 in getEvents."""
     t1 = close.index.searchsorted(tEvents + pd.Timedelta(days=numDays))
-    t1 = t1[t1 < close.shape[0]]
-    t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
-    return t1
-
-
-def addVerticalBarrierRows(tEvents, close, rows):
-    """For each index in tEvents,
-it finds the timestamp of the next price bar at or immediately after a number
-of days numDays. This vertical barrier can be passed as optional argument t1
-in getEvents."""
-    t1 = close.index.searchsorted(tEvents + pd.DateOffset(rows))
     t1 = t1[t1 < close.shape[0]]
     t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
     return t1
@@ -476,41 +414,7 @@ def getDailyTimeBarVolatility(close, span0, days):
     :param span0:
     :return:
     """
-    df0 = close.index.searchsorted(close.index - pd.Timedelta(days))
-    df0 = df0[df0 > 0]
-    df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
-    df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
-    df0 = df0.ewm(span=span0).std()
-    return df0
-
-
-def getDailyTimeBarVolatilityRows(close, span0, rows):
-    """
-    DYNAMIC THRESHOLDS for time bars
-    daily vol, reindexed to close
-    :param rows:
-    :param close:
-    :param span0:
-    :return:
-    """
-    df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
-    df0 = df0[df0 > 0]
-    df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
-    df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
-    df0 = df0.ewm(span=span0).std()
-    return df0
-
-
-def getDollarBarVolatilityByCandle(close, span0, market_value):
-    """
-    DYNAMIC THRESHOLDS for dollar bars
-    volatility by market value, reindexed to close
-    :param market_value:
-    :param close:
-    :param span0:
-    :return:
-    """
-    df0 = close.index.searchsorted(close.index - market_value)
+    df0 = close.index.searchsorted(close.index - pd.Timedelta(days=days))
     df0 = df0[df0 > 0]
     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
@@ -706,3 +610,93 @@ def df_rolling_autocorr(df, window, lag=1):
 
     return (df.rolling(window=window)
             .corr(df.shift(lag)))  # could .dropna() here
+
+# def getDailyVolRows(close, span0, rows, m):
+#     """
+#     The formula used in the function to calculate daily volatility is based on the exponential moving standard
+#     deviation (EMS). The function calculates daily volatility as an estimate of the standard deviation of daily
+#     returns.
+#
+# Here's a breakdown of the formula and the steps involved:
+#
+# Calculate the Number of Rows/Periods: The function takes a parameter called rows, which represents the number of
+# previous rows or periods to consider for calculating daily volatility.
+#
+# Find Start Date for Volatility Calculation: The function searches for the index position where the calculation should
+# start. It does this by finding the index position where the time series (in this case, the close prices) is a certain
+# number of rows before the current time.
+#
+# Create a Reindexed Series: The function creates a new Series called df0, which contains the index positions from the
+# original close Series corresponding to the start date determined in step 2.
+#
+# Calculate Daily Returns: It calculates daily returns as the percentage change in the close prices between the start
+# date and the current date. This is done by taking the ratio of the close prices on the current date and the close
+# prices on the start date and subtracting 1. This step helps calculate the daily returns of the asset.
+#
+# Calculate Exponential Moving Standard Deviation: Finally, it calculates the daily volatility by applying an
+# exponential moving standard deviation (EMS) to the daily returns. The ewm method is used for this purpose with a
+# given span0 parameter. The span0 parameter controls the weighting of the data points in the moving standard
+# deviation. It essentially determines how quickly the influence of older data diminishes. A smaller span0 value will
+# give more weight to recent data, while a larger span0 value will give more weight to historical data.
+#
+# The resulting Series, named 'dailyVol', contains the estimated daily volatility. It measures the variability of daily
+# returns, providing an indication of the asset's risk and price fluctuations over time.
+#
+# In summary, the formula is based on calculating the daily returns over a specified number of rows/periods and then
+# smoothing these returns using an exponential moving standard deviation to estimate the asset's daily volatility.
+#     """
+#     df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
+#     df0 = df0[df0 >= 0]  # df0 >= 0 includes the first row in the index
+#     df0 = (pd.Series(close.index[df0 - rows], index=close.index[close.shape[0] - df0.shape[0]:]))
+#     try:
+#         df0 = close.loc[df0.index] / close.loc[df0.values].values - 1
+#     except Exception as e:
+#         print(f'Error: {e}\nPlease confirm there are no duplicate indices.')
+#     df0ewm = df0.ewm(span=span0).std().rename('dailyVol')
+#     if m == 'p':
+#         return df0
+#     elif m == 'ewm':
+#         return df0ewm
+
+# def addVerticalBarrierRows(tEvents, close, rows):
+#     """For each index in tEvents,
+# it finds the timestamp of the next price bar at or immediately after a number
+# of days numDays. This vertical barrier can be passed as optional argument t1
+# in getEvents."""
+#     t1 = close.index.searchsorted(tEvents + pd.DateOffset(rows))
+#     t1 = t1[t1 < close.shape[0]]
+#     t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
+#     return t1
+
+# def getDailyTimeBarVolatilityRows(close, span0, rows):
+#     """
+#     DYNAMIC THRESHOLDS for time bars
+#     daily vol, reindexed to close
+#     :param rows:
+#     :param close:
+#     :param span0:
+#     :return:
+#     """
+#     df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
+#     df0 = df0[df0 > 0]
+#     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
+#     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
+#     df0 = df0.ewm(span=span0).std()
+#     return df0
+#
+#
+# def getDollarBarVolatilityByCandle(close, span0, market_value):
+#     """
+#     DYNAMIC THRESHOLDS for dollar bars
+#     volatility by market value, reindexed to close
+#     :param market_value:
+#     :param close:
+#     :param span0:
+#     :return:
+#     """
+#     df0 = close.index.searchsorted(close.index - market_value)
+#     df0 = df0[df0 > 0]
+#     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
+#     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
+#     df0 = df0.ewm(span=span0).std()
+#     return df0

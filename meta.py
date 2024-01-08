@@ -3,29 +3,39 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
-from toolbox import spliter, standardizer, normalizer, rescaler
+from toolbox import spliter, standardizer
 from data_forming import events_data, part, signal
 import numpy as np
 import pandas as pd
 
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
-
 # Two train sets
 
 events_dataSell = events_data.loc[events_data['bb_cross'] != 0]
 
-feats_to_dropSell = ['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'Dema3', 'bb_cross',
-                     'macd', '4H%K', '4H%D']
+feats_to_dropSell = ['Close', 'Open', 'High', 'Low', 'Volume', 'Dema3', 'bb_cross',
+                     '4H%D', '4H%D', '4H%K', 'rsi', 'macd']
 
 events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
-feats_to_dropBuy = ['Close', 'Open', 'High', 'Low', 'Volume', 'Volatility', 'Dema3', 'bb_cross',
-                    '4H%K', 'diff']
+feats_to_dropBuy = ['Close', 'Open', 'High', 'Low', 'Volume', 'Dema3', 'bb_cross',
+                    'macd', '4H%D', 'rsi', 'Volatility']
+
+# 4H%K        0.049300
+# %K          0.021325
+# %D          0.021224
+# Volatility  0.011652
+# macd        0.006973
+# TrD3        0.004210
+# rsi         0.001031
+# 4H%D        0.000000
+
+# selected_features: Index(['%K', '4H%K', '%D', 'TrD3']
 
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model --------------------------------------------------------------------------------------------------')
 X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, feats_to_dropSell)
-# X_trainSell, X_testSell = standardizer(X_trainSell), standardizer(X_testSell)
+X_trainSell, X_testSell = standardizer(X_trainSell), standardizer(X_testSell)
 
 X_train_ASell, Y_train_ASell = X_trainSell[:int(len(X_trainSell) * 0.5)], Y_trainSell[:int(len(Y_trainSell) * 0.5)]
 X_train_BSell, Y_train_BSell = X_trainSell[int(len(X_trainSell) * 0.5):], Y_trainSell[int(len(Y_trainSell) * 0.5):]
@@ -64,7 +74,7 @@ print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0'
 print('Buy model ---------------------------------------------------------------------------------------------------')
 
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, feats_to_dropBuy)
-# X_trainBuy, X_testBuy = standardizer(X_trainBuy), standardizer(X_testBuy)
+X_trainBuy, X_testBuy = standardizer(X_trainBuy), standardizer(X_testBuy)
 
 X_train_ABuy, Y_train_ABuy = X_trainBuy[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
 X_train_BBuy, Y_train_BBuy = X_trainBuy[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]
@@ -99,17 +109,17 @@ test_set_meta_predBuy = MetaModelBuy.predict(X_testBuy)
 print(classification_report(Y_testBuy, test_set_predBuy, target_names=['0', '1']))
 print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=['0', '1']))
 
-# one train set (over fitting meta model)
-# # Train sell model ---------------------------------------------------------------------------------------
+# one train set (over fitting metamodel)
+# Train sell model ---------------------------------------------------------------------------------------
 # print('Sell model --------------------------------------------------------------------------------------------------')
-# feats_to_dropS = ['4H_Low', '4H_atr', 'Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility',
-#                   'Dema9']
+# feats_to_dropS = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'Dema3',
+#                   '%K', '%D', '4H%D', 'rsi', 'Volatility']
 # X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_data, signal, part, feats_to_dropS)
 # print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
 # print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 # print('X.columns', X_trainSell.columns)
 #
-# PrimeModelSell = KNeighborsClassifier()
+# PrimeModelSell = MLPClassifier()
 # PrimeModelSell.fit(X_trainSell, Y_trainSell)
 #
 # test_set_predSell = PrimeModelSell.predict(X_testSell)
@@ -122,12 +132,13 @@ print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=
 #
 # Y_train_metaSell = meta_dfSell.iloc[:, 2]
 #
-# MetaModelSell = KNeighborsClassifier()
+# MetaModelSell = MLPClassifier()
 # MetaModelSell.fit(X_testSell, Y_train_metaSell)
 # print(classification_report(Y_testSell, test_set_predSell, target_names=['no_trade', 'trade']))
 #
 # print('Buy model ---------------------------------------------------------------------------------------------------')
-# feats_to_dropBuy = ['4H_Low', '4H_atr', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', '4H%K', '4H%D']
+# feats_to_dropBuy = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Volatility', 'Dema3',
+#                     '%K', '%D', '4H%D', 'rsi', 'Volatility']
 # events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
 # X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, feats_to_dropBuy)
 #

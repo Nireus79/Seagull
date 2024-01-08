@@ -63,8 +63,8 @@ eth30m['1D_Close'] = eth1D['Close']
 # eth30m['BTC1D_Close'] = btc1D['Close']
 
 cpus = 1
-ptsl = [1, 1]  # profit-taking and stop loss limit multipliers
-minRet = c_labels = .01  # The minimum target return(def .01) (volatility) required for running a triple barrier search
+ptsl = [1, 1]  # profit-taking / stop loss limit multipliers
+minRet = .01  # The minimum target return(def .01) (volatility) required for running a triple barrier search
 delta = 1
 span = 100
 window = 20
@@ -110,13 +110,13 @@ data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 # data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
-data['diff'] = np.log(data['Close']).diff()
-data['cusum'] = data['Close'].cumsum()
-data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
-data['roc10'] = ROC(data['Close'], 10)
+# data['diff'] = np.log(data['Close']).diff()
+# data['cusum'] = data['Close'].cumsum()
+# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+# data['roc10'] = ROC(data['Close'], 10)
 # data['roc20'] = ROC(data['Close'], 20)
 # data['roc30'] = ROC(data['Close'], 30)
-data['mom10'] = MOM(data['Close'], 10)
+# data['mom10'] = MOM(data['Close'], 10)
 # data['mom20'] = MOM(data['Close'], 20)
 # data['mom30'] = MOM(data['Close'], 30)
 data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
@@ -157,7 +157,8 @@ data.drop(columns=['1D_Close', '4H_Close', '4H_Low', '4H_High', 'Price', 'ave', 
           axis=1, inplace=True)
 # data.drop(columns=['BTC1D_Close', 'BTC4H_Close', 'BTC4H_Low', 'BTC4H_High',
 #                    'BTC_High', 'BTC_Low', 'BTC_Close'], axis=1, inplace=True)
-feats_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume']
+feats_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Dema3',
+                 'macd', '4H%K', '4H%D', 'rsi']
 
 full_data = data.copy()
 
