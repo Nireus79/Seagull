@@ -15,25 +15,16 @@ import pandas as pd
 events_dataSell = events_data.loc[events_data['bb_cross'] != 0]
 
 feats_to_dropSell = ['Close', 'Open', 'High', 'Low', 'Volume', 'Dema3', 'bb_cross',
-                     '4H%D', '4H%D', '4H%K', 'rsi', 'macd']
+                     '4H%D', 'rsi', 'Volatility', 'TrD3', 'Tr20',
+                     'StD4', 'StD', 'bb_sq', 'bb_l', 'bb_t'
+                     ]
 
 events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
 feats_to_dropBuy = ['Close', 'Open', 'High', 'Low', 'Volume', 'Dema3', 'bb_cross',
-                    'macd', '4H%D', 'rsi', 'Volatility']
-
-# 4H%K        0.049300
-# %K          0.021325
-# %D          0.021224
-# Volatility  0.011652
-# macd        0.006973
-# TrD3        0.004210
-# rsi         0.001031
-# 4H%D        0.000000
-
-# selected_features: Index(['%K', '4H%K', '%D', 'TrD3']
+                    'macd', 'rsi', 'Volatility', '%K', '%D', 'TrD3', 'Tr20', 'StD4', 'bb_sq']
 
 # Train sell model ---------------------------------------------------------------------------------------
-print('Sell model --------------------------------------------------------------------------------------------------')
+print('Sell model ------------------------------------------------------------------------------------------------')
 X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, feats_to_dropSell)
 X_trainSell, X_testSell = standardizer(X_trainSell), standardizer(X_testSell)
 

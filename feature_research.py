@@ -21,8 +21,9 @@ import numpy as np
 #                -               - # Mutual info
 # ---------------------------------------------------------------
 # VARIANCE ------------------------------------------------------
-# XVar = X_train.var(axis=0)
-# print(XVar)
+XVar = X_train.var(axis=0)
+print('Var')
+print(XVar)
 
 # K-best ------------------------------------------------------------
 X_trainK, X_testK, Y_trainK, Y_testK = X_train.copy(), X_test.copy(), Y_train.copy(), Y_test.copy()
@@ -111,19 +112,19 @@ plt.show()
 # plt.show()
 
 # BORUTA --------------------------------------------------------------------------------------------
-X_trainB, X_testB, Y_trainB, Y_testB = X_train.copy(), X_test.copy(), Y_train.copy(), Y_test.copy()
-gbc = GradientBoostingClassifier(max_depth=5, random_state=42)
-
-boruta_selector = BorutaPy(gbc, random_state=42)
-boruta_selector.fit(X_trainB.values, Y_trainB.values.ravel())
-sel_XtrainB = boruta_selector.transform(X_trainB.values)
-sel_XtestB = boruta_selector.transform(X_testB.values)
-gbc.fit(sel_XtrainB, Y_trainB)
-boruta_preds = gbc.predict(sel_XtestB)
-boruta_f1_score = round(f1_score(Y_testB, boruta_preds, average='weighted'), 3)
-
-RFE_selector = RFE(estimator=gbc, n_features_to_select=5, step=10)
-RFE_selector.fit(X_trainB, Y_trainB)
-selected_features_mask = boruta_selector.support_
-selected_features = X_trainB.columns[selected_features_mask]
-print('selected_features:', selected_features)
+# X_trainB, X_testB, Y_trainB, Y_testB = X_train.copy(), X_test.copy(), Y_train.copy(), Y_test.copy()
+# gbc = GradientBoostingClassifier(max_depth=5, random_state=42)
+#
+# boruta_selector = BorutaPy(gbc, random_state=42)
+# boruta_selector.fit(X_trainB.values, Y_trainB.values.ravel())
+# sel_XtrainB = boruta_selector.transform(X_trainB.values)
+# sel_XtestB = boruta_selector.transform(X_testB.values)
+# gbc.fit(sel_XtrainB, Y_trainB)
+# boruta_preds = gbc.predict(sel_XtestB)
+# boruta_f1_score = round(f1_score(Y_testB, boruta_preds, average='weighted'), 3)
+#
+# RFE_selector = RFE(estimator=gbc, n_features_to_select=5, step=10)
+# RFE_selector.fit(X_trainB, Y_trainB)
+# selected_features_mask = boruta_selector.support_
+# selected_features = X_trainB.columns[selected_features_mask]
+# print('selected_features:', selected_features)

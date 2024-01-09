@@ -68,7 +68,7 @@ minRet = .01  # The minimum target return(def .01) (volatility) required for run
 delta = 1
 span = 100
 window = 20
-bb_stddev = 2
+bb_stddev = 3
 part = 5
 
 data = eth30m
@@ -86,13 +86,6 @@ data['Dema3'] = data['1D_Close'].rolling(3).mean()
 # data['Dema13'] = data['1D_Close'].rolling(13).mean()
 # data['ema20'] = data['Close'].rolling(20).mean()
 # data['Dema20'] = data['1D_Close'].rolling(20).mean()
-
-# data['BTCDema3'] = data['BTC1D_Close'].rolling(3).mean()
-# data['BTCDema6'] = data['BTC1D_Close'].rolling(6).mean()
-# data['BTCDema9'] = data['BTC1D_Close'].rolling(9).mean()
-# data['BTCDema13'] = data['BTC1D_Close'].rolling(13).mean()
-# data['BTCDema20'] = data['BTC1D_Close'].rolling(20).mean()
-
 # data['adx'] = adx(data['High'], data['Low'], data['Close'], window=14, fillna=False)
 data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 # data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
@@ -102,10 +95,6 @@ data['%D'] = data['%K'].rolling(3).mean()
 data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['%DS'] = data['%D'].rolling(3).mean()
 # data['4H%DS'] = data['4H%D'].rolling(3).mean()
-# data['BTC4H%K'] = stoch(data['BTC4H_High'], data['BTC4H_Low'], data['BTC4H_Close'],
-#                      window=14, smooth_window=3, fillna=False)
-# data['BTC4H%D'] = data['BTC4H%K'].rolling(3).mean()
-# data['BTC4H%DS'] = data['BTC4H%D'].rolling(3).mean()
 data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 # data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
@@ -119,7 +108,7 @@ data['rsi'] = rsi(data['Close'], window=14, fillna=False)
 # data['mom10'] = MOM(data['Close'], 10)
 # data['mom20'] = MOM(data['Close'], 20)
 # data['mom30'] = MOM(data['Close'], 30)
-data['Price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
+data['price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 # elder_sides = crossing_elder(data, '4H%K', '4H%D')
 data['bb_cross'] = bb_sides
@@ -127,17 +116,16 @@ data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta).rolling(window).mean()
 
 data['TrD3'] = data.apply(lambda x: x['Close'] - x['Dema3'], axis=1)
+data['Tr20'] = data.apply(lambda x: x['Close'] - x['ave'], axis=1)
+data['StD4'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
+data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
+data['bb_sq'] = data.apply(lambda x: x['upper'] - x['lower'], axis=1)
+data['bb_l'] = data.apply(lambda x: (x['upper'] - x['price']) / (x['price'] - x['lower']), axis=1)
+data['bb_t'] = data.apply(lambda x: x['bb_l'] / x['bb_sq'], axis=1)
 # data['TrD6'] = data.apply(lambda x: x['Close'] - x['Dema6'], axis=1)
 # data['TrD9'] = data.apply(lambda x: x['Close'] - x['Dema9'], axis=1)
 # data['TrD13'] = data.apply(lambda x: x['Close'] - x['Dema13'], axis=1)
 # data['TrD20'] = data.apply(lambda x: x['Close'] - x['Dema20'], axis=1)
-# data['BTCTrD3'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema3'], axis=1)
-# data['BTCTrD6'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema6'], axis=1)
-# data['BTCTrD9'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema9'], axis=1)
-# data['BTCTrD13'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema13'], axis=1)
-# data['BTCTrD20'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema20'], axis=1)
-# data['StD'] = data.apply(lambda x: x['4H%D'] - x['4H%DS'], axis=1)
-# data['BTCStD'] = data.apply(lambda x: x['BTC4H%D'] - x['BTC4H%DS'], axis=1)
 tEvents = getTEvents(data['Close'], h=data['Volatility'])
 t1 = addVerticalBarrier(tEvents, data['Close'], delta)
 
@@ -153,12 +141,11 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 # print(data)
 # print(data.isnull().sum())
-data.drop(columns=['1D_Close', '4H_Close', '4H_Low', '4H_High', 'Price', 'ave', 'upper', 'lower'],
+data.drop(columns=['1D_Close', '4H_Close', '4H_Low', '4H_High', 'price', 'ave', 'upper', 'lower'],
           axis=1, inplace=True)
 # data.drop(columns=['BTC1D_Close', 'BTC4H_Close', 'BTC4H_Low', 'BTC4H_High',
 #                    'BTC_High', 'BTC_Low', 'BTC_Close'], axis=1, inplace=True)
-feats_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Dema3',
-                 'macd', '4H%K', '4H%D', 'rsi']
+feats_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Dema3']
 
 full_data = data.copy()
 
