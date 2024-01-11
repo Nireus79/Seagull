@@ -76,7 +76,7 @@ def normalizer(data):
     return normalized
 
 
-def spliter(research_data, signal, part, drop_columns):
+def spliter(research_data, signal, part, keep_columns):
     """
     spliter takes a full dataset, and a dataset containing only cases for training and testing.
     drops the column of returns if classification is researched
@@ -84,7 +84,7 @@ def spliter(research_data, signal, part, drop_columns):
     Then splits the research_data into X (features) and Y(labels),
     drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
     Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
-    :param drop_columns:
+    :param keep_columns:
     :param research_data: dataset containing only cases for training and testing
     :param signal:
     :param part: 1 to 5
@@ -95,11 +95,7 @@ def spliter(research_data, signal, part, drop_columns):
     X = research_data.loc[:, research_data.columns != signal, ]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
-    X.drop(columns=drop_columns, axis=1, inplace=True)
-    if signal == 'ret':
-        X.drop(columns=['bin'], axis=1, inplace=True)
-    elif signal == 'bin':
-        X.drop(columns=['ret'], axis=1, inplace=True)
+    X = X[keep_columns]
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
     if part == 1:

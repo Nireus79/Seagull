@@ -14,14 +14,10 @@ import pandas as pd
 
 events_dataSell = events_data.loc[events_data['bb_cross'] != 0]
 
-feats_to_dropSell = ['Close', 'Open', 'High', 'Low', 'Volume', 'Dema3', 'bb_cross',
-                     '4H%D', 'rsi', 'Volatility', 'TrD3', 'Tr20',
-                     'StD4', 'StD', 'bb_sq', 'bb_l', 'bb_t'
-                     ]
+feats_to_dropSell = ['bb_l', 'bb_t']
 
 events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
-feats_to_dropBuy = ['Close', 'Open', 'High', 'Low', 'Volume', 'Dema3', 'bb_cross',
-                    'macd', 'rsi', 'Volatility', '%K', '%D', 'TrD3', 'Tr20', 'StD4', 'bb_sq']
+feats_to_dropBuy = ['bb_sq', 'bb_t']
 
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model ------------------------------------------------------------------------------------------------')
