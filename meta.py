@@ -14,14 +14,14 @@ import pandas as pd
 
 events_dataSell = events_data.loc[events_data['bb_cross'] != 0]
 
-feats_to_dropSell = ['bb_l', 'bb_t']
+SellFeatures = ['bb_l', 'bb_t']
 
 events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
-feats_to_dropBuy = ['bb_sq', 'bb_t']
+BuyFeatures = ['bb_sq', 'bb_t']
 
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model ------------------------------------------------------------------------------------------------')
-X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, feats_to_dropSell)
+X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, SellFeatures)
 X_trainSell, X_testSell = standardizer(X_trainSell), standardizer(X_testSell)
 
 X_train_ASell, Y_train_ASell = X_trainSell[:int(len(X_trainSell) * 0.5)], Y_trainSell[:int(len(Y_trainSell) * 0.5)]
@@ -60,7 +60,7 @@ print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0'
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')
 
-X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, feats_to_dropBuy)
+X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures)
 X_trainBuy, X_testBuy = standardizer(X_trainBuy), standardizer(X_testBuy)
 
 X_train_ABuy, Y_train_ABuy = X_trainBuy[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]

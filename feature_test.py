@@ -4,114 +4,157 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from toolbox import spliter, standardizer
-from data_forming import events_data, part, signal
-import numpy as np
+from data_forming import events_data
 import pandas as pd
 import itertools
 
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
+
+signal = 'bin'
+part = 5
 
 
 def model_test(ftd):
     X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, ftd)
     X_train, X_test = standardizer(X_train), standardizer(X_test)
-    print('X.columns', X_train.columns)
+    # print('X.columns', X_train.columns)
 
     Model = MLPClassifier()
     Model.fit(X_train, Y_train)
     predictions = Model.predict(X_test)
-    report = classification_report(Y_test, predictions, target_names=['0', '1'])
-    print(report)
+    report = classification_report(Y_test, predictions, target_names=['0', '1'], output_dict=True)
+    # print(report)
     return report
 
 
 def uniqueCombinations(list_elements, plethos):
     lst = list(itertools.combinations(list_elements, plethos))
-    s = set(lst)
-    # print('actual', len(l), l)
-    return list(s)
+    combs = []
+    for e in lst:
+        combs.append(list(e))
+    return combs
 
 
-features = ['ema6', 'macd', '4Hmacd', '%K', '4H%K', '%D', '4H%D', '%DS', '4H%DS',
-            'rsi', '4H_rsi', 'diff', 'roc30', 'TrD3', 'bb_sq', 'bb_l', 'bb_t']
+# full_features = ['Dema3', 'ema6', 'macd', '4Hmacd', '%K', '4H%K', '%D', '4H%D', '%DS', '4H%DS', 'rsi', '4H_rsi',
+#                  'diff', 'roc30', 'bb_cross', 'Volatility', 'TrD3', 'bb_sq', 'bb_l',
+#                  'bb_t']
+def report_generator():
+    full_features = ['ema6', 'macd', '4Hmacd', '%K', '4H%K', '%D', '4H%D', '%DS', '4H%DS', 'rsi', '4H_rsi',
+                     'diff', 'roc30', 'Volatility', 'TrD3', 'bb_sq', 'bb_l', 'bb_t']
 
-features_to_drop = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Dema3', 'Volatility']
+    combinations = uniqueCombinations(full_features, 6)
+    print(len(combinations))
 
-combinations = uniqueCombinations(features, 14)
-reports = []
-# X.columns Index(['TrD3', 'bb_t'], dtype='object')
-#               precision    recall  f1-score   support
-#
-#            0       0.59      0.95      0.72       130
-#            1       0.72      0.17      0.28       105
-#
-#     accuracy                           0.60       235
-#    macro avg       0.65      0.56      0.50       235
-# weighted avg       0.65      0.60      0.52       235
-# X.columns Index(['bb_l', 'bb_t'], dtype='object')
-#               precision    recall  f1-score   support
-#
-#            0       0.55      0.99      0.71       130
-#            1       0.00      0.00      0.00       105
-#
-#     accuracy                           0.55       235
-#    macro avg       0.28      0.50      0.35       235
-# weighted avg       0.30      0.55      0.39       235
+    r = []
 
-# X.columns Index(['bb_sq', 'bb_t'], dtype='object')
-#               precision    recall  f1-score   support
-#
-#            0       0.55      0.99      0.71       130
-#            1       0.00      0.00      0.00       105
-#
-#     accuracy                           0.55       235
-#    macro avg       0.28      0.50      0.35       235
-# weighted avg       0.30      0.55      0.39       235
+    for i in combinations:
+        rep = model_test(i)
+        r.append((i, rep))
 
-# X.columns Index(['rsi', 'roc30', 'TrD3', 'bb_t'], dtype='object')
-#               precision    recall  f1-score   support
-#
-#            0       0.73      0.79      0.76       130
-#            1       0.71      0.64      0.67       105
-#
-#     accuracy                           0.72       235
-#    macro avg       0.72      0.72      0.72       235
-# weighted avg       0.72      0.72      0.72       235
-for i in combinations:
-    for a in range(len(i) - 1):
-        features_to_drop.append(i[a])
-    reports.append((i, model_test(features_to_drop)))
-    for r in range(len(i) - 1):
-        features_to_drop.remove(features_to_drop[-1])
+    reports = pd.DataFrame({'reports': r})
 
-# feats_to_drop_t = ['Close', 'Open', 'High', 'Low', 'Volume', 'bb_cross', 'Dema3', 'Volatility',
-#                    'macd', '4Hmacd', 'ema6', '%DS', 'bb_t', 'diff', '4H%DS', 'roc30', '4H_rsi']
+    reports['features'] = reports.apply(lambda x: x[0][0], axis=1)
+    reports['precision0'] = reports.apply(lambda x: x[0][1]['0']['precision'], axis=1)
+    reports['recall0'] = reports.apply(lambda x: x[0][1]['0']['recall'], axis=1)
+    reports['precision1'] = reports.apply(lambda x: x[0][1]['1']['precision'], axis=1)
+    reports['recall1'] = reports.apply(lambda x: x[0][1]['1']['recall'], axis=1)
+    reports.drop(columns=['reports'], axis=1, inplace=True)
+    print(reports)
+    reports.to_csv('6.csv')
 
-# bbst 2
-#          5                 4                 3                 2                 1
-# 4H%K     0.049219 macd     0.034713 bb_l     0.039098 ema20    0.042637 bb_sq    0.035683
-# ema20    0.035830 4H%D     0.032897 roc20    0.037382 roc20    0.032365 4H%K     0.032544
-# %K       0.032249 roc20    0.031864 %D       0.035171 bb_sq    0.031898 mom10    0.022986
-# ema3     0.028960 bb_sq    0.031496 bb_sq    0.034236 ema3     0.028970 roc10    0.022618
-# roc20    0.027495 Tr20     0.030354 4H%K     0.027882 %D       0.028580 TrD13    0.021423
-# bb_sq    0.024118 %D       0.022615 4Hmacd   0.022074 %DS      0.023525 roc30    0.019424
-# %D       0.021553 4H%K     0.019527 rsi      0.015712 adx      0.023427 TrD3     0.018838
-# 4H_rsi   0.017729 roc10    0.017473 4H%DS    0.015288 4H_rsi   0.019724 macd     0.018600
-# TrD13    0.016955 adx      0.014461 4H%D     0.013341 H4_ema6  0.019213 bb_l     0.017851
-# mom20    0.016256 ema3     0.014274 %K       0.012651 %K       0.015168 4H%DS    0.017294
 
-# bbst 3
-#             5                        4                  3                  2                  1
-# roc30       9.568736e-02 roc30       0.049310 roc30     0.064834 %DS       0.051512 roc30     0.073358
-# %DS         5.264076e-02 4H%D        0.049021 %K        0.043826 roc10     0.037872 %K        0.063652
-# diff        3.673265e-02 diff        0.048229 4Hmacd    0.041243 cusum     0.036472 bb_t      0.047946
-# StD         3.602626e-02 bb_l        0.035527 diff      0.034507 bb_sq     0.028896 bb_l      0.042156
-# bb_t        3.499322e-02 %DS         0.032056 bb_sq     0.026264 %K        0.024983 4Hmacd    0.035880
-# 4Hmacd      3.041183e-02 bb_t        0.029900 4H_atr    0.023679 4H%K      0.013060 cusum     0.029223
-# 4H%D        3.018110e-02 4Hmacd      0.029170 %DS       0.022564 4Hmacd    0.012418 %DS       0.026976
-# atr         2.515620e-02 cusum       0.025840 mom10     0.020301 diff      0.011505 4H%D      0.026674
-# 4H_atr      2.443527e-02 bb_sq       0.023816 roc10     0.019044 mom10     0.010021 atr       0.026145
-# 4H_rsi      2.310832e-02 4H_atr      0.020510 rsi       0.017265 4H_atr    0.006828 StD       0.023579
-# srl_corr    2.147385e-02 %K          0.018407 4H%D      0.016186 4H%D      0.003278 srl_corr  0.020388
-# mom20       1.877908e-02 macd        0.017509 cusum     0.016144 bb_t      0.000359 4H%K      0.020308
+# df.loc[df['favcount'].idxmax(), 'sn']
+# report_generator()
+reps = pd.read_csv('5.csv')
+print('max precision0:', reps.loc[reps['precision0'].idxmax()])
+print('max recall0:', reps.loc[reps['recall0'].idxmax()])
+print('max precision1:', reps.loc[reps['precision1'].idxmax()])
+print('max recall1:', reps.loc[reps['recall1'].idxmax()])
+
+# Correlation
+# events bb!=0raw            bb!=0 normalized           bb full norm
+# BTCVolatility    -0.060824 USDT_cusum       -0.038993 vema13           -0.064105
+# BTC_adx          -0.052688 USDT4H_atr       -0.038484 vema20           -0.061622
+# USDTVolatility   -0.046719 USDTbb_sq        -0.031173 vema9            -0.060738
+# USDT4H_atr       -0.046637 USDT_adx         -0.031116 bb_sq            -0.054016
+# Volatility       -0.045244 USDT_atr         -0.030005 vema6            -0.053661
+# USDT_atr         -0.043441 Volatility       -0.028296 vema3            -0.045423
+# USDT_macd        -0.043059 USDT_roc20       -0.025614 atr              -0.044591
+# USDTTrD13        -0.042864 USDTVolatility   -0.024774 4H_atr           -0.036789
+# USDTbb_sq        -0.042019 atr              -0.024670 BTC1D_Volume     -0.032610
+# USDTTrD9         -0.039902 USDT_mom20       -0.024477 1D_Volume        -0.027897
+# USDTTrD6         -0.038757 USDTTrD3         -0.023485 USDT1D_Volume    -0.025164
+# USDTTrD3         -0.038034 USDTTrD6         -0.022561 BTC_srl_corr     -0.024978
+# adx              -0.037355 USDTTrD9         -0.021857 4H_Volume        -0.023791
+# USDT4Hmacd       -0.032253 USDTTrD13        -0.021622 USDT_srl_corr    -0.021420
+# USDT_mom10       -0.022924 BTCVolatility    -0.018667 USDT4H_atr       -0.020023
+# USDT_roc10       -0.021593 BTC_atr          -0.017679 BTCbb_sq         -0.019713
+# USDT_mom20       -0.020701 BTC4Hmacd        -0.017007 BTC_atr          -0.018177
+# USDT_roc20       -0.018806 USDT_macd        -0.016544 USDT_cusum       -0.016717
+# StD4             -0.017030 BTC4H%K          -0.016349 BTC4Hmacd        -0.016392
+# BTCStD4          -0.016072 BTC4H%D          -0.014718 USDT_adx         -0.015746
+# USDT_%DS         -0.015262 BTC4H%DS         -0.014601 srl_corr          0.024609
+# USDT_%D          -0.014367 BTC_roc10         0.025731 4H%DS             0.025048
+# vema20           -0.012116 USDT_%K           0.028119 USDT_%D           0.025073
+# BTC_srl_corr     -0.012027 USDT4Hmacd        0.028685 macd              0.026283
+# BTC_%D            0.101418 1D_Volume         0.029106 rsi               0.026894
+# roc20             0.102903 %K                0.033217 mom10             0.028084
+# bb_cross          0.102993 USDT1D_Volume     0.037458 %K                0.028514
+# BTC_roc10         0.105403 diff              0.038058 Tr20              0.030001
+# rsi               0.106135 StD               0.044528 BTC_cusum         0.030091
+# %K                0.107045 4Hmacd            0.045625 USDT4H%K          0.030545
+# BTC4H%D           0.107177 roc10             0.048313 USDT4H%DS         0.032531
+# %D                0.107432 roc30             0.056910 USDT4H%D          0.032762
+# roc30             0.108708 srl_corr          0.057085 roc30             0.033177
+# BTC4H_rsi         0.109499 USDTStD           0.057642 mom30             0.034324
+# BTC4H%DS          0.110309 roc20             0.064939 roc20             0.036403
+# 4H_rsi            0.120573 mom30             0.068567 USDT_%K           0.037066
+# roc10             0.120950 Tr20              0.080799 StD               0.037187
+# 4H%K              0.124605 mom20             0.081084 mom20             0.037342
+# 4H%D              0.131558 mom10             0.081308 USDTStD           0.048767
+# 4H%DS             0.132209 macd              0.086425 bb_cross          0.060684
+#                            bb_cross          0.102993
+# KBest   bb!=0            Percentile bb!=0
+# macd           7.469976  macd           7.469976
+# mom10          6.733183  mom10          6.733183
+# mom20          6.684961  mom20          6.684961
+# Tr20           6.612164  Tr20           6.612164
+# roc20          5.066358  roc20          5.066358
+# mom30          4.805880  mom30          4.805880
+# bb_cross       4.404341  bb_cross       4.404341
+# USDTStD        4.099248  USDTStD        4.099248
+# roc30          3.937385  roc30          3.937385
+# srl_corr       3.791461  srl_corr       3.791461
+# roc10          2.792061  roc10          2.792061
+# StD            2.446352  StD            2.446352
+# 4Hmacd         1.847211  4Hmacd         1.847211
+# diff           1.752199  diff           1.752199
+# USDT4H_atr     1.705298  USDT4H_atr     1.705298
+# %K             1.527080  %K             1.527080
+# USDT1D_Volume  1.441922  USDT1D_Volume  1.441922
+# USDT_%K        1.129477  USDT_%K        1.129477
+# USDT_cusum     1.050387  USDT_cusum     1.050387
+# USDT_atr       1.031399  USDT_atr       1.031399
+
+# Kbest bbfull
+# bb_cross      14.135597
+# vema13        9.392936
+# vema20        8.912502
+# vema9         7.990112
+# USDTStD       6.699874
+# vema6         6.259626
+# bb_sq         6.189401
+# atr           5.055012
+# vema3         5.027493
+# mom20         4.193210
+# USDT_%K       4.037766
+# StD           3.933027
+# roc20         3.746181
+# BTC1D_Volume  3.636781
+# 4H_atr        3.343666
+# mom30         3.276361
+# USDT4H%D      3.149400
+# roc30         3.115243
+# USDT4H%DS     3.098730
+# Tr20          2.917827

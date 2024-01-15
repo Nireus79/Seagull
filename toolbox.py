@@ -59,6 +59,13 @@ def rescaler(data, minmax):
 
 
 def standardizer(data):
+    """
+    Standardization assumes that your data has a Gaussian (bell curve) distribution. This does not strictly have to
+    be true, but the technique is more effective if your attribute distribution is Gaussian. Standardization is
+    useful when your data has varying scales and the algorithm you are using does make assumptions about your data
+    having a Gaussian distribution, such as linear regression, logistic regression, and linear discriminant analysis.
+    :param data: :return:
+    """
     scaler = StandardScaler().fit(data)
     standardized = pd.DataFrame(scaler.fit_transform(data), index=data.index)
     standardized.columns = data.columns
@@ -68,6 +75,12 @@ def standardizer(data):
 
 
 def normalizer(data):
+    """
+    Normalization is a good technique to use when you do not know the distribution of your data or when you know the
+    distribution is not Gaussian (a bell curve). Normalization is useful when your data has varying scales and the
+    algorithm you are using does not make assumptions about the distribution of your data, such as k-nearest
+    neighbors and artificial neural networks. :param data: :return:
+    """
     scaler = Normalizer().fit(data)
     normalized = pd.DataFrame(scaler.fit_transform(data), index=data.index)
     normalized.columns = data.columns
@@ -76,7 +89,7 @@ def normalizer(data):
     return normalized
 
 
-def spliter(research_data, signal, part, keep_columns):
+def spliter(research_data, signal, part, feature_columns):
     """
     spliter takes a full dataset, and a dataset containing only cases for training and testing.
     drops the column of returns if classification is researched
@@ -84,18 +97,23 @@ def spliter(research_data, signal, part, keep_columns):
     Then splits the research_data into X (features) and Y(labels),
     drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
     Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
-    :param keep_columns:
+    :param feature_columns:
     :param research_data: dataset containing only cases for training and testing
     :param signal:
     :param part: 1 to 5
-    :return: X, Y, X_train, X_test, Y_train, Y_test, backtest_data
+    :return: X_train, X_test, Y_train, Y_test
     """
     Y = research_data.loc[:, signal]
     Y.name = Y.name
     X = research_data.loc[:, research_data.columns != signal, ]
     Y = research_data.loc[:, Y.name]
     X = research_data.loc[:, X.columns]
-    X = X[keep_columns]
+    if signal == 'ret':
+        X = X.drop(columns=['bin'])
+    elif signal == 'bin':
+        X = X.drop(columns=['ret'])
+    if feature_columns is not None:
+        X = X[feature_columns]
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
     if part == 1:
