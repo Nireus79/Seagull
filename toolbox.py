@@ -353,3 +353,5 @@ def crossing3(df, col1, col2, col3):
     side_down = pd.Series(-1, index=down_cross.index)
 
     return pd.concat([side_up, side_down]).sort_index()
+
+

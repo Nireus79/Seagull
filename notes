@@ -34,3 +34,391 @@ Support is the number of actual occurrences of the class in the specified datase
   the need for stratified sampling or rebalancing. Support doesn’t change between models but instead diagnoses
    the evaluation process.
 
+# max precision0: features      [Tr9, Tr20, TrD3, TrD20, diff]
+# precision0                          0.764286
+# recall0                             0.804511
+# precision1                          0.742574
+# recall1                             0.694444
+
+# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13, Tr9]
+# precision0                              0.551867
+# recall0                                      1.0
+# precision1                                   0.0
+# recall1                                      0.0
+
+# max precision1: features      [4H%K, bb_l, bb_sq, bb_t, diff]
+# precision0                           0.556485
+# recall0                                   1.0
+# precision1                                1.0
+# recall1                              0.018519
+
+# max recall1: features      [Tr9, Tr20, TrD3, TrD20, 4Hmacd]
+# precision0                             0.76259
+# recall0                               0.796992
+# precision1                            0.735294
+# recall1                               0.694444
+
+# max precision0: features      [Tr9, TrD3, 4H%K, 4H%D]
+# precision0                   0.810606
+# recall0                      0.804511
+# precision1                   0.761468
+# recall1                      0.768519
+
+# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13]
+# precision0                             0.55
+# recall0                            0.909774
+# precision1                         0.428571
+# recall1                            0.083333
+
+# max precision1: features      [TrD3, 4H%K, bb_sq, diff]
+# precision0                     0.761589
+# recall0                        0.864662
+# precision1                          0.8
+# recall1                        0.666667
+
+# max recall1: features      [VtrD13, Tr9, TrD3, diff]
+# precision0                          0.8
+# recall0                         0.75188
+# precision1                     0.715517
+# recall1                        0.768519
+
+# max precision0: features      [Tr20, TrD3, 4H%K, bb_sq]
+# precision0                     0.766423
+# recall0                        0.789474
+# precision1                     0.730769
+# recall1                        0.703704
+
+# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13]
+# precision0                         0.551867
+# recall0                                 1.0
+# precision1                              0.0
+# recall1                                 0.0
+
+# max precision1: features      [bb_sq, bb_t, diff, bb_cross]
+# precision0                         0.564655
+# recall0                            0.984962
+# precision1                         0.777778
+# recall1                            0.064815
+
+# max recall1: features      [Tr20, TrD3, 4H%K, bb_sq]
+# precision0                     0.766423
+# recall0                        0.789474
+# precision1                     0.730769
+# recall1                        0.703704
+
+# max precision0: features      [VtrD13, Tr9, Tr20, TrD3, 4H%D, diff]
+# precision0                                 0.813953
+# recall0                                    0.789474
+# precision1                                     0.75
+# recall1                                    0.777778
+
+# max recall0: features      [VtrD3, VtrD9, VtrD13, Tr9, TrD3, 4H%D]
+# precision0                                   0.772727
+# recall0                                      0.894737
+# precision1                                    0.83908
+# recall1                                      0.675926
+
+# max precision1: features      [VtrD3, VtrD9, VtrD13, Tr9, TrD3, 4H%D]
+# precision0                                   0.772727
+# recall0                                      0.894737
+# precision1                                    0.83908
+# recall1                                      0.675926
+
+# max recall1: features      [VtrD3, Tr9, Tr20, TrD3, diff, St4H]
+# precision0                                0.808696
+# recall0                                   0.699248
+# precision1                                 0.68254
+# recall1                                   0.796296
+# max precision0: features      [VtrD3, VtrD6, Tr20, TrD3, diff]
+# precision0                            0.809917
+# recall0                               0.736842
+# precision1                            0.708333
+# recall1                               0.787037
+# Name: 368, dtype: object
+# max recall0: features      [VtrD13, Tr9, Tr20, TrD3, 4H%K]
+# precision0                           0.773333
+# recall0                               0.87218
+# precision1                           0.813187
+# recall1                              0.685185
+# Name: 9317, dtype: object
+# max precision1: features      [VtrD13, Tr9, Tr20, TrD3, 4H%D]
+# precision0                           0.789116
+# recall0                               0.87218
+# precision1                           0.819149
+# recall1                              0.712963
+# Name: 9318, dtype: object
+# max recall1: features      [VtrD3, VtrD6, Tr20, TrD3, diff]
+# precision0                            0.809917
+# recall0                               0.736842
+# precision1                            0.708333
+# recall1                               0.787037
+
+# max precision0: features      [Tr9, TrD3, 4H%K, 4H%D]
+# precision0                   0.810606
+# recall0                      0.804511
+# precision1                   0.761468
+# recall1                      0.768519
+# Name: 88038, dtype: object
+# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13]
+# precision0                             0.55
+# recall0                            0.909774
+# precision1                         0.428571
+# recall1                            0.083333
+# Name: 57365, dtype: object
+# max precision1: features      [Tr20, TrD3, mom20, 4H_mom10]
+# precision0                         0.771242
+# recall0                            0.887218
+# precision1                         0.829545
+# recall1                            0.675926
+# Name: 92342, dtype: object
+# max recall1: features      [Tr9, TrD20, 4H_roc20, 4H_mom10]
+# precision0                            0.786408
+# recall0                               0.609023
+# precision1                            0.623188
+# recall1                               0.796296
+# Name: 89321, dtype: object
+
+# max precision0: features      [Volume, Tr9, TrD3, TrD20, diff, St4H]
+# precision0                                  0.826772
+# recall0                                     0.789474
+# precision1                                  0.754386
+# recall1                                     0.796296
+# max recall0: features      [Volume, TrD9, TrD20, %K, 4H%DS, bb_cross]
+# precision0                                      0.726708
+# recall0                                         0.879699
+# precision1                                           0.8
+# recall1                                         0.592593
+# max precision1: features      [Volume, TrD9, TrD20, %K, 4H%DS, bb_cross]
+# precision0                                      0.726708
+# recall0                                         0.879699
+# precision1                                           0.8
+# recall1                                         0.592593
+# max recall1: features      [Volume, Tr9, TrD3, TrD9, TrD13, diff]
+# precision0                                  0.815789
+# recall0                                     0.699248
+# precision1                                  0.685039
+# recall1                                     0.805556
+
+# max precision0: features      [Volatility, TrD3, 4Hmacd, roc30] or [Volatility, TrD3, 4Hmacd, roc30, bb_cross]
+# precision0                             0.772059
+# recall0                                0.789474
+# precision1                             0.733333
+# recall1                                0.712963
+
+# max precision0: features      [TrD3, Tr20, 4H%K, bb_sq]
+# precision0                     0.770992
+# recall0                        0.759398
+# precision1                     0.709091
+# recall1                        0.722222
+
+# GBC
+# max precision0: features      [Volatility, TrD3, Tr20, roc30]
+# precision0                           0.785185
+# recall0                              0.796992
+# precision1                           0.745283
+# recall1                              0.731481
+# max precision0: features      [TrD3, Tr20, macd, diff, roc30]
+# precision0                            0.79845
+# recall0                              0.774436
+# precision1                           0.732143
+# recall1                              0.759259
+
+# max recall0: features      [TrD3, Tr20, 4H%K, diff]
+# precision0                    0.746753
+# recall0                       0.864662
+# precision1                    0.793103
+# recall1                       0.638889
+
+# ---------------------------------------------------------------------------------------
+# max recall0: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
+# precision0                               0.787671
+# recall0                                  0.864662
+# precision1                               0.810526
+# recall1                                  0.712963
+
+# max precision1: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
+# precision0                               0.787671
+# recall0                                  0.864662
+# precision1                               0.810526
+# recall1                                  0.712963
+# max precision0: features      [TrD3, Dema6, 4H%D, diff]
+# precision0                     0.818898
+# recall0                        0.781955
+# precision1                     0.745614
+# recall1                        0.787037
+# # max precision1: features      [ema9, TrD6, bb_cross, vema20]
+# # precision0                           0.74375
+# # recall0                             0.894737
+# # precision1                           0.82716
+# # recall1                              0.62037
+# ------------------------------------------------------------------------------------------
+# max recall1: features      [TrD3, bb_sq, diff, mom10, roc30]
+# precision0                              0.79661
+# recall0                                0.706767
+# precision1                             0.682927
+# recall1                                0.777778
+# max recall0: features      [ema13, Dema6, 4H%K, vema20]
+# precision0                        0.642105
+# recall0                           0.917293
+# precision1                        0.784314
+# recall1                            0.37037
+# max recall0: features      [Volume, TrD3, 4H%D, mom20]
+# precision0                       0.746835
+# recall0                          0.887218
+# precision1                       0.819277
+# recall1                           0.62963
+
+# max precision0: features      [TrD3, %K, 4Hmacd, diff, mom20]
+# precision0                           0.804688
+# recall0                              0.774436
+# precision1                           0.734513
+# recall1                              0.768519
+
+# max recall0: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
+# precision0                               0.787671
+# recall0                                  0.864662
+# precision1                               0.810526
+# recall1                                  0.712963
+
+# max precision1: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
+# precision0                               0.787671
+# recall0                                  0.864662
+# precision1                               0.810526
+# recall1                                  0.712963
+
+# max recall1: features      [TrD3, %K, 4Hmacd, diff, mom20]
+# precision0                           0.804688
+# recall0                              0.774436
+# precision1                           0.734513
+# recall1                              0.768519
+# max precision0: features      [TrD3, 4H%K, 4Hmacd, St4H, bb_cross, 4H_mom20]
+# precision0                                          0.824427
+# recall0                                              0.81203
+# precision1                                          0.772727
+# recall1                                             0.787037
+
+# max recall0: features      [TrD3, 4H%K, bb_l, bb_sq, 4Hmacd, roc10]
+# precision0                                    0.768212
+# recall0                                        0.87218
+# precision1                                    0.811111
+# recall1                                       0.675926
+
+# max precision1: features      [TrD3, 4H%K, bb_l, bb_sq, 4Hmacd, roc10]
+# precision0                                    0.768212
+# recall0                                        0.87218
+# precision1                                    0.811111
+# recall1                                       0.675926
+
+# max recall1: features      [TrD3, 4H%K, 4Hmacd, St4H, bb_cross, 4H_mom20]
+# precision0                                          0.824427
+# recall0                                              0.81203
+# precision1                                          0.772727
+# recall1                                             0.787037
+
+# BTC ----------------------------------------------------------------------------------------------------------
+# data['BTC_ema3'] = data['BTC_Close'].rolling(3).mean()
+# data['BTC_ema6'] = data['BTC_Close'].rolling(6).mean()
+# data['BTC_ema9'] = data['BTC_Close'].rolling(9).mean()
+# data['BTC_ema13'] = data['BTC_Close'].rolling(13).mean()
+# data['BTC_ema20'] = data['BTC_Close'].rolling(20).mean()
+#
+# data['BTC_adx'] = adx(data['BTC_High'], data['BTC_Low'], data['BTC_Close'], window=14, fillna=False)
+# data['BTC_macd'] = macd_diff(data['BTC_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['BTC_%K'] = stoch(data['BTC_High'], data['BTC_Low'], data['BTC_Close'], window=14, smooth_window=3, fillna=False)
+# data['BTC_%D'] = data['BTC_%K'].rolling(3).mean()
+# data['BTC_%DS'] = data['BTC_%D'].rolling(3).mean()
+# data['BTC_rsi'] = rsi(data['BTC_Close'], window=14, fillna=False)
+# data['BTC_atr'] = average_true_range(data['BTC_High'], data['BTC_Low'], data['BTC_Close'], window=14, fillna=False)
+# data['BTC_diff'] = np.log(data['BTC_Close']).diff()
+# data['BTC_cusum'] = data['BTC_Close'].cumsum()
+# data['BTC_srl_corr'] = df_rolling_autocorr(returns(data['BTC_Close']), window=window).rename('BTC_srl_corr')
+# data['BTC_roc10'] = ROC(data['BTC_Close'], 10)
+# data['BTC_roc20'] = ROC(data['BTC_Close'], 20)
+# data['BTC_roc30'] = ROC(data['BTC_Close'], 30)
+# data['BTC_mom10'] = MOM(data['BTC_Close'], 10)
+# data['BTC_mom20'] = MOM(data['BTC_Close'], 20)
+# data['BTC_mom30'] = MOM(data['BTC_Close'], 30)
+# data['BTC_price'], data['BTC_ave'], data['BTC_upper'], data['BTC_lower'] =\
+#     bbands(data['BTC_Close'], window=window, numsd=bb_stddev)
+#
+# data['BTCH4_ema3'] = data['BTC4H_Close'].rolling(3).mean()
+# data['BTCH4_ema6'] = data['BTC4H_Close'].rolling(6).mean()
+# data['BTC4H%K'] = stoch(data['BTC4H_High'], data['BTC4H_Low'], data['BTC4H_Close'],
+#                        window=14, smooth_window=3, fillna=False)
+# data['BTC4H%D'] = data['BTC4H%K'].rolling(3).mean()
+# data['BTC4H%DS'] = data['BTC4H%D'].rolling(3).mean() data['BTC4Hmacd'] = macd_diff(data['BTC4H_Close'],
+# window_slow=26, window_fast=12, window_sign=9, fillna=False) data['BTC4H_rsi'] = rsi(data['BTC4H_Close'],
+# window=14, fillna=False) data['BTC4H_atr'] = average_true_range(data['BTC4H_High'], data['BTC4H_Low'],
+# data['BTC4H_Close'], window=14, fillna=False)
+#
+# data['BTCDema3'] = data['BTC1D_Close'].rolling(3).mean()
+# data['BTCDema6'] = data['BTC1D_Close'].rolling(6).mean()
+# data['BTCDema9'] = data['BTC1D_Close'].rolling(9).mean()
+# data['BTCDema13'] = data['BTC1D_Close'].rolling(13).mean()
+# data['BTCDema20'] = data['BTC1D_Close'].rolling(20).mean()
+#
+# data['BTCTr3'] = data.apply(lambda x: x['BTC_Close'] - x['BTC_ema3'], axis=1)
+# data['BTCTr9'] = data.apply(lambda x: x['BTC_Close'] - x['BTC_ema9'], axis=1)
+# data['BTCTr20'] = data.apply(lambda x: x['BTC_Close'] - x['BTC_ema20'], axis=1)
+# data['BTCTrD3'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema3'], axis=1)
+# data['BTCTrD6'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema6'], axis=1)
+# data['BTCTrD9'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema9'], axis=1)
+# data['BTCTrD13'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema13'], axis=1)
+#
+# data['BTCStD4'] = data.apply(lambda x: x['BTC4H%K'] - x['BTC4H%D'], axis=1)
+# data['BTCStD'] = data.apply(lambda x: x['BTC_%K'] - x['BTC_%D'], axis=1)
+# data['BTCbb_sq'] = data.apply(lambda x: x['BTC_upper'] - x['BTC_lower'], axis=1)
+# data['BTCbb_l'] = data.apply(lambda x: (x['BTC_upper'] - x['BTC_Close']) / x['BTCbb_sq'], axis=1)
+# USDT ----------------------------------------------------------------------------------------------------------------
+# data['USDT_ema3'] = data['USDT_Close'].rolling(3).mean()
+# data['USDT_ema6'] = data['USDT_Close'].rolling(6).mean()
+# data['USDT_ema9'] = data['USDT_Close'].rolling(9).mean()
+# data['USDT_ema13'] = data['USDT_Close'].rolling(13).mean()
+# data['USDT_ema20'] = data['USDT_Close'].rolling(20).mean()
+#
+# data['USDT_adx'] = adx(data['USDT_High'], data['USDT_Low'], data['USDT_Close'], window=14, fillna=False)
+# data['USDT_macd'] = macd_diff(data['USDT_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['USDT_%K'] = stoch(data['USDT_High'], data['USDT_Low'], data['USDT_Close'],
+#                         window=14, smooth_window=3, fillna=False)
+# data['USDT_%D'] = data['USDT_%K'].rolling(3).mean()
+# data['USDT_%DS'] = data['USDT_%D'].rolling(3).mean()
+# data['USDT_rsi'] = rsi(data['USDT_Close'], window=14, fillna=False)
+# data['USDT_atr'] = average_true_range(data['USDT_High'], data['USDT_Low'], data['USDT_Close'], window=14, fillna=False)
+data['USDT_diff'] = np.log(data['USDT_Close']).diff()
+# data['USDT_cusum'] = data['USDT_Close'].cumsum()
+data['USDT_srl_corr'] = df_rolling_autocorr(returns(data['USDT_Close']), window=window).rename('USDT_srl_corr')
+# data['USDT_roc10'] = ROC(data['USDT_Close'], 10)
+# data['USDT_roc20'] = ROC(data['USDT_Close'], 20)
+# data['USDT_roc30'] = ROC(data['USDT_Close'], 30)
+# data['USDT_mom10'] = MOM(data['USDT_Close'], 10)
+# data['USDT_mom20'] = MOM(data['USDT_Close'], 20)
+# data['USDT_mom30'] = MOM(data['USDT_Close'], 30)
+data['USDT_price'], data['USDT_ave'], data['USDT_upper'], data['USDT_lower'] =\
+    bbands(data['USDT_Close'], window=window, numsd=bb_stddev)
+#
+# data['USDTH4_ema3'] = data['USDT4H_Close'].rolling(3).mean()
+# data['USDTH4_ema6'] = data['USDT4H_Close'].rolling(6).mean()
+data['USDT4H%K'] = stoch(data['USDT4H_High'], data['USDT4H_Low'], data['USDT4H_Close'],
+                         window=14, smooth_window=3, fillna=False)
+data['USDT4H%D'] = data['USDT4H%K'].rolling(3).mean()
+# data['USDT4H%DS'] = data['USDT4H%D'].rolling(3).mean()
+# data['USDT4Hmacd'] = macd_diff(data['USDT4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['USDT4H_rsi'] = rsi(data['USDT4H_Close'], window=14, fillna=False)
+# data['USDT4H_atr'] = average_true_range(data['USDT4H_High'], data['USDT4H_Low'], data['USDT4H_Close'],
+#                                        window=14, fillna=False)
+#
+data['USDTDema3'] = data['USDT1D_Close'].rolling(3).mean()
+# data['USDTDema6'] = data['USDT1D_Close'].rolling(6).mean()
+# data['USDTDema9'] = data['USDT1D_Close'].rolling(9).mean()
+# data['USDTDema13'] = data['USDT1D_Close'].rolling(13).mean()
+# data['USDTDema20'] = data['USDT1D_Close'].rolling(20).mean()
+#
+data['USDTTrD3'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema3'], axis=1)
+# data['USDTTrD6'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema6'], axis=1)
+# data['USDTTrD9'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema9'], axis=1)
+# data['USDTTrD13'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema13'], axis=1)
+#
+# data['USDTStD4'] = data.apply(lambda x: x['USDT4H%K'] - x['USDT4H%D'], axis=1)
+# data['USDTStD'] = data.apply(lambda x: x['USDT_%K'] - x['USDT_%D'], axis=1)
+data['USDTbb_sq'] = data.apply(lambda x: x['USDT_upper'] - x['USDT_lower'], axis=1)
+# data['USDTbb_l'] = data.apply(lambda x: (x['USDT_upper'] - x['USDT_Close']) / x['USDTbb_sq'], axis=1)
