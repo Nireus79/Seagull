@@ -1,4 +1,5 @@
-from data_forming import X_train_n, X_test_n, Y_train, Y_test
+from toolbox import spliter, normalizer
+from data_forming import full_data, events_data, signal
 from sklearn.feature_selection import SelectKBest, mutual_info_classif, RFE, f_classif, SelectPercentile
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
@@ -10,6 +11,24 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
+part = 5
+features = ['Tr9', 'Tr20', 'TrD3', 'TrD20', '4H%K', 'bb_sq']
+
+X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feature_columns=features)
+backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+X_train_c, X_test_c = X_train.copy(), X_test.copy()
+X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)
+if 'bb_cross' in X_train.columns:
+    print('bb_cross in X')
+    X_train_n.bb_cross, X_test_n.bb_cross = X_train.bb_cross, X_test.bb_cross
+
+# print('full_data.columns', full_data.columns)
+
+# 'GBC' max precision0: features      [Tr9, Tr20, TrD3, TrD9]
+# precision0                   0.760274
+# recall0                      0.834586
+# precision1                   0.768421
+# recall1                      0.675926
 
 # pd.set_option('display.max_rows', None)
 # pd.set_option('display.max_columns', None)

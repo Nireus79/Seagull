@@ -112,7 +112,7 @@ def spliter(research_data, signal, part, feature_columns):
         X = X.drop(columns=['bin'])
     elif signal == 'bin':
         X = X.drop(columns=['ret'])
-    if feature_columns is not None:
+    if feature_columns != 'All':
         X = X[feature_columns]
     validation_size = 0.2
     test_size = int(len(X) * validation_size)

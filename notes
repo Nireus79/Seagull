@@ -34,286 +34,75 @@ Support is the number of actual occurrences of the class in the specified datase
   the need for stratified sampling or rebalancing. Support doesn’t change between models but instead diagnoses
    the evaluation process.
 
-# max precision0: features      [Tr9, Tr20, TrD3, TrD20, diff]
-# precision0                          0.764286
-# recall0                             0.804511
-# precision1                          0.742574
-# recall1                             0.694444
 
-# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13, Tr9]
-# precision0                              0.551867
-# recall0                                      1.0
-# precision1                                   0.0
-# recall1                                      0.0
+# btc30m = btc5m.resample('30min').apply(ohlc)
+# btc4h = btc5m.resample('4H').apply(ohlc)
+# btc1D = btc5m.resample('D').apply(ohlc)
+#
+# usdt30m = usdt5m.resample('30min').apply(ohlc)
+# usdt4h = usdt5m.resample('4H').apply(ohlc)
+# usdt1D = usdt5m.resample('D').apply(ohlc)
 
-# max precision1: features      [4H%K, bb_l, bb_sq, bb_t, diff]
-# precision0                           0.556485
-# recall0                                   1.0
-# precision1                                1.0
-# recall1                              0.018519
+# eth30m['BTC_Close'] = btc30m['Close']
+# eth30m['BTC_High'] = btc30m['High']
+# eth30m['BTC_Low'] = btc30m['Low']
+#
+# eth30m['USDT_Close'] = usdt30m['Close']
+# eth30m['USDT_High'] = usdt30m['High']
+# eth30m['USDT_Low'] = usdt30m['Low']
 
-# max recall1: features      [Tr9, Tr20, TrD3, TrD20, 4Hmacd]
-# precision0                             0.76259
-# recall0                               0.796992
-# precision1                            0.735294
-# recall1                               0.694444
+# eth5m['30m_Close'] = eth30m['Close']
+# eth5m['30m_Low'] = eth30m['Low']
+# eth5m['30m_High'] = eth30m['High']
+# eth5m['30m_Volume'] = eth30m['Volume']
 
-# max precision0: features      [Tr9, TrD3, 4H%K, 4H%D]
-# precision0                   0.810606
-# recall0                      0.804511
-# precision1                   0.761468
-# recall1                      0.768519
+# eth30m['BTC4H_Close'] = btc4h['Close']
+# eth30m['BTC4H_Low'] = btc4h['Low']
+# eth30m['BTC4H_High'] = btc4h['High']
+#
+# eth30m['USDT4H_Close'] = usdt4h['Close']
+# eth30m['USDT4H_Low'] = usdt4h['Low']
+# eth30m['USDT4H_High'] = usdt4h['High']
 
-# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13]
-# precision0                             0.55
-# recall0                            0.909774
-# precision1                         0.428571
-# recall1                            0.083333
+# eth30m['BTC1D_Close'] = btc1D['Close']
+# eth30m['BTC1D_Volume'] = btc1D['Volume']
+# eth30m['USDT1D_Close'] = usdt1D['Close']
+# eth30m['USDT1D_Volume'] = usdt1D['Volume']
 
-# max precision1: features      [TrD3, 4H%K, bb_sq, diff]
-# precision0                     0.761589
-# recall0                        0.864662
-# precision1                          0.8
-# recall1                        0.666667
+# data['30m_ema3'] = data['30m_Close'].rolling(3).mean()
+# data['30m_ema6'] = data['30m_Close'].rolling(6).mean()
+# data['30m_ema9'] = data['30m_Close'].rolling(9).mean()
+# data['30m_ema13'] = data['30m_Close'].rolling(13).mean()
+# data['30m_ema20'] = data['30m_Close'].rolling(20).mean()
 
-# max recall1: features      [VtrD13, Tr9, TrD3, diff]
-# precision0                          0.8
-# recall0                         0.75188
-# precision1                     0.715517
-# recall1                        0.768519
+# data['30m_vema3'] = data['30m_Volume'].rolling(3).mean()
+# data['30m_vema6'] = data['30m_Volume'].rolling(6).mean()
+# data['30m_vema9'] = data['30m_Volume'].rolling(9).mean()
+# data['30m_vema13'] = data['30m_Volume'].rolling(13).mean()
+# data['30m_vema20'] = data['30m_Volume'].rolling(20).mean()
 
-# max precision0: features      [Tr20, TrD3, 4H%K, bb_sq]
-# precision0                     0.766423
-# recall0                        0.789474
-# precision1                     0.730769
-# recall1                        0.703704
+# data['30m_adx'] = adx(data['30m_High'], data['30m_Low'], data['30m_Close'], window=14, fillna=False)
+# data['30m_macd'] = macd_diff(data['30m_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+# data['30m_%K'] = stoch(data['30m_High'], data['30m_Low'], data['30m_Close'], window=14, smooth_window=3, fillna=False)
+# data['30m_%D'] = data['30m_%K'].rolling(3).mean()
+# data['30m_%DS'] = data['30m_%D'].rolling(3).mean()
+# data['30m_rsi'] = rsi(data['30m_Close'], window=14, fillna=False)
+# data['30m_atr'] = average_true_range(data['30m_High'], data['30m_Low'], data['30m_Close'], window=14, fillna=False)
+# data['30m_diff'] = np.log(data['30m_Close']).diff()
+# data['30m_cusum'] = data['30m_Close'].cumsum()
+# data['30m_srl_corr'] = df_rolling_autocorr(returns(data['30m_Close']), window=window).rename('30m_srl_corr')
+# data['30m_roc10'] = ROC(data['30m_Close'], 10)
+# data['30m_roc20'] = ROC(data['30m_Close'], 20)
+# data['30m_roc30'] = ROC(data['30m_Close'], 30)
+# data['30m_mom10'] = MOM(data['30m_Close'], 10)
+# data['30m_mom20'] = MOM(data['30m_Close'], 20)
+# data['30m_mom30'] = MOM(data['30m_Close'], 30)
+# data['Tr30m3'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema3'], axis=1)
+# data['Tr30m6'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema6'], axis=1)
+# data['Tr30m9'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema9'], axis=1)
+# data['Tr30m13'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema13'], axis=1)
+# data['Tr30m20'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema20'], axis=1)
 
-# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13]
-# precision0                         0.551867
-# recall0                                 1.0
-# precision1                              0.0
-# recall1                                 0.0
-
-# max precision1: features      [bb_sq, bb_t, diff, bb_cross]
-# precision0                         0.564655
-# recall0                            0.984962
-# precision1                         0.777778
-# recall1                            0.064815
-
-# max recall1: features      [Tr20, TrD3, 4H%K, bb_sq]
-# precision0                     0.766423
-# recall0                        0.789474
-# precision1                     0.730769
-# recall1                        0.703704
-
-# max precision0: features      [VtrD13, Tr9, Tr20, TrD3, 4H%D, diff]
-# precision0                                 0.813953
-# recall0                                    0.789474
-# precision1                                     0.75
-# recall1                                    0.777778
-
-# max recall0: features      [VtrD3, VtrD9, VtrD13, Tr9, TrD3, 4H%D]
-# precision0                                   0.772727
-# recall0                                      0.894737
-# precision1                                    0.83908
-# recall1                                      0.675926
-
-# max precision1: features      [VtrD3, VtrD9, VtrD13, Tr9, TrD3, 4H%D]
-# precision0                                   0.772727
-# recall0                                      0.894737
-# precision1                                    0.83908
-# recall1                                      0.675926
-
-# max recall1: features      [VtrD3, Tr9, Tr20, TrD3, diff, St4H]
-# precision0                                0.808696
-# recall0                                   0.699248
-# precision1                                 0.68254
-# recall1                                   0.796296
-# max precision0: features      [VtrD3, VtrD6, Tr20, TrD3, diff]
-# precision0                            0.809917
-# recall0                               0.736842
-# precision1                            0.708333
-# recall1                               0.787037
-# Name: 368, dtype: object
-# max recall0: features      [VtrD13, Tr9, Tr20, TrD3, 4H%K]
-# precision0                           0.773333
-# recall0                               0.87218
-# precision1                           0.813187
-# recall1                              0.685185
-# Name: 9317, dtype: object
-# max precision1: features      [VtrD13, Tr9, Tr20, TrD3, 4H%D]
-# precision0                           0.789116
-# recall0                               0.87218
-# precision1                           0.819149
-# recall1                              0.712963
-# Name: 9318, dtype: object
-# max recall1: features      [VtrD3, VtrD6, Tr20, TrD3, diff]
-# precision0                            0.809917
-# recall0                               0.736842
-# precision1                            0.708333
-# recall1                               0.787037
-
-# max precision0: features      [Tr9, TrD3, 4H%K, 4H%D]
-# precision0                   0.810606
-# recall0                      0.804511
-# precision1                   0.761468
-# recall1                      0.768519
-# Name: 88038, dtype: object
-# max recall0: features      [VtrD3, VtrD6, VtrD9, VtrD13]
-# precision0                             0.55
-# recall0                            0.909774
-# precision1                         0.428571
-# recall1                            0.083333
-# Name: 57365, dtype: object
-# max precision1: features      [Tr20, TrD3, mom20, 4H_mom10]
-# precision0                         0.771242
-# recall0                            0.887218
-# precision1                         0.829545
-# recall1                            0.675926
-# Name: 92342, dtype: object
-# max recall1: features      [Tr9, TrD20, 4H_roc20, 4H_mom10]
-# precision0                            0.786408
-# recall0                               0.609023
-# precision1                            0.623188
-# recall1                               0.796296
-# Name: 89321, dtype: object
-
-# max precision0: features      [Volume, Tr9, TrD3, TrD20, diff, St4H]
-# precision0                                  0.826772
-# recall0                                     0.789474
-# precision1                                  0.754386
-# recall1                                     0.796296
-# max recall0: features      [Volume, TrD9, TrD20, %K, 4H%DS, bb_cross]
-# precision0                                      0.726708
-# recall0                                         0.879699
-# precision1                                           0.8
-# recall1                                         0.592593
-# max precision1: features      [Volume, TrD9, TrD20, %K, 4H%DS, bb_cross]
-# precision0                                      0.726708
-# recall0                                         0.879699
-# precision1                                           0.8
-# recall1                                         0.592593
-# max recall1: features      [Volume, Tr9, TrD3, TrD9, TrD13, diff]
-# precision0                                  0.815789
-# recall0                                     0.699248
-# precision1                                  0.685039
-# recall1                                     0.805556
-
-# max precision0: features      [Volatility, TrD3, 4Hmacd, roc30] or [Volatility, TrD3, 4Hmacd, roc30, bb_cross]
-# precision0                             0.772059
-# recall0                                0.789474
-# precision1                             0.733333
-# recall1                                0.712963
-
-# max precision0: features      [TrD3, Tr20, 4H%K, bb_sq]
-# precision0                     0.770992
-# recall0                        0.759398
-# precision1                     0.709091
-# recall1                        0.722222
-
-# GBC
-# max precision0: features      [Volatility, TrD3, Tr20, roc30]
-# precision0                           0.785185
-# recall0                              0.796992
-# precision1                           0.745283
-# recall1                              0.731481
-# max precision0: features      [TrD3, Tr20, macd, diff, roc30]
-# precision0                            0.79845
-# recall0                              0.774436
-# precision1                           0.732143
-# recall1                              0.759259
-
-# max recall0: features      [TrD3, Tr20, 4H%K, diff]
-# precision0                    0.746753
-# recall0                       0.864662
-# precision1                    0.793103
-# recall1                       0.638889
-
-# ---------------------------------------------------------------------------------------
-# max recall0: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
-# precision0                               0.787671
-# recall0                                  0.864662
-# precision1                               0.810526
-# recall1                                  0.712963
-
-# max precision1: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
-# precision0                               0.787671
-# recall0                                  0.864662
-# precision1                               0.810526
-# recall1                                  0.712963
-# max precision0: features      [TrD3, Dema6, 4H%D, diff]
-# precision0                     0.818898
-# recall0                        0.781955
-# precision1                     0.745614
-# recall1                        0.787037
-# # max precision1: features      [ema9, TrD6, bb_cross, vema20]
-# # precision0                           0.74375
-# # recall0                             0.894737
-# # precision1                           0.82716
-# # recall1                              0.62037
-# ------------------------------------------------------------------------------------------
-# max recall1: features      [TrD3, bb_sq, diff, mom10, roc30]
-# precision0                              0.79661
-# recall0                                0.706767
-# precision1                             0.682927
-# recall1                                0.777778
-# max recall0: features      [ema13, Dema6, 4H%K, vema20]
-# precision0                        0.642105
-# recall0                           0.917293
-# precision1                        0.784314
-# recall1                            0.37037
-# max recall0: features      [Volume, TrD3, 4H%D, mom20]
-# precision0                       0.746835
-# recall0                          0.887218
-# precision1                       0.819277
-# recall1                           0.62963
-
-# max precision0: features      [TrD3, %K, 4Hmacd, diff, mom20]
-# precision0                           0.804688
-# recall0                              0.774436
-# precision1                           0.734513
-# recall1                              0.768519
-
-# max recall0: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
-# precision0                               0.787671
-# recall0                                  0.864662
-# precision1                               0.810526
-# recall1                                  0.712963
-
-# max precision1: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
-# precision0                               0.787671
-# recall0                                  0.864662
-# precision1                               0.810526
-# recall1                                  0.712963
-
-# max recall1: features      [TrD3, %K, 4Hmacd, diff, mom20]
-# precision0                           0.804688
-# recall0                              0.774436
-# precision1                           0.734513
-# recall1                              0.768519
-# max precision0: features      [TrD3, 4H%K, 4Hmacd, St4H, bb_cross, 4H_mom20]
-# precision0                                          0.824427
-# recall0                                              0.81203
-# precision1                                          0.772727
-# recall1                                             0.787037
-
-# max recall0: features      [TrD3, 4H%K, bb_l, bb_sq, 4Hmacd, roc10]
-# precision0                                    0.768212
-# recall0                                        0.87218
-# precision1                                    0.811111
-# recall1                                       0.675926
-
-# max precision1: features      [TrD3, 4H%K, bb_l, bb_sq, 4Hmacd, roc10]
-# precision0                                    0.768212
-# recall0                                        0.87218
-# precision1                                    0.811111
-# recall1                                       0.675926
-
-# max recall1: features      [TrD3, 4H%K, 4Hmacd, St4H, bb_cross, 4H_mom20]
-# precision0                                          0.824427
-# recall0                                              0.81203
-# precision1                                          0.772727
-# recall1                                             0.787037
 
 # BTC ----------------------------------------------------------------------------------------------------------
 # data['BTC_ema3'] = data['BTC_Close'].rolling(3).mean()

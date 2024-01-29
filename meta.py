@@ -3,11 +3,12 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
-from toolbox import spliter, standardizer
-from data_forming import events_data, part, signal
+from toolbox import spliter, normalizer
+from data_forming import events_data, signal
 import numpy as np
 import pandas as pd
 
+part = 5
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
 # Two train sets
@@ -22,10 +23,14 @@ BuyFeatures = ['bb_sq', 'bb_t']
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model ------------------------------------------------------------------------------------------------')
 X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, SellFeatures)
-X_trainSell, X_testSell = standardizer(X_trainSell), standardizer(X_testSell)
+X_trainSell_c, X_testSell_c = X_trainSell.copy(), X_testSell.copy()
+X_trainSell_n, X_testSell_n = normalizer(X_trainSell_c), normalizer(X_testSell_c)
+if 'bb_cross' in X_trainSell.columns:
+    print('bb_cross in X')
+    X_trainSell_n.bb_cross, X_testSell_n.bb_cross = X_trainSell.bb_cross, X_testSell.bb_cross
 
-X_train_ASell, Y_train_ASell = X_trainSell[:int(len(X_trainSell) * 0.5)], Y_trainSell[:int(len(Y_trainSell) * 0.5)]
-X_train_BSell, Y_train_BSell = X_trainSell[int(len(X_trainSell) * 0.5):], Y_trainSell[int(len(Y_trainSell) * 0.5):]
+X_train_ASell, Y_train_ASell = X_trainSell_n[:int(len(X_trainSell) * 0.5)], Y_trainSell[:int(len(Y_trainSell) * 0.5)]
+X_train_BSell, Y_train_BSell = X_trainSell_n[int(len(X_trainSell) * 0.5):], Y_trainSell[int(len(Y_trainSell) * 0.5):]
 print('event 0', np.sum(np.array(events_dataSell[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataSell[signal]) == 1, axis=0))
 print('X.columns', X_trainSell.columns)
@@ -61,10 +66,14 @@ print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0'
 print('Buy model ---------------------------------------------------------------------------------------------------')
 
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures)
-X_trainBuy, X_testBuy = standardizer(X_trainBuy), standardizer(X_testBuy)
+X_trainBuy_c, X_testBuy_c = X_trainBuy.copy(), X_testBuy.copy()
+X_trainBuy_n, X_testBuy_n = normalizer(X_trainBuy_c), normalizer(X_testBuy_c)
+if 'bb_cross' in X_trainSell.columns:
+    print('bb_cross in X')
+    X_trainBuy_n.bb_cross, X_testBuy_n.bb_cross = X_trainSell.bb_cross, X_testSell.bb_cross
 
-X_train_ABuy, Y_train_ABuy = X_trainBuy[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
-X_train_BBuy, Y_train_BBuy = X_trainBuy[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]
+X_train_ABuy, Y_train_ABuy = X_trainBuy_n[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
+X_train_BBuy, Y_train_BBuy = X_trainBuy_n[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]
 print('event 0', np.sum(np.array(events_dataBuy[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataBuy[signal]) == 1, axis=0))
 print('X.columns', X_trainBuy.columns)
