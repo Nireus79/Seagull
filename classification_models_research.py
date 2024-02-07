@@ -30,16 +30,24 @@ warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 part = 5
-features = ['Tr9', 'TrD3', '4H%K', '4H%D']
+f1 = ['bb_l', 'TrD3']  # 83 - 86
+f2 = ['bb_cross', 'bb_l', 'TrD3']  # 94 - 90 / 72- 81
+f3 = ['mom30', 'bb_l', 'TrD3']  # 0.83 - 0.92
+f4 = ['Tr9', 'TrD3', '4H%K', '4H%D']  # 77 - 100
+f5 = ['atr', 'bb_l', 'bb_cross', 'TrD3']  # 0.92 - 0.93 / 0.76      0.74
+f6 = ['4H%DS', 'bb_l', 'TrD3', 'bb_cross']  # 0.95 - 0.90 / 0.71 - 0.84
+f7 = ['TrD3', '4H%K', 'bb_sq', 'diff', 'bb_cross']  # 0.79 - 1.00 KNC 96 - 90 / 72 - 88
+f8 = ['srl_corr', 'ave', '4H_roc30', 'bb_l', 'TrD3', 'bb_cross']  # 94 - 92 / 75 - 82
 
-X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feature_columns=features)
+f9 = ['bb_cross', 'Volatility', 'bb_l', 'TrD3']  # 94/90 - 71/82
+
+X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feature_columns=f9)
 backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
 X_train_c, X_test_c = X_train.copy(), X_test.copy()
 X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)
 if 'bb_cross' in X_train.columns:
     print('bb_cross in X')
     X_train_n.bb_cross, X_test_n.bb_cross = X_train.bb_cross, X_test.bb_cross
-
 
 seed = 1
 # test options for classification
@@ -89,7 +97,6 @@ for name, model in models:
     y_pred = model.predict(X_test_n)
     print(msg)
     print(classification_report(Y_test, y_pred, target_names=['no_trade', 'trade']))
-
 
 # compare algorithms
 fig = plt.figure()

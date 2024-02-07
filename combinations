@@ -1,3 +1,204 @@
+# Sell
+# full bb, unbalanced classes trgt.
+# MLP
+# features      [bb_cross, bb_l, TrD3]
+# precision0                  0.946472
+# recall0                     0.904651
+# precision1                  0.722973
+# recall1                     0.829457
+
+# # max precision0: features      [bb_sq, bb_cross]
+# precision0                  1.0
+# recall0                0.704651
+# precision1             0.503906
+# recall1                     1.0
+
+# max recall0: features      [bb_sq, TrD3]
+# precision0         0.769231
+# recall0                 1.0
+# precision1              0.0
+# recall1                 0.0
+
+# max precision1: features      [bb_l, diff]
+# precision0        0.770609
+# recall0                1.0
+# precision1             1.0
+# recall1           0.007752
+
+# max recall1: features      [bb_sq, bb_cross]
+# precision0                  1.0
+# recall0                0.704651
+# precision1             0.503906
+# recall1                     1.0
+
+# max precision0: features      [bb_sq, bb_cross, 4H%DS]
+# precision0                         1.0
+# recall0                       0.704651
+# precision1                    0.503906
+# recall1                            1.0
+
+# max recall0: features      [bb_sq, TrD3, 4H%K]
+# precision0               0.770609
+# recall0                       1.0
+# precision1                    1.0
+# recall1                  0.007752
+
+# max precision1: features      [bb_sq, TrD3, 4H%K]
+# precision0               0.770609
+# recall0                       1.0
+# precision1                    1.0
+# recall1                  0.007752
+
+# max recall1: features      [bb_sq, bb_cross, 4H%DS]
+# precision0                         1.0
+# recall0                       0.704651
+# precision1                    0.503906
+# recall1                            1.0
+# -------------------------------------------------------------------------------------------------------
+# max precision0: features      [bb_l, TrD3]
+# precision0        0.767606
+# recall0           0.819549
+# precision1        0.757576
+# recall1           0.694444
+
+# max recall0: features      [srl_corr, ave, 4H_roc30, bb_l, TrD3, bb_cross]
+# precision0                                           0.909492
+# recall0                                              0.962617
+# precision1                                            0.84466
+# recall1                                              0.679688
+
+# max precision1: features      [mom30, bb_l, TrD3]
+# precision0               0.767123
+# recall0                  0.842105
+# precision1               0.778947
+# recall1                  0.685185
+
+# max precision0: features      [4H%DS, bb_l, TrD3, bb_cross]
+# precision0                         0.944039
+# recall0                            0.906542
+# precision1                         0.724138
+# recall1                            0.820312
+
+# max precision1: features      [ema6, 4H_ema9, bb_l, TrD3]
+# precision0                       0.746835
+# recall0                          0.887218
+# precision1                       0.819277
+# recall1                           0.62963
+
+# max precision1: features      [Tr20, TrD3, mom20, 4H_mom10]
+# precision0                         0.771242
+# recall0                            0.887218
+# precision1                         0.829545
+# recall1                            0.675926
+
+# max recall0: features      [TrD3, 4H%K, bb_sq, diff, bb_cross]
+# precision0                               0.787671
+# recall0                                  0.864662
+# precision1                               0.810526
+# recall1                                  0.712963
+
+# max precision0: features      [Tr9, TrD3, 4H%K, 4H%D]
+# precision0                   0.810606
+# recall0                      0.804511
+# precision1                   0.761468
+# recall1                      0.768519
+
+# max precision0: features      [4H_roc20, Dema9, bb_l, TrD3]
+# precision0                         0.805085
+# recall0                            0.714286
+# precision1                         0.691057
+# recall1                            0.787037
+
+
+# max recall1: features      [4H_roc20, Dema9, bb_l, TrD3]
+# precision0                         0.805085
+# recall0                            0.714286
+# precision1                         0.691057
+# recall1                            0.787037
+
+# max precision0: features      [4H_roc20, Dema9, bb_l, TrD3]
+# precision0                         0.805085
+# recall0                            0.714286
+# precision1                         0.691057
+# recall1                            0.787037
+
+# max precision1: features      [ema6, 4H_ema9, bb_l, TrD3]
+# precision0                       0.746835
+# recall0                          0.887218
+# precision1                       0.819277
+# recall1                           0.62963
+
+# max recall1: features      [4H_roc20, Dema9, bb_l, TrD3]
+# precision0                         0.805085
+# recall0                            0.714286
+# precision1                         0.691057
+# recall1                            0.787037
+
+# max recall1: features      [Tr4h9, bb_l, TrD3]
+# precision0               0.780303
+# recall0                  0.774436
+# precision1               0.724771
+# recall1                  0.731481
+
+# max precision0: features      [roc10, Tr6, TrD13]
+# precision0               0.821782
+# recall0                   0.62406
+# precision1               0.642857
+# recall1                  0.833333
+
+# max recall1: features      [roc10, Tr6, TrD13]
+# precision0               0.821782
+# recall0                   0.62406
+# precision1               0.642857
+# recall1                  0.833333
+
+# max precision0: features      [4H_roc20, Tr13, TrD3]
+# precision0                  0.813008
+# recall0                      0.75188
+# precision1                  0.720339
+# recall1                     0.787037
+# Name: 2674, dtype: object
+# max recall0: features      [macd, cusum, TrD3]
+# precision0               0.551867
+# recall0                       1.0
+# precision1                    0.0
+# recall1                       0.0
+# Name: 908, dtype: object
+# max precision1: features      [ema13, 4H_ema6, TrD3]
+# precision0                  0.737805
+# recall0                     0.909774
+# precision1                  0.844156
+# recall1                     0.601852
+# Name: 371, dtype: object
+# max recall1: features      [4H_roc20, Tr13, TrD3]
+# precision0                  0.813008
+# recall0                      0.75188
+# precision1                  0.720339
+# recall1                     0.787037
+# max precision0: features      [Close, cusum, bb_cross, bb_l, TrD3]
+# precision0                                     1.0
+# recall0                                   0.721963
+# precision1                                0.518219
+# recall1                                        1.0
+# Name: 186, dtype: object
+# max recall0: features      [Close, macd, cusum, bb_l, TrD3]
+# precision0                            0.769784
+# recall0                                    1.0
+# precision1                                 0.0
+# recall1                                    0.0
+# Name: 6, dtype: object
+# max precision1: features      [atr, bb_l, bb_cross, TrD3]
+# precision0                        0.91629
+# recall0                          0.946262
+# precision1                       0.798246
+# recall1                          0.710938
+# Name: 2091, dtype: object
+# max recall1: features      [Close, cusum, bb_cross, bb_l, TrD3]
+# precision0                                     1.0
+# recall0                                   0.721963
+# precision1                                0.518219
+# recall1                                        1.0
+
 max precision0: features      [Tr9, diff, bb_cross, 4H_roc10, rsi, atr]
 precision0                                     0.776224
 recall0                                        0.834586

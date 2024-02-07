@@ -4,21 +4,23 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from toolbox import spliter, normalizer
-from data_forming import events_data, signal
+from data_forming import full_data, events_data, signal
 import numpy as np
 import pandas as pd
+
+# pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
 
 part = 5
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
 # Two train sets
 
-events_dataSell = events_data.loc[events_data['bb_cross'] != 0]
+events_dataSell = events_data.copy()  # .loc[events_data['bb_cross'] != 0]
+SellFeatures = ['bb_cross', 'bb_l', 'TrD3']
 
-SellFeatures = ['bb_l', 'bb_t']
-
-events_dataBuy = events_data.loc[events_data['bb_cross'] != 0]
-BuyFeatures = ['bb_sq', 'bb_t']
+events_dataBuy = events_data.copy().loc[events_data['bb_cross'] != 0]
+BuyFeatures = ['St4H', 'TrD3']
 
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model ------------------------------------------------------------------------------------------------')
@@ -68,9 +70,9 @@ print('Buy model ---------------------------------------------------------------
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures)
 X_trainBuy_c, X_testBuy_c = X_trainBuy.copy(), X_testBuy.copy()
 X_trainBuy_n, X_testBuy_n = normalizer(X_trainBuy_c), normalizer(X_testBuy_c)
-if 'bb_cross' in X_trainSell.columns:
+if 'bb_cross' in X_trainBuy.columns:
     print('bb_cross in X')
-    X_trainBuy_n.bb_cross, X_testBuy_n.bb_cross = X_trainSell.bb_cross, X_testSell.bb_cross
+    X_trainBuy_n.bb_cross, X_testBuy_n.bb_cross = X_trainBuy.bb_cross, X_testBuy.bb_cross
 
 X_train_ABuy, Y_train_ABuy = X_trainBuy_n[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
 X_train_BBuy, Y_train_BBuy = X_trainBuy_n[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]
@@ -104,6 +106,11 @@ MetaModelBuy.fit(X_train_BBuy, Y_train_metaBuy)
 test_set_meta_predBuy = MetaModelBuy.predict(X_testBuy)
 print(classification_report(Y_testBuy, test_set_predBuy, target_names=['0', '1']))
 print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=['0', '1']))
+
+if len(X_testSell) >= len(X_testBuy):
+    backtest_data = full_data[X_testBuy.index[0]:X_testBuy.index[-1]]
+else:
+    backtest_data = full_data[X_testSell.index[0]:X_testSell.index[-1]]
 
 # one train set (over fitting metamodel)
 # Train sell model ---------------------------------------------------------------------------------------
