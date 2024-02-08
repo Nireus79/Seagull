@@ -8,10 +8,10 @@ from data_forming import full_data, events_data, signal
 import numpy as np
 import pandas as pd
 
-# pd.set_option('display.max_rows', None)
-# pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
 
-part = 5
+part = 4
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
 # Two train sets
@@ -36,6 +36,12 @@ X_train_BSell, Y_train_BSell = X_trainSell_n[int(len(X_trainSell) * 0.5):], Y_tr
 print('event 0', np.sum(np.array(events_dataSell[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataSell[signal]) == 1, axis=0))
 print('X.columns', X_trainSell.columns)
+
+ClassicModelSell = MLPClassifier()
+ClassicModelSell.fit(X_trainSell, Y_trainSell)
+ClassicPredictionsSell = ClassicModelSell.predict(X_testSell)
+print(classification_report(Y_testSell, ClassicPredictionsSell, target_names=['0', '1']))
+
 
 PrimeModelSell = MLPClassifier()
 PrimeModelSell.fit(X_train_ASell, Y_train_ASell)
@@ -73,6 +79,11 @@ X_trainBuy_n, X_testBuy_n = normalizer(X_trainBuy_c), normalizer(X_testBuy_c)
 if 'bb_cross' in X_trainBuy.columns:
     print('bb_cross in X')
     X_trainBuy_n.bb_cross, X_testBuy_n.bb_cross = X_trainBuy.bb_cross, X_testBuy.bb_cross
+
+ClassicModelBuy = MLPClassifier()
+ClassicModelBuy.fit(X_trainBuy, Y_trainBuy)
+ClassicPredictionsBuy = ClassicModelBuy.predict(X_testBuy)
+print(classification_report(Y_testBuy, ClassicPredictionsBuy, target_names=['0', '1']))
 
 X_train_ABuy, Y_train_ABuy = X_trainBuy_n[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
 X_train_BBuy, Y_train_BBuy = X_trainBuy_n[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]

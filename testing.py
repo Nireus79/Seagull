@@ -1,8 +1,8 @@
 import winsound
 from backtesting import Backtest, Strategy
-from backtesting.lib import crossover
 from data_forming import full_data
-from meta import PrimeModelBuy, MetaModelBuy, PrimeModelSell, MetaModelSell, backtest_data
+from meta import PrimeModelBuy, MetaModelBuy, PrimeModelSell, MetaModelSell, backtest_data,\
+    ClassicModelSell, ClassicModelBuy
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -11,10 +11,12 @@ warnings.filterwarnings('ignore')
 class Prelder(Strategy):
 
     def init(self):
-        self.PMB = PrimeModelBuy
-        self.PMS = PrimeModelSell
-        self.MMB = MetaModelBuy
-        self.MMS = MetaModelSell
+        self.CMB = ClassicModelBuy
+        self.CMS = ClassicModelSell
+        # self.PMB = PrimeModelBuy
+        # self.PMS = PrimeModelSell
+        # self.MMB = MetaModelBuy
+        # self.MMS = MetaModelSell
         self.cond = 'B'
         self.buy_price = 0
         self.sell_price = 0
@@ -27,23 +29,25 @@ class Prelder(Strategy):
         tr = self.data['TrD3'][-1]
         st4 = self.data['St4H'][-1]
 
-        if self.cond == 'B' and ret != 0 and bbc != 0:
-            primaryPB = self.PMB.predict([[st4, tr]])[-1]
-            metaPB = self.MMB.predict([[st4, tr, primaryPB]])[-1]
-            if primaryPB == metaPB == 1:
+        if self.cond == 'B' and ret != 0:
+            classicPB = self.CMB.predict([[st4, tr]])[-1]
+            # primaryPB = self.PMB.predict([[st4, tr]])[-1]
+            # metaPB = self.MMB.predict([[st4, tr, primaryPB]])[-1]
+            if classicPB == 1:
                 self.buy_price = self.data.Close[-1]
                 print(self.data.index[-1], 'Buy at: ', self.buy_price)
                 full_data['b'].loc[self.data.index[-1]] = True
                 self.cond = 'S'
                 self.buy()
         elif self.cond == 'S' and ret != 0:
-            primaryPS = self.PMS.predict([[bbc, bbl, tr]])[-1]
-            metaPS = self.MMS.predict([[bbc, bbl, tr, primaryPS]])[-1]
-            if primaryPS == 0 and metaPS == 1:
+            classicPS = self.CMS.predict([[bbc, bbl, tr]])[-1]
+            # primaryPS = self.PMS.predict([[bbc, bbl, tr]])[-1]
+            # metaPS = self.MMS.predict([[bbc, bbl, tr, primaryPS]])[-1]
+            if classicPS == 0:
                 self.sell_price = self.data.Close[-1]
                 self.sell_price = close
                 print(self.data.index[-1], 'Model sell at:', self.sell_price, 'Profit: ',
-                      self.sell_price - self.buy_price)
+                      self.sell_price - self.buy_price, 'Balance:', self.equity)
                 self.sell_price = self.buy_price = 0
                 full_data['s'].loc[self.data.index[-1]] = True
                 self.cond = 'B'

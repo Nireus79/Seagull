@@ -127,7 +127,7 @@ def getDailyVol(close, span0, delta):
     :param span0:
     :return:
     """
-    df0 = close.index.searchsorted(close.index - pd.Timedelta(days=delta))
+    df0 = close.index.searchsorted(close.index - pd.Timedelta(hours=delta))
     df0 = df0[df0 > 0]
     df0 = (pd.Series(close.index[df0 - delta], index=close.index[close.shape[0] - df0.shape[0]:]))
     try:
@@ -322,7 +322,7 @@ def addVerticalBarrier(tEvents, close, delta):
 it finds the timestamp of the next price bar at or immediately after a number
 of days numDays. This vertical barrier can be passed as optional argument t1
 in getEvents."""
-    t1 = close.index.searchsorted(tEvents + pd.Timedelta(days=delta))
+    t1 = close.index.searchsorted(tEvents + pd.Timedelta(hours=delta))
     t1 = t1[t1 < close.shape[0]]
     t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
     return t1
@@ -414,7 +414,7 @@ def getDailyTimeBarVolatility(close, span0, delta):
     :param span0:
     :return:
     """
-    df0 = close.index.searchsorted(close.index - pd.Timedelta(days=delta))
+    df0 = close.index.searchsorted(close.index - pd.Timedelta(hours=delta))
     df0 = df0[df0 > 0]
     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns

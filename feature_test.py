@@ -5,7 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from toolbox import spliter, normalizer
-from data_forming import full_data, events_data
+from data_forming import events_data
 import pandas as pd
 import itertools
 from tqdm import tqdm
