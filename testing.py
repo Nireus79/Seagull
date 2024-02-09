@@ -27,7 +27,7 @@ class Prelder(Strategy):
         bbc = self.data['bb_cross'][-1]
         bbl = self.data['bb_l'][-1]
         tr = self.data['TrD3'][-1]
-        st4 = self.data['St4H'][-1]
+        st4 = self.data['StD'][-1]
 
         if self.cond == 'B' and ret != 0:
             classicPB = self.CMB.predict([[st4, tr]])[-1]
@@ -35,7 +35,7 @@ class Prelder(Strategy):
             # metaPB = self.MMB.predict([[st4, tr, primaryPB]])[-1]
             if classicPB == 1:
                 self.buy_price = self.data.Close[-1]
-                print(self.data.index[-1], 'Buy at: ', self.buy_price)
+                # print(self.data.index[-1], 'Buy at: ', self.buy_price)
                 full_data['b'].loc[self.data.index[-1]] = True
                 self.cond = 'S'
                 self.buy()
@@ -46,8 +46,8 @@ class Prelder(Strategy):
             if classicPS == 0:
                 self.sell_price = self.data.Close[-1]
                 self.sell_price = close
-                print(self.data.index[-1], 'Model sell at:', self.sell_price, 'Profit: ',
-                      self.sell_price - self.buy_price, 'Balance:', self.equity)
+                # print(self.data.index[-1], 'Model sell at:', self.sell_price, 'Profit: ',
+                #       self.sell_price - self.buy_price, 'Balance:', self.equity)
                 self.sell_price = self.buy_price = 0
                 full_data['s'].loc[self.data.index[-1]] = True
                 self.cond = 'B'

@@ -11,7 +11,7 @@ import pandas as pd
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
-part = 4
+part = 5
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
 # Two train sets

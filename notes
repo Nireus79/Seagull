@@ -1,213 +1,70 @@
-classification_report
+finf = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
+fin0 = ['St4H', 'TrD3']  # 0.741007/0.824
 
-Precision — What percent of your predictions were correct?
+eligible_full = ['bb_sq', 'bb_l', 'TrD3', 'bb_cross', 'mom30', 'Tr9', '4H%K', '4H%D', '4H%DS',
+                 'atr', 'diff', 'srl_corr', 'ave', '4H_roc30',
+                 'Volatility', 'VtrD20', 'StD', 'St4H', 'Vol_Vol']
+# full bb
+c1 = ['bb_l', 'TrD3']  # 82/86
+c2 = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
+c22 = ['bb_cross', 'Volatility', 'bb_l', 'TrD3']  # 94/90 - 71/82
+c6 = ['TrD3', '4H%K', 'bb_sq', 'diff', 'bb_cross']  # 95/90 - 71/84
+c7 = ['Tr9', 'TrD3', '4H%K', '4H%D']  # 74/99
 
-Precision is the ability of a classifier not to label an instance positive that is actually negative. For each class,
- it is defined as the ratio of true positives to the sum of a true positive and false positive.
+c23 = ['USDT_Volatility', 'USDT_Vol_Vol', 'bb_cross', 'bb_l', 'TrD3']  # 93/90 - 72/80
+c3 = ['srl_corr', 'ave', '4H_roc30', 'bb_l', 'TrD3', 'bb_cross']  # 94/83 - 69/82
+c4 = ['mom30', 'bb_l', 'TrD3']  # 83/90
+c5 = ['4H%DS', 'bb_l', 'TrD3', 'bb_cross']  # 94/90 - 71/83
 
-Precision:- Accuracy of positive predictions.
+c8 = ['atr', 'bb_l', 'bb_cross', 'TrD3']  # 94/90 - 72/82
+c9 = ['TrD3', '4H%K', 'bb_sq', 'diff', 'bb_cross']  # 94/90 - 71/82
+c10 = ['Volume', 'Tr9', 'TrD3', 'TrD20', 'diff', 'St4H']  # 76/99
+c11 = ['Volatility', 'TrD3', 'Tr20', 'roc30']  # 77/100
+c12 = ['TrD3', '4H%K', 'bb_sq', 'diff', 'bb_cross']  # 94/90 - 72/82
+c14 = ['TrD3', 'Dema6', '4H%D', 'diff']  # 76/ 100
+c15 = ['ema13', 'Dema6', '4H%K', 'vema20']  # 76/ 100
+c16 = ['Volume', 'TrD3', '4H%D', 'mom20']  # 77/98
+c17 = ['TrD3', '%K', '4Hmacd', 'diff', 'mom20']  # 77/98
+c18 = ['TrD3', '4H%K', '4Hmacd', 'St4H', 'bb_cross', '4H_mom20']  # 95/89 - 70/84
 
-Precision = TP/(TP + FP)
+# bb != 0
+fa = ['TrD13']  # 0.752381  0.681034    0.727941    0.792
+fb = ['TrD3']  # 0.77451  0.681034    0.733813    0.816
+f0 = ['TrD13', 'St4H']  # 0.757282  0.672414    0.724638      0.8
+f1 = ['srl_corr', 'TrD13']  # 73 / 79
+f2 = ['St4H', 'TrD3']  # 74/82
+f3 = ['vdiff', 'Vol_Vol', 'srl_corr', 'TrD3']  # 75/80
+f4 = ['Vol_Vol', 'USDT_Volatility', 'srl_corr', 'TrD3']  # 73/82
+f5 = ['macd', 'TrD3', 'TrD6']  # 75/80
 
-Recall — What percent of the positive cases did you catch?
+# [USDT_Vol_Vol, St4H, TrD3]    0.794118  0.698276    0.748201    0.832
+# [USDT_Volatility, St4H, TrD3]    0.788462  0.706897    0.751825    0.824
+# [Vol_Vol, St4H, TrD3]    0.794118  0.698276    0.748201    0.832
+# [Vol_Vol, St4H, TrD3]    0.794118  0.698276    0.748201    0.832
+# [USDT_Vol_Vol, St4H, TrD3]    0.794118  0.698276    0.748201    0.832
+# [USDT_Vol_Vol, St4H, TrD3]    0.786408  0.698276    0.746377    0.824
+# [USDT_Volatility, St4H, TrD3]    0.780952  0.706897    0.750000    0.816
+# [StD, St4H, TrD3]    0.781250  0.646552    0.717241    0.832
+# [price, Vtr20, bb_cross, bb_l, TrD3] 0.934732 0.932558 0.776923 0.782946
 
-Recall is the ability of a classifier to find all positive instances. For each class it is defined as the ratio of
- true positives to the sum of true positives and false negatives.
+eligible_bb0 = ['USDT_Vol_Vol', 'St4H', 'TrD3', 'TrD13', 'StD', 'VtrD9', 'Vtr20', 'bb_cross', 'bb_l', 'macd', 'vdiff',
+                'Vol_Vol', 'srl_corr']
 
-Recall:- Fraction of positives that were correctly identified.
-
-Recall = TP/(TP+FN)
-
-F1 score — What percent of positive predictions were correct?
-
-The F1 score is a weighted harmonic mean of precision and recall such that
- the best score is 1.0 and the worst is 0.0. F1 scores are lower than accuracy measures as
-  they embed precision and recall into their computation. As a rule of thumb, the weighted average of F1
-   should be used to compare classifier models, not global accuracy.
-
-F1 Score = 2*(Recall * Precision) / (Recall + Precision)
-
-Support
-
-Support is the number of actual occurrences of the class in the specified dataset. Imbalanced support
- in the training data may indicate structural weaknesses in the reported scores of the classifier and could indicate
-  the need for stratified sampling or rebalancing. Support doesn’t change between models but instead diagnoses
-   the evaluation process.
-
-
-# btc30m = btc5m.resample('30min').apply(ohlc)
-# btc4h = btc5m.resample('4H').apply(ohlc)
-# btc1D = btc5m.resample('D').apply(ohlc)
-#
-# usdt30m = usdt5m.resample('30min').apply(ohlc)
-# usdt4h = usdt5m.resample('4H').apply(ohlc)
-# usdt1D = usdt5m.resample('D').apply(ohlc)
-
-# eth30m['BTC_Close'] = btc30m['Close']
-# eth30m['BTC_High'] = btc30m['High']
-# eth30m['BTC_Low'] = btc30m['Low']
-#
-# eth30m['USDT_Close'] = usdt30m['Close']
-# eth30m['USDT_High'] = usdt30m['High']
-# eth30m['USDT_Low'] = usdt30m['Low']
-
-# eth5m['30m_Close'] = eth30m['Close']
-# eth5m['30m_Low'] = eth30m['Low']
-# eth5m['30m_High'] = eth30m['High']
-# eth5m['30m_Volume'] = eth30m['Volume']
-
-# eth30m['BTC4H_Close'] = btc4h['Close']
-# eth30m['BTC4H_Low'] = btc4h['Low']
-# eth30m['BTC4H_High'] = btc4h['High']
-#
-# eth30m['USDT4H_Close'] = usdt4h['Close']
-# eth30m['USDT4H_Low'] = usdt4h['Low']
-# eth30m['USDT4H_High'] = usdt4h['High']
-
-# eth30m['BTC1D_Close'] = btc1D['Close']
-# eth30m['BTC1D_Volume'] = btc1D['Volume']
-# eth30m['USDT1D_Close'] = usdt1D['Close']
-# eth30m['USDT1D_Volume'] = usdt1D['Volume']
-
-# data['30m_ema3'] = data['30m_Close'].rolling(3).mean()
-# data['30m_ema6'] = data['30m_Close'].rolling(6).mean()
-# data['30m_ema9'] = data['30m_Close'].rolling(9).mean()
-# data['30m_ema13'] = data['30m_Close'].rolling(13).mean()
-# data['30m_ema20'] = data['30m_Close'].rolling(20).mean()
-
-# data['30m_vema3'] = data['30m_Volume'].rolling(3).mean()
-# data['30m_vema6'] = data['30m_Volume'].rolling(6).mean()
-# data['30m_vema9'] = data['30m_Volume'].rolling(9).mean()
-# data['30m_vema13'] = data['30m_Volume'].rolling(13).mean()
-# data['30m_vema20'] = data['30m_Volume'].rolling(20).mean()
-
-# data['30m_adx'] = adx(data['30m_High'], data['30m_Low'], data['30m_Close'], window=14, fillna=False)
-# data['30m_macd'] = macd_diff(data['30m_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['30m_%K'] = stoch(data['30m_High'], data['30m_Low'], data['30m_Close'], window=14, smooth_window=3, fillna=False)
-# data['30m_%D'] = data['30m_%K'].rolling(3).mean()
-# data['30m_%DS'] = data['30m_%D'].rolling(3).mean()
-# data['30m_rsi'] = rsi(data['30m_Close'], window=14, fillna=False)
-# data['30m_atr'] = average_true_range(data['30m_High'], data['30m_Low'], data['30m_Close'], window=14, fillna=False)
-# data['30m_diff'] = np.log(data['30m_Close']).diff()
-# data['30m_cusum'] = data['30m_Close'].cumsum()
-# data['30m_srl_corr'] = df_rolling_autocorr(returns(data['30m_Close']), window=window).rename('30m_srl_corr')
-# data['30m_roc10'] = ROC(data['30m_Close'], 10)
-# data['30m_roc20'] = ROC(data['30m_Close'], 20)
-# data['30m_roc30'] = ROC(data['30m_Close'], 30)
-# data['30m_mom10'] = MOM(data['30m_Close'], 10)
-# data['30m_mom20'] = MOM(data['30m_Close'], 20)
-# data['30m_mom30'] = MOM(data['30m_Close'], 30)
-# data['Tr30m3'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema3'], axis=1)
-# data['Tr30m6'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema6'], axis=1)
-# data['Tr30m9'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema9'], axis=1)
-# data['Tr30m13'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema13'], axis=1)
-# data['Tr30m20'] = data.apply(lambda x: x['30m_Close'] - x['30m_ema20'], axis=1)
-
-
-# BTC ----------------------------------------------------------------------------------------------------------
-# data['BTC_ema3'] = data['BTC_Close'].rolling(3).mean()
-# data['BTC_ema6'] = data['BTC_Close'].rolling(6).mean()
-# data['BTC_ema9'] = data['BTC_Close'].rolling(9).mean()
-# data['BTC_ema13'] = data['BTC_Close'].rolling(13).mean()
-# data['BTC_ema20'] = data['BTC_Close'].rolling(20).mean()
-#
-# data['BTC_adx'] = adx(data['BTC_High'], data['BTC_Low'], data['BTC_Close'], window=14, fillna=False)
-# data['BTC_macd'] = macd_diff(data['BTC_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['BTC_%K'] = stoch(data['BTC_High'], data['BTC_Low'], data['BTC_Close'], window=14, smooth_window=3, fillna=False)
-# data['BTC_%D'] = data['BTC_%K'].rolling(3).mean()
-# data['BTC_%DS'] = data['BTC_%D'].rolling(3).mean()
-# data['BTC_rsi'] = rsi(data['BTC_Close'], window=14, fillna=False)
-# data['BTC_atr'] = average_true_range(data['BTC_High'], data['BTC_Low'], data['BTC_Close'], window=14, fillna=False)
-# data['BTC_diff'] = np.log(data['BTC_Close']).diff()
-# data['BTC_cusum'] = data['BTC_Close'].cumsum()
-# data['BTC_srl_corr'] = df_rolling_autocorr(returns(data['BTC_Close']), window=window).rename('BTC_srl_corr')
-# data['BTC_roc10'] = ROC(data['BTC_Close'], 10)
-# data['BTC_roc20'] = ROC(data['BTC_Close'], 20)
-# data['BTC_roc30'] = ROC(data['BTC_Close'], 30)
-# data['BTC_mom10'] = MOM(data['BTC_Close'], 10)
-# data['BTC_mom20'] = MOM(data['BTC_Close'], 20)
-# data['BTC_mom30'] = MOM(data['BTC_Close'], 30)
-# data['BTC_price'], data['BTC_ave'], data['BTC_upper'], data['BTC_lower'] =\
-#     bbands(data['BTC_Close'], window=window, numsd=bb_stddev)
-#
-# data['BTCH4_ema3'] = data['BTC4H_Close'].rolling(3).mean()
-# data['BTCH4_ema6'] = data['BTC4H_Close'].rolling(6).mean()
-# data['BTC4H%K'] = stoch(data['BTC4H_High'], data['BTC4H_Low'], data['BTC4H_Close'],
-#                        window=14, smooth_window=3, fillna=False)
-# data['BTC4H%D'] = data['BTC4H%K'].rolling(3).mean()
-# data['BTC4H%DS'] = data['BTC4H%D'].rolling(3).mean() data['BTC4Hmacd'] = macd_diff(data['BTC4H_Close'],
-# window_slow=26, window_fast=12, window_sign=9, fillna=False) data['BTC4H_rsi'] = rsi(data['BTC4H_Close'],
-# window=14, fillna=False) data['BTC4H_atr'] = average_true_range(data['BTC4H_High'], data['BTC4H_Low'],
-# data['BTC4H_Close'], window=14, fillna=False)
-#
-# data['BTCDema3'] = data['BTC1D_Close'].rolling(3).mean()
-# data['BTCDema6'] = data['BTC1D_Close'].rolling(6).mean()
-# data['BTCDema9'] = data['BTC1D_Close'].rolling(9).mean()
-# data['BTCDema13'] = data['BTC1D_Close'].rolling(13).mean()
-# data['BTCDema20'] = data['BTC1D_Close'].rolling(20).mean()
-#
-# data['BTCTr3'] = data.apply(lambda x: x['BTC_Close'] - x['BTC_ema3'], axis=1)
-# data['BTCTr9'] = data.apply(lambda x: x['BTC_Close'] - x['BTC_ema9'], axis=1)
-# data['BTCTr20'] = data.apply(lambda x: x['BTC_Close'] - x['BTC_ema20'], axis=1)
-# data['BTCTrD3'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema3'], axis=1)
-# data['BTCTrD6'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema6'], axis=1)
-# data['BTCTrD9'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema9'], axis=1)
-# data['BTCTrD13'] = data.apply(lambda x: x['BTC_Close'] - x['BTCDema13'], axis=1)
-#
-# data['BTCStD4'] = data.apply(lambda x: x['BTC4H%K'] - x['BTC4H%D'], axis=1)
-# data['BTCStD'] = data.apply(lambda x: x['BTC_%K'] - x['BTC_%D'], axis=1)
-# data['BTCbb_sq'] = data.apply(lambda x: x['BTC_upper'] - x['BTC_lower'], axis=1)
-# data['BTCbb_l'] = data.apply(lambda x: (x['BTC_upper'] - x['BTC_Close']) / x['BTCbb_sq'], axis=1)
-# USDT ----------------------------------------------------------------------------------------------------------------
-# data['USDT_ema3'] = data['USDT_Close'].rolling(3).mean()
-# data['USDT_ema6'] = data['USDT_Close'].rolling(6).mean()
-# data['USDT_ema9'] = data['USDT_Close'].rolling(9).mean()
-# data['USDT_ema13'] = data['USDT_Close'].rolling(13).mean()
-# data['USDT_ema20'] = data['USDT_Close'].rolling(20).mean()
-#
-# data['USDT_adx'] = adx(data['USDT_High'], data['USDT_Low'], data['USDT_Close'], window=14, fillna=False)
-# data['USDT_macd'] = macd_diff(data['USDT_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['USDT_%K'] = stoch(data['USDT_High'], data['USDT_Low'], data['USDT_Close'],
-#                         window=14, smooth_window=3, fillna=False)
-# data['USDT_%D'] = data['USDT_%K'].rolling(3).mean()
-# data['USDT_%DS'] = data['USDT_%D'].rolling(3).mean()
-# data['USDT_rsi'] = rsi(data['USDT_Close'], window=14, fillna=False)
-# data['USDT_atr'] = average_true_range(data['USDT_High'], data['USDT_Low'], data['USDT_Close'], window=14, fillna=False)
-data['USDT_diff'] = np.log(data['USDT_Close']).diff()
-# data['USDT_cusum'] = data['USDT_Close'].cumsum()
-data['USDT_srl_corr'] = df_rolling_autocorr(returns(data['USDT_Close']), window=window).rename('USDT_srl_corr')
-# data['USDT_roc10'] = ROC(data['USDT_Close'], 10)
-# data['USDT_roc20'] = ROC(data['USDT_Close'], 20)
-# data['USDT_roc30'] = ROC(data['USDT_Close'], 30)
-# data['USDT_mom10'] = MOM(data['USDT_Close'], 10)
-# data['USDT_mom20'] = MOM(data['USDT_Close'], 20)
-# data['USDT_mom30'] = MOM(data['USDT_Close'], 30)
-data['USDT_price'], data['USDT_ave'], data['USDT_upper'], data['USDT_lower'] =\
-    bbands(data['USDT_Close'], window=window, numsd=bb_stddev)
-#
-# data['USDTH4_ema3'] = data['USDT4H_Close'].rolling(3).mean()
-# data['USDTH4_ema6'] = data['USDT4H_Close'].rolling(6).mean()
-data['USDT4H%K'] = stoch(data['USDT4H_High'], data['USDT4H_Low'], data['USDT4H_Close'],
-                         window=14, smooth_window=3, fillna=False)
-data['USDT4H%D'] = data['USDT4H%K'].rolling(3).mean()
-# data['USDT4H%DS'] = data['USDT4H%D'].rolling(3).mean()
-# data['USDT4Hmacd'] = macd_diff(data['USDT4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['USDT4H_rsi'] = rsi(data['USDT4H_Close'], window=14, fillna=False)
-# data['USDT4H_atr'] = average_true_range(data['USDT4H_High'], data['USDT4H_Low'], data['USDT4H_Close'],
-#                                        window=14, fillna=False)
-#
-data['USDTDema3'] = data['USDT1D_Close'].rolling(3).mean()
-# data['USDTDema6'] = data['USDT1D_Close'].rolling(6).mean()
-# data['USDTDema9'] = data['USDT1D_Close'].rolling(9).mean()
-# data['USDTDema13'] = data['USDT1D_Close'].rolling(13).mean()
-# data['USDTDema20'] = data['USDT1D_Close'].rolling(20).mean()
-#
-data['USDTTrD3'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema3'], axis=1)
-# data['USDTTrD6'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema6'], axis=1)
-# data['USDTTrD9'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema9'], axis=1)
-# data['USDTTrD13'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema13'], axis=1)
-#
-# data['USDTStD4'] = data.apply(lambda x: x['USDT4H%K'] - x['USDT4H%D'], axis=1)
-# data['USDTStD'] = data.apply(lambda x: x['USDT_%K'] - x['USDT_%D'], axis=1)
-data['USDTbb_sq'] = data.apply(lambda x: x['USDT_upper'] - x['USDT_lower'], axis=1)
-# data['USDTbb_l'] = data.apply(lambda x: (x['USDT_upper'] - x['USDT_Close']) / x['USDTbb_sq'], axis=1)
+# full
+# [TrD3, bb_cross, bb_l]    0.967742  0.903614    0.753846  0.907407
+# [StD, bb_cross, bb_l, TrD3]    0.962025  0.915663    0.774194   0.888889
+# [4H_Vema6, bb_cross, bb_l, TrD3]    0.992424  0.789157    0.602273   0.981481
+# [St4H, bb_cross, bb_l, TrD3]    0.955975  0.915663    0.770492   0.870370
+# [Volume, bb_cross, bb_l, TrD3]    0.938650  0.921687    0.771930  0.814815
+# [bb_l, TrD3]    0.847458  0.903614    0.627907  0.500000
+# [StD, bb_l]    0.781915  0.885542    0.406250  0.240741
+# [Vol_Vol, bb_l]    0.766667  0.969880    0.500000  0.092593
+# [Volume, USDT_Volume] 0.754545  1.0
+# [USDT_Volume, 4H_Vema6] 0.757991 1.0
+# [Vol_Vol, bb_l, TrD3]    0.846995  0.933735    0.702703  0.481481
+# [St4H, bb_l, TrD3]    0.838889  0.909639    0.625000  0.462963
+# bb != 0
+# [StD, bb_cross, bb_l, TrD3]    0.864865  0.744186    0.803571 0.90
+# [TrD20, St4H] 0.808511 0.883721 0.891304 0.82
+# [vsrl_corr, TrD20, St4H] 0.791667 0.883721 0.888889 0.8
+# [Volume, USDT_Volume, TrD3] 1.0 0.418605 0.666667 1.0
