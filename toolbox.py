@@ -3,11 +3,10 @@ import glob
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_squared_error
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import SGD
-from keras.layers import LSTM
-
+# from keras.models import Sequential
+# from keras.layers import Dense
+# from keras.optimizers import SGD
+# from keras.layers import LSTM
 
 def data_merger(path):
     # path = "E:/T/ETHUSDT/10mdb/"  # set this to the folder containing CSVs
@@ -230,89 +229,89 @@ def evaluate_arima_models(X_train, Y_train, p_values, d_values, q_values):
     print('Best ARIMA%s MSE=%.7f' % (best_cfg, best_score))
 
 
-def create_LSTMmodel(X_train, neurons, learn_rate, momentum):
-    # create model
-    mdl = Sequential()
-    mdl.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
-    # Number of cells can be added if needed
-    # mdl.add(Dense(1))
-    # mdl.add(Dense(1))
-    # mdl.add(Dense(1))
-    # mdl.add(Dense(1))
-    mdl.add(Dense(1))
-    mdl.add(Dense(1))
-    mdl.add(Dense(1))
-    mdl.add(Dense(1))
-    # optimizer = SGD(learning_rate=learn_rate, momentum=momentum)
-    mdl.compile(loss='mse', optimizer='adam')
-    return mdl
+# def create_LSTMmodel(X_train, neurons, learn_rate, momentum):
+#     # create model
+#     mdl = Sequential()
+#     mdl.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
+#     # Number of cells can be added if needed
+#     # mdl.add(Dense(1))
+#     # mdl.add(Dense(1))
+#     # mdl.add(Dense(1))
+#     # mdl.add(Dense(1))
+#     mdl.add(Dense(1))
+#     mdl.add(Dense(1))
+#     mdl.add(Dense(1))
+#     mdl.add(Dense(1))
+#     # optimizer = SGD(learning_rate=learn_rate, momentum=momentum)
+#     mdl.compile(loss='mse', optimizer='adam')
+#     return mdl
 
 
-def evaluate_LSTM(X_train, X_test, Y_test, nr, lrn, mom):
-    LSTM_Model = create_LSTMmodel(X_train, nr, lrn, mom)
-    pred = LSTM_Model.predict(X_test)
-    error = mean_squared_error(pred, Y_test)
-    return error
+# def evaluate_LSTM(X_train, X_test, Y_test, nr, lrn, mom):
+#     LSTM_Model = create_LSTMmodel(X_train, nr, lrn, mom)
+#     pred = LSTM_Model.predict(X_test)
+#     error = mean_squared_error(pred, Y_test)
+#     return error
 
 
-def evaluate_LSTM_combinations(X_train, X_test, Y_test, neurons_list, learn_rate_list, momentum_list):
-    best_score, best_cfg = float('inf'), None
-    for n in neurons_list:
-        for lr in learn_rate_list:
-            for m in momentum_list:
-                combination = (n, lr, m)
-                mse = evaluate_LSTM(X_train, X_test, Y_test, n, lr, m)
-                if mse < best_score:
-                    best_score, best_cfg = mse, combination
-                print('LSTM: {} mse: {}'.format(combination, mse))
-    print('Best LSTM: {} mse: {}'.format(best_cfg, best_score))
-
-
-def create_ANN(X_train, Y_train, units=6, batch=10, epochs=100):
-    # Initialization
-    model = Sequential()
-    # Input layer
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu', input_dim=4))
-    # Hidden layers
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
-    model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
-    # Output layer
-    model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
-    # Compilation
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    # Fitting
-    model.fit(X_train, Y_train, batch_size=batch, epochs=epochs)
-
-
-def evaluate_ANN(X_train, Y_train, X_test, Y_test, units, batch, epochs):
-    for u in units:
-        for b in batch:
-            for e in epochs:
-                # Initialization
-                model = Sequential()
-                # Input layer
-                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu', input_dim=5))
-                # Hidden layers
-                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
-                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
-                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
-                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
-                model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
-                # Output layer
-                model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
-                # Compilation
-                model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-                # Fitting
-                model.fit(X_train, Y_train, batch_size=b, epochs=e)
-                # Evaluation
-                y_pred = model.predict(X_test)
-                y_pred = pd.DataFrame(y_pred)
-                print(y_pred.describe())
-                scores = model.evaluate(X_test, Y_test)
-                print(model.metrics_names[1], scores[1])
+# def evaluate_LSTM_combinations(X_train, X_test, Y_test, neurons_list, learn_rate_list, momentum_list):
+#     best_score, best_cfg = float('inf'), None
+#     for n in neurons_list:
+#         for lr in learn_rate_list:
+#             for m in momentum_list:
+#                 combination = (n, lr, m)
+#                 mse = evaluate_LSTM(X_train, X_test, Y_test, n, lr, m)
+#                 if mse < best_score:
+#                     best_score, best_cfg = mse, combination
+#                 print('LSTM: {} mse: {}'.format(combination, mse))
+#     print('Best LSTM: {} mse: {}'.format(best_cfg, best_score))
+#
+#
+# def create_ANN(X_train, Y_train, units=6, batch=10, epochs=100):
+#     # Initialization
+#     model = Sequential()
+#     # Input layer
+#     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu', input_dim=4))
+#     # Hidden layers
+#     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+#     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+#     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+#     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+#     model.add(Dense(units=units, kernel_initializer='uniform', activation='relu'))
+#     # Output layer
+#     model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
+#     # Compilation
+#     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+#     # Fitting
+#     model.fit(X_train, Y_train, batch_size=batch, epochs=epochs)
+#
+#
+# def evaluate_ANN(X_train, Y_train, X_test, Y_test, units, batch, epochs):
+#     for u in units:
+#         for b in batch:
+#             for e in epochs:
+#                 # Initialization
+#                 model = Sequential()
+#                 # Input layer
+#                 model.add(Dense(units=u, kernel_initializer='uniform', activation='relu', input_dim=5))
+#                 # Hidden layers
+#                 model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+#                 model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+#                 model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+#                 model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+#                 model.add(Dense(units=u, kernel_initializer='uniform', activation='relu'))
+#                 # Output layer
+#                 model.add(Dense(units=1, kernel_initializer='uniform', activation='sigmoid'))
+#                 # Compilation
+#                 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+#                 # Fitting
+#                 model.fit(X_train, Y_train, batch_size=b, epochs=e)
+#                 # Evaluation
+#                 y_pred = model.predict(X_test)
+#                 y_pred = pd.DataFrame(y_pred)
+#                 print(y_pred.describe())
+#                 scores = model.evaluate(X_test, Y_test)
+#                 print(model.metrics_names[1], scores[1])
 
 
 def ROC(df, n):
@@ -353,5 +352,3 @@ def crossing3(df, col1, col2, col3):
     side_down = pd.Series(-1, index=down_cross.index)
 
     return pd.concat([side_up, side_down]).sort_index()
-
-

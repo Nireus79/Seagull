@@ -178,7 +178,7 @@ and the corresponding timestamp is recorded as a T event. This is a common techn
 signal processing to detect significant changes in time series data.
     """
     tEvents, sPos, sNeg = [], 0, 0
-    diff = np.log(gRaw).diff().dropna()
+    diff = np.log(gRaw.astype('float64')).diff().dropna()
     for i in tqdm(diff.index[1:]):
         try:
             pos, neg = float(sPos + diff.loc[i]), float(sNeg + diff.loc[i])
@@ -242,11 +242,7 @@ def getEvents(close, tEvents, ptSl, trgt, minRet, numThreads, t1, side):
     need to be symmetric, as in Section 3.5. Argument ptSl is a list of two non-negative
     float values, where ptSl[0] is the factor that multiplies trgt to set the width of
     the upper barrier, and ptSl[1] is the factor that multiplies trgt to set the width
-    of the lower barrier. When either is 0, the respective barrier is disabled. Snippet 3.6
-    implements these enhancements.
-    When side is given, its length appears greater than trgt and error appears as
-    side_ = side.loc[trgt.index] cannot detect missing indexes.
-    loc[trgt.index] was changed to loc[side.index]
+    of the lower barrier. When either is 0, the respective barrier is disabled. (Snippet 3.6)
 
     The getEvents function appears to be a part of a financial analysis or trading system. It's responsible for
     generating events, which include information about timestamps, target levels, and sides (buy or sell) for trading
@@ -306,11 +302,11 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
         common_indexes = set(side.index).intersection(trgt.index)
         common_indexes = list(common_indexes)
         # control of common indexes between target and side before filtering
-        side_, ptSl_ = trgt.loc[common_indexes], ptSl[:2]  # TODO check side.loc / trgt.loc
+        side_, ptSl_ = side.loc[common_indexes], ptSl[:2]
     events = (pd.concat({'t1': t1, 'trgt': trgt, 'side': side_}, axis=1).dropna(subset=['trgt']))
-    # df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
-    #                   numThreads=numThreads, close=close, events=events,
-    #                   ptSl=ptSl_)
+    df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
+                      numThreads=numThreads, close=close, events=events,
+                      ptSl=ptSl_)
     # events['t1'] = df0.dropna(how='all').min(axis=1)
     if side is None:
         events = events.drop('side', axis=1)
