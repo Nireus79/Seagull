@@ -14,15 +14,22 @@ import joblib
 # pd.set_option('display.max_rows', None)
 # pd.set_option('display.max_columns', None)
 
-part = 5
-# https://hudsonthames.org/meta-labeling-a-toy-example/
 
+# https://hudsonthames.org/meta-labeling-a-toy-example/
+# bb
+# TrD3 30
+# bbc 27
+# St4H 6
+# MAV_signal 6
+# Vol_Vol 6
+# bb_l 6
 # Two train sets
-events_dataSell = events_data.copy()  # .loc[events_data['bb_cross'] != 0]
-SellFeatures = ['bb_cross', 'bb_l', 'TrD3']
+part = 5
+events_dataSell = events_data.copy().loc[events_data['bb_cross'] != 0]
+SellFeatures = ['bb_l', 'TrD3']
 
 events_dataBuy = events_data.copy().loc[events_data['bb_cross'] != 0]
-BuyFeatures = ['Volatility', 'St4H', 'TrD3']
+BuyFeatures = ['St4H', 'TrD3']
 
 # Train sell model ---------------------------------------------------------------------------------------
 print('Sell model ------------------------------------------------------------------------------------------------')
@@ -30,8 +37,9 @@ print('event 0', np.sum(np.array(events_dataSell[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataSell[signal]) == 1, axis=0))
 X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, SellFeatures)
 X_trainSell_c, X_testSell_c = X_trainSell.copy(), X_testSell.copy()
-X_trainSell_c.drop(columns=['bb_cross'], axis=1, inplace=True)
-X_testSell_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+if 'bb_cross' in X_trainSell_c.columns:
+    X_trainSell_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+    X_testSell_c.drop(columns=['bb_cross'], axis=1, inplace=True)
 X_trainSell_n, X_testSell_n = normalizer(X_trainSell_c), normalizer(X_testSell_c)
 if 'bb_cross' in X_trainSell.columns:
     print('bb_cross in X')
@@ -78,14 +86,16 @@ print('Buy model ---------------------------------------------------------------
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures)
 X_trainBuy_c, X_testBuy_c = X_trainBuy.copy(), X_testBuy.copy()
 X_trainBuy_n, X_testBuy_n = normalizer(X_trainBuy_c), normalizer(X_testBuy_c)
+if 'bb_cross' in X_trainBuy_c.columns:
+    X_trainBuy_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+    X_testBuy_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+X_trainBuy_n, X_testBuy_n = normalizer(X_trainBuy_c), normalizer(X_testBuy_c)
 if 'bb_cross' in X_trainBuy.columns:
     print('bb_cross in X')
-    X_trainBuy_n.bb_cross, X_testBuy_n.bb_cross = X_trainBuy.bb_cross, X_testBuy.bb_cross
-print('event 0', np.sum(np.array(events_dataBuy[signal]) == 0, axis=0))
-print('event 1', np.sum(np.array(events_dataBuy[signal]) == 1, axis=0))
+    X_trainBuy_n['bb_cross'], X_testBuy_n['bb_cross'] = X_trainBuy.bb_cross, X_testBuy.bb_cross
 ModelBuy = MLPClassifier()
 ModelBuy.fit(X_trainBuy_n, Y_trainBuy)
-PredictionsBuy = ModelBuy.predict(X_testBuy)
+PredictionsBuy = ModelBuy.predict(X_testBuy_n)
 print(classification_report(Y_testBuy, PredictionsBuy, target_names=['0', '1']))
 
 # META ---------------------------------------------------------------------------------------------------------------
@@ -95,9 +105,9 @@ X_train_BBuy, Y_train_BBuy = X_trainBuy_n[int(len(X_trainBuy) * 0.5):], Y_trainB
 PrimeModelBuy = MLPClassifier()
 PrimeModelBuy.fit(X_train_ABuy, Y_train_ABuy)
 prime_predictionsBuy = PrimeModelBuy.predict(X_train_BBuy)
-test_set_predBuy = PrimeModelBuy.predict(X_testBuy)
+test_set_predBuy = PrimeModelBuy.predict(X_testBuy_n)
 X_train_BBuy['predA'] = prime_predictionsBuy
-X_testBuy['predA'] = test_set_predBuy
+X_testBuy_n['predA'] = test_set_predBuy
 
 meta_dfBuy = pd.DataFrame()
 meta_dfBuy['actual'] = Y_train_BBuy
@@ -115,7 +125,7 @@ Y_test_metaBuy = test_meta_dfBuy.iloc[:, 2]
 
 MetaModelBuy = MLPClassifier()
 MetaModelBuy.fit(X_train_BBuy, Y_train_metaBuy)
-test_set_meta_predBuy = MetaModelBuy.predict(X_testBuy)
+test_set_meta_predBuy = MetaModelBuy.predict(X_testBuy_n)
 print(classification_report(Y_testBuy, test_set_predBuy, target_names=['0', '1']))
 print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=['0', '1']))
 

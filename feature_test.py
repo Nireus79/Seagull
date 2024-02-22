@@ -113,17 +113,68 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
 #   [St4H, TrD3]    0.774194   0.7500    0.846154  0.862745
 # 1 [StD, St4H, TrD3]    0.807692  0.617647    0.771930  0.897959
 
-full0 = ['bb_cross', 'bb_l', 'TrD3']  # 0.975  0.939759    0.811321  0.914894
-full1 = ['bb_cross', 'St4H', 'TrD3']  # 0.959368  0.913978    0.716312  0.848739
-bb0 = ['St4H', 'TrD3']  # 0.815789  0.815789    0.847826  0.847826
-bb1 = ['Volatility', 'St4H', 'TrD3']  # 0.804878  0.868421    0.883721  0.826087
-bb2 = ['Vol_Vol', 'St4H', 'TrD3']  # 0.810811  0.789474    0.829787  0.847826
-eligible = ['bb_cross', 'Volatility', 'StD', 'Vol_Vol', 'VtrD6', 'VtrD3', 'MAV', 'MAV_signal']
-# events_data = events_data.loc[events_data['bb_cross'] != 0]
-research_features(None, 'All', 3, 'MLP', 5, events_data)
-# max recall0: features      [4H_ema3, Vtr4h20, St4H, TrD3]
-# precision0                             0.808
-# recall0                                0.808
-# precision1                           0.79661
-# recall1                              0.79661
+bb0 = ['TrD3', 'bb_cross']
+bb1 = ['St4H', 'TrD3']
+bb2 = ['bb_l', 'TrD3']
+bbt = ['TrD3', 'bb_cross', 'St4H', 'MAV_signal', 'Vol_Vol', 'bb_l']
 
+eligible = ['bb_cross', 'Volatility', 'StD', 'Vol_Vol', 'VtrD6', 'VtrD3', 'MAV', 'MAV_signal', 'TrD9',
+            'Vtr4h20', '4H_roc30', 'Tr4h3', 'St4H']
+# events_data = events_data.loc[events_data['bb_cross'] != 0]
+research_features(None, bbt, 3, 'MLP', 5, events_data)
+
+# bb
+# TrD3 30
+# bbc 27
+# St4H 6
+# MAV_signal 6
+# Vol_Vol 6
+# bb_l 6
+
+# 5
+# max precision0: features      [TrD3, bb_cross, MAV_signal]
+# precision0                        0.767742
+# recall0                            0.82069
+# precision1                        0.742574
+# recall1                           0.675676
+
+
+# 5
+# [TrD3, bb_cross] 0.756579 0.815603 0.74 0.666667
+# [St4H, TrD3, bb_cross]    0.772727  0.820690    0.745098  0.684685
+# [Vol_Vol, TrD3, bb_cross]    0.769231  0.827586    0.750000  0.675676
+# [TrD3, bb_cross, Volatility] 0.756579 0.815603 0.74 0.666667
+# [MAV_signal, TrD3, bb_cross]    0.756579  0.815603    0.740000  0.666667
+# [MAV_signal, Vol_Vol, TrD3, bb_cross]    0.770701  0.834483   0.757576  0.675676
+# [bb_cross, bb_l, TrD3]    0.738095  0.855172    0.761364  0.603604
+
+# 4
+# [bb_cross, TrD3]    0.812500  0.776119    0.758065  0.796610
+# [bb_t, TrD3, bb_cross] 0.821138 0.753731 0.744186 0.813559
+# [Volatility, TrD3, bb_cross]    0.812500  0.776119    0.758065  0.796610
+# [MAV_signal, TrD3, bb_cross]    0.818898  0.776119    0.760000  0.805085
+# [StD, TrD3, bb_cross]    0.796992  0.791045    0.764706  0.771186
+# [Vol_Vol, TrD3, bb_cross]    0.806202  0.776119    0.756098  0.788136
+# [bb_cross, St4H, TrD3]    0.809524  0.761194    0.746032  0.796610
+# [bb_cross, bb_l, TrD3]    0.779412  0.791045    0.758621  0.745763
+
+# 3
+# [bb_cross, St4H, TrD3]    0.768000  0.738462    0.732283  0.762295
+# [Vol_Vol, TrD3, bb_cross]    0.768000  0.738462    0.732283  0.762295
+# [MAV_signal, TrD3, bb_cross]    0.768000  0.738462    0.732283  0.762295
+# [StD, TrD3, bb_cross]    0.765625  0.753846    0.741935  0.754098
+# [Vol_Vol, TrD3, bb_cross]    0.768000  0.738462    0.732283  0.762295
+
+# 2
+# [MAV_signal, TrD3, bb_cross]    0.721429  0.759398    0.714286  0.672269
+# [Vol_Vol, TrD3, bb_cross]    0.724138  0.789474    0.738318  0.663866
+# [St4H, TrD3, bb_cross]    0.725352  0.774436    0.727273  0.672269
+# [bb_cross, bb_l, TrD3]    0.720280  0.774436    0.724771  0.663866
+
+# 1
+# [bb_cross, TrD3]    0.725926  0.690141    0.623932  0.663636
+# [MAV, TrD3, bb_cross]    0.734266  0.739437    0.660550  0.654545
+# [bb_cross, St4H, TrD3]    0.732394  0.732394    0.654545  0.654545
+# [bb_l, St4H, TrD3] 0.741935 0.809859 0.721649 0.636364
+# [Volatility, bb_l, TrD3]    0.754839  0.823944    0.742268  0.654545
+# [MAV_signal, bb_l, TrD3]    0.753165  0.838028    0.755319  0.645455
