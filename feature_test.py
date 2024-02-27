@@ -9,6 +9,7 @@ from data_forming import events_data, signal
 import pandas as pd
 import itertools
 from tqdm import tqdm
+import numpy as np
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -104,77 +105,72 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
     print(reps.tail(10).sort_values(by=['recall1']))
 
 
-# 5 [Volatility, St4H, TrD3]    0.804878  0.868421    0.883721  0.826087
-# 4 [Volatility, St4H, TrD3]    0.714286  0.789474    0.804878  0.733333
-# 3 [Volatility, St4H, TrD3]    0.558824  0.633333    0.775510  0.716981
-#   [Vol_Vol, St4H, TrD3]    0.533333  0.533333    0.735849  0.735849
-# 2 [StD, St4H, TrD3]    0.785714   0.6875    0.818182  0.882353
-#   [Vol_Vol, St4H, TrD3]    0.774194   0.7500    0.846154  0.862745
-#   [St4H, TrD3]    0.774194   0.7500    0.846154  0.862745
-# 1 [StD, St4H, TrD3]    0.807692  0.617647    0.771930  0.897959
+s = ['TrD9', 'bb_cross']
+b = ['TrD3', 'bb_cross']
 
-bb0 = ['TrD3', 'bb_cross']
-bb1 = ['St4H', 'TrD3']
-bb2 = ['bb_l', 'TrD3']
-bbt = ['TrD3', 'bb_cross', 'St4H', 'MAV_signal', 'Vol_Vol', 'bb_l']
-
-eligible = ['bb_cross', 'Volatility', 'StD', 'Vol_Vol', 'VtrD6', 'VtrD3', 'MAV', 'MAV_signal', 'TrD9',
-            'Vtr4h20', '4H_roc30', 'Tr4h3', 'St4H']
-# events_data = events_data.loc[events_data['bb_cross'] != 0]
-research_features(None, bbt, 3, 'MLP', 5, events_data)
-
-# bb
-# TrD3 30
-# bbc 27
-# St4H 6
-# MAV_signal 6
-# Vol_Vol 6
-# bb_l 6
+research_features(None, 'All', 2, 'MLP', 1, events_data)
 
 # 5
-# max precision0: features      [TrD3, bb_cross, MAV_signal]
-# precision0                        0.767742
-# recall0                            0.82069
-# precision1                        0.742574
-# recall1                           0.675676
+# tEvents / minRet 0.014
+# [TrD9, bb_cross] 0.949192 0.958042 0.843478 0.815126
+# [TrD3, bb_cross] 0.948718 0.948718 0.815126 0.815126
 
+# Sell / tEvents / minRet 0
+# [TrD9, bb_cross] 0.936667 0.962329 0.837037 0.748344
+# [TrD3, bb_cross] 0.936134 0.953767 0.807143 0.748344
+# [bb_cross, MAV_signal, TrD9] 0.936667 0.962329 0.837037 0.748344
+# [TrD3, St4H, TrD9, bb_cross] 0.942664 0.957192 0.823944 0.774834
+# [Dema9, VtrD6, TrD9, bb_cross] 0.843796 0.989726 0.88 0.291391
+# [srl_corr, TrD3, TrD9, bb_cross] 0.942568 0.955479 0.818182 0.774834
 
-# 5
-# [TrD3, bb_cross] 0.756579 0.815603 0.74 0.666667
-# [St4H, TrD3, bb_cross]    0.772727  0.820690    0.745098  0.684685
-# [Vol_Vol, TrD3, bb_cross]    0.769231  0.827586    0.750000  0.675676
-# [TrD3, bb_cross, Volatility] 0.756579 0.815603 0.74 0.666667
-# [MAV_signal, TrD3, bb_cross]    0.756579  0.815603    0.740000  0.666667
-# [MAV_signal, Vol_Vol, TrD3, bb_cross]    0.770701  0.834483   0.757576  0.675676
-# [bb_cross, bb_l, TrD3]    0.738095  0.855172    0.761364  0.603604
+# Buy bb_cross != 0 / minRet 0
+# [TrD3, bb_cross]  0.795699 0.850575 0.80303 0.736111
+# [roc10, TrD3] 0.795699 0.850575 0.80303 0.736111
+# [St4H, TrD3, bb_cross]    0.802139  0.862069    0.816794  0.743056
+# [%K, TrD3, bb_cross]  0.803191  0.867816 0.823077 0.743056
+# [4H%DS, TrD3, bb_cross]  0.807292 0.890805 0.849206 0.743056
+# [%K, roc10, TrD3, bb_cross] 0.807487 0.867816 0.824427 0.75
 
 # 4
-# [bb_cross, TrD3]    0.812500  0.776119    0.758065  0.796610
-# [bb_t, TrD3, bb_cross] 0.821138 0.753731 0.744186 0.813559
-# [Volatility, TrD3, bb_cross]    0.812500  0.776119    0.758065  0.796610
-# [MAV_signal, TrD3, bb_cross]    0.818898  0.776119    0.760000  0.805085
-# [StD, TrD3, bb_cross]    0.796992  0.791045    0.764706  0.771186
-# [Vol_Vol, TrD3, bb_cross]    0.806202  0.776119    0.756098  0.788136
-# [bb_cross, St4H, TrD3]    0.809524  0.761194    0.746032  0.796610
-# [bb_cross, bb_l, TrD3]    0.779412  0.791045    0.758621  0.745763
+# tEvents / minRet 0
+# [TrD3, bb_cross]
+# precision0             0.95082
+# recall0               0.926941
+# precision1            0.728814
+# recall1               0.803738
 
 # 3
-# [bb_cross, St4H, TrD3]    0.768000  0.738462    0.732283  0.762295
-# [Vol_Vol, TrD3, bb_cross]    0.768000  0.738462    0.732283  0.762295
-# [MAV_signal, TrD3, bb_cross]    0.768000  0.738462    0.732283  0.762295
-# [StD, TrD3, bb_cross]    0.765625  0.753846    0.741935  0.754098
-# [Vol_Vol, TrD3, bb_cross]    0.768000  0.738462    0.732283  0.762295
+# [4Hmacd, bb_cross]
+# precision0              0.962466
+# recall0                 0.831019
+# precision1              0.575581
+# recall1                 0.876106
+# [bb_cross, Vol_Vol]    0.911111  0.854167    0.550000  0.681416
+# [bb_cross, MAV_signal]    0.882619  0.905093    0.598039  0.539823
 
 # 2
-# [MAV_signal, TrD3, bb_cross]    0.721429  0.759398    0.714286  0.672269
-# [Vol_Vol, TrD3, bb_cross]    0.724138  0.789474    0.738318  0.663866
-# [St4H, TrD3, bb_cross]    0.725352  0.774436    0.727273  0.672269
-# [bb_cross, bb_l, TrD3]    0.720280  0.774436    0.724771  0.663866
+# [TrD3, bb_cross]
+# precision0            0.952273
+# recall0               0.961009
+# precision1            0.838095
+# recall1               0.807339
+# [TrD13, bb_cross]
+# precision0             0.941964
+# recall0                 0.96789
+# precision1              0.85567
+# recall1                0.761468
 
 # 1
-# [bb_cross, TrD3]    0.725926  0.690141    0.623932  0.663636
-# [MAV, TrD3, bb_cross]    0.734266  0.739437    0.660550  0.654545
-# [bb_cross, St4H, TrD3]    0.732394  0.732394    0.654545  0.654545
-# [bb_l, St4H, TrD3] 0.741935 0.809859 0.721649 0.636364
-# [Volatility, bb_l, TrD3]    0.754839  0.823944    0.742268  0.654545
-# [MAV_signal, bb_l, TrD3]    0.753165  0.838028    0.755319  0.645455
+# [atr, bb_cross]
+# precision0           0.962536
+# recall0              0.747204
+# precision1           0.429293
+# recall1              0.867347
+
+# [4Hmacd, bb_cross]
+# precision0              0.836466
+# recall0                 0.995526
+# precision1              0.846154
+# recall1                 0.112245
+# [bb_cross, MAV_signal]    0.911628  0.876957    0.521739  0.612245
+# [bb_cross, MAV]    0.912037  0.881432    0.530973  0.612245

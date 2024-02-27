@@ -73,8 +73,8 @@ eth30m['1D_Volume'] = eth1D['Volume']
 
 cpus = 1
 ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
-minRet = .003  # The minimum target return(def .01)
-delta = 24
+minRet = 0.014  # The minimum target return(def .01)
+delta = 12
 span = 100  # 100
 window = 20  # 20
 bb_stddev = 2
@@ -94,21 +94,21 @@ data.ffill(inplace=True)
 # data['vema13'] = data['Volume'].rolling(13).mean()
 # data['vema20'] = data['Volume'].rolling(20).mean()
 
-# data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+data['macd'] = macd_diff(data['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 data['%K'] = stoch(data['High'], data['Low'], data['Close'], window=14, smooth_window=3, fillna=False)
 data['%D'] = data['%K'].rolling(3).mean()
-# data['%DS'] = data['%D'].rolling(3).mean()
-# data['rsi'] = rsi(data['Close'], window=14, fillna=False)
-# data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
-# data['diff'] = np.log(data['Close']).diff()
-# data['cusum'] = data['Close'].cumsum()
-# data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
-# data['vmacd'] = macd_diff(data['Volume'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['vrsi'] = rsi(data['Volume'], window=14, fillna=False)
-# data['vdiff'] = np.log(data['Volume']).diff()
+data['%DS'] = data['%D'].rolling(3).mean()
+data['rsi'] = rsi(data['Close'], window=14, fillna=False)
+data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], window=14, fillna=False)
+data['diff'] = np.log(data['Close']).diff()
+data['cusum'] = data['Close'].cumsum()
+data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+data['vmacd'] = macd_diff(data['Volume'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+data['vrsi'] = rsi(data['Volume'], window=14, fillna=False)
+data['vdiff'] = np.log(data['Volume']).diff()
 
-# data['vcusum'] = data['Volume'].cumsum()
-# data['vsrl_corr'] = df_rolling_autocorr(returns(data['Volume']), window=window).rename('vsrl_corr')
+data['vcusum'] = data['Volume'].cumsum()
+data['vsrl_corr'] = df_rolling_autocorr(returns(data['Volume']), window=window).rename('vsrl_corr')
 
 # data['roc10'] = ROC(data['Close'], 10)
 # data['roc20'] = ROC(data['Close'], 20)
@@ -116,7 +116,7 @@ data['%D'] = data['%K'].rolling(3).mean()
 # data['mom10'] = MOM(data['Close'], 10)
 # data['mom20'] = MOM(data['Close'], 20)
 # data['mom30'] = MOM(data['Close'], 30)
-
+#
 # data['vroc10'] = ROC(data['Volume'], 10)
 # data['vroc20'] = ROC(data['Volume'], 20)
 # data['vroc30'] = ROC(data['Volume'], 30)
@@ -144,9 +144,9 @@ data['bb_t'] = data.apply(lambda x: x['bb_l'] / x['bb_sq'] if x['bb_sq'] != 0 el
 
 data['4H%K'] = stoch(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, smooth_window=3, fillna=False)
 data['4H%D'] = data['4H%K'].rolling(3).mean()
-# data['4H%DS'] = data['4H%D'].rolling(3).mean()
-# data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
+data['4H%DS'] = data['4H%D'].rolling(3).mean()
+data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
 # data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 # data['4H_Vema3'] = data['4H_Volume'].rolling(3).mean()
 # data['4H_Vema6'] = data['4H_Volume'].rolling(6).mean()
@@ -155,16 +155,16 @@ data['4H%D'] = data['4H%K'].rolling(3).mean()
 # data['4H_Vema20'] = data['4H_Volume'].rolling(20).mean()
 
 data['Dema3'] = data['1D_Close'].rolling(3).mean()
-# data['Dema6'] = data['1D_Close'].rolling(6).mean()
-# data['Dema9'] = data['1D_Close'].rolling(9).mean()
-# data['Dema13'] = data['1D_Close'].rolling(13).mean()
-# data['Dema20'] = data['1D_Close'].rolling(20).mean()
-#
-# data['Dvema3'] = data['1D_Volume'].rolling(3).mean()
-# data['Dvema6'] = data['1D_Volume'].rolling(6).mean()
-# data['Dvema9'] = data['1D_Volume'].rolling(9).mean()
-# data['Dvema13'] = data['1D_Volume'].rolling(13).mean()
-# data['Dvema20'] = data['1D_Volume'].rolling(20).mean()
+data['Dema6'] = data['1D_Close'].rolling(6).mean()
+data['Dema9'] = data['1D_Close'].rolling(9).mean()
+data['Dema13'] = data['1D_Close'].rolling(13).mean()
+data['Dema20'] = data['1D_Close'].rolling(20).mean()
+
+data['Dvema3'] = data['1D_Volume'].rolling(3).mean()
+data['Dvema6'] = data['1D_Volume'].rolling(6).mean()
+data['Dvema9'] = data['1D_Volume'].rolling(9).mean()
+data['Dvema13'] = data['1D_Volume'].rolling(13).mean()
+data['Dvema20'] = data['1D_Volume'].rolling(20).mean()
 
 # data['Tr6'] = data.apply(lambda x: x['Close'] - x['ema6'], axis=1)
 # data['Tr9'] = data.apply(lambda x: x['Close'] - x['ema9'], axis=1)
@@ -176,11 +176,11 @@ data['Dema3'] = data['1D_Close'].rolling(3).mean()
 # data['Tr4h13'] = data.apply(lambda x: x['4H_Close'] - x['4H_ema13'], axis=1)
 # data['Tr4h20'] = data.apply(lambda x: x['4H_Close'] - x['4H_ema20'], axis=1)
 data['TrD3'] = data.apply(lambda x: x['Close'] - x['Dema3'], axis=1)
-# data['TrD6'] = data.apply(lambda x: x['Close'] - x['Dema6'], axis=1)
-# data['TrD9'] = data.apply(lambda x: x['Close'] - x['Dema9'], axis=1)
-# data['TrD13'] = data.apply(lambda x: x['Close'] - x['Dema13'], axis=1)
-# data['TrD20'] = data.apply(lambda x: x['Close'] - x['Dema20'], axis=1)
-#
+data['TrD6'] = data.apply(lambda x: x['Close'] - x['Dema6'], axis=1)
+data['TrD9'] = data.apply(lambda x: x['Close'] - x['Dema9'], axis=1)
+data['TrD13'] = data.apply(lambda x: x['Close'] - x['Dema13'], axis=1)
+data['TrD20'] = data.apply(lambda x: x['Close'] - x['Dema20'], axis=1)
+
 # data['Vtr3'] = data.apply(lambda x: x['Volume'] - x['vema3'], axis=1)
 # data['Vtr6'] = data.apply(lambda x: x['Volume'] - x['vema6'], axis=1)
 # data['Vtr9'] = data.apply(lambda x: x['Volume'] - x['vema9'], axis=1)
@@ -191,13 +191,13 @@ data['TrD3'] = data.apply(lambda x: x['Close'] - x['Dema3'], axis=1)
 # data['Vtr4h9'] = data.apply(lambda x: x['Volume'] - x['4H_Vema9'], axis=1)
 # data['Vtr4h13'] = data.apply(lambda x: x['Volume'] - x['4H_Vema13'], axis=1)
 # data['Vtr4h20'] = data.apply(lambda x: x['Volume'] - x['4H_Vema20'], axis=1)
-# data['VtrD3'] = data.apply(lambda x: x['Volume'] - x['Dvema3'], axis=1)
-# data['VtrD6'] = data.apply(lambda x: x['Volume'] - x['Dvema6'], axis=1)
-# data['VtrD9'] = data.apply(lambda x: x['Volume'] - x['Dvema9'], axis=1)
-# data['VtrD13'] = data.apply(lambda x: x['Volume'] - x['Dvema13'], axis=1)
-# data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
-#
-# data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
+data['VtrD3'] = data.apply(lambda x: x['Volume'] - x['Dvema3'], axis=1)
+data['VtrD6'] = data.apply(lambda x: x['Volume'] - x['Dvema6'], axis=1)
+data['VtrD9'] = data.apply(lambda x: x['Volume'] - x['Dvema9'], axis=1)
+data['VtrD13'] = data.apply(lambda x: x['Volume'] - x['Dvema13'], axis=1)
+data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
+
+data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
 data['St4H'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
 # USDT ----------------------------------------------------------------------------------------------------------------
 # data['USDT_ema3'] = data['USDT_Close'].rolling(3).mean()
@@ -263,14 +263,12 @@ tEvents = getTEvents(data['Close'], h=data['Volatility'])
 t1 = addVerticalBarrier(tEvents, data['Close'], delta)
 
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
-events['side'] = events['side'].fillna(0)
 labels = metaBins(events, data.Close, t1)
 clean_labels = dropLabels(labels, minRet)
 data['ret'] = clean_labels['ret']
 data['bin'] = clean_labels['bin']
 
 data.replace([np.inf, -np.inf], np.nan, inplace=True)
-# data = data.fillna(0)
 data = data.loc[~data.index.duplicated(keep='first')]
 
 data.drop(columns=['ave', 'price', 'upper', 'lower',
@@ -281,6 +279,7 @@ data.drop(columns=['ave', 'price', 'upper', 'lower',
 #                    'USDT_Open', 'USDT_High', 'USDT_Low', 'USDT_Close',
 #                    'USDT4H_High', 'USDT4H_Low', 'USDT4H_Close', 'USDT4H_Volume',
 #                    'USDT1D_Close', 'USDT1D_Volume'
+data = data.fillna(0)
 full_data = data.copy()
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
@@ -294,8 +293,8 @@ signal = 'bin'
 # minority = events_data[events_data[signal] == 1]
 # majority = events_data[events_data[signal] == 0].sample(n=len(minority), replace=True)
 # events_data = pd.concat([minority, majority])
-# print(events_data)
 
+print('Data forming events')
 print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 print('event data min ret', events_data.ret.min())

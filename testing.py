@@ -3,6 +3,7 @@ from backtesting import Backtest, Strategy
 from meta import backtest_data, ModelSell, ModelBuy, PrimeModelSell, PrimeModelBuy, MetaModelSell, MetaModelBuy
 import pandas as pd
 import warnings
+from sklearn.preprocessing import normalize
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
@@ -44,25 +45,38 @@ class Prelder(Strategy):
         ret = self.data['ret'][-1]
         bbc = self.data['bb_cross'][-1]
         bbl = self.data['bb_l'][-1]
-        tr = self.data['TrD3'][-1]
         st4 = self.data['St4H'][-1]
         vol = self.data['Volatility'][-1]
+        TrD13 = self.data['TrD13'][-1]
+        TrD9 = self.data['TrD9'][-1]
+        TrD3 = self.data['TrD3'][-1]
+        vv = self.data['Vol_Vol'][-1]
+        DS4 = self.data['4H%DS'][-1]
+        MAV = self.data['MAV'][-1]
+        MAVS = self.data['MAV_signal'][-1]
 
-        if self.cond == 'B' and ret != 0 and bbc != 0 and vol > 0.01:
-            classicPB = self.CMB.predict([[vol, st4, tr]])[-1]
-            # primaryPB = self.PMB.predict([[vol, st4, tr]])[-1]
-            # metaPB = self.MMB.predict([[vol, st4, tr, primaryPB]])[-1]
-            if classicPB == 1:
+        if self.cond == 'B' and ret != 0 and bbc != 0 and MAVS > 0:
+            features = [[TrD3, DS4]]
+            features = normalize(features)
+            a, b = features[0][0], features[0][1]
+            classicPB = self.CMB.predict([[a, b, bbc]])
+            primaryPB = self.PMB.predict([[a, b, bbc]])[-1]
+            metaPB = self.MMB.predict([[a, b, bbc, primaryPB]])[-1]
+            if primaryPB == metaPB == 1:
                 self.buy_price = self.data.Close[-1]
                 # print(self.data.index[-1], 'Buy at: ', self.buy_price)
                 backtest_data['Buy'].loc[self.data.index[-1]] = True
                 self.cond = 'S'
                 self.buy()
-        elif self.cond == 'S' and ret != 0 and vol > 0.01:
-            classicPS = self.CMS.predict([[bbc, bbl, tr]])[-1]
-            # primaryPS = self.PMS.predict([[bbc, bbl, tr]])[-1]
-            # metaPS = self.MMS.predict([[bbc, bbl, tr, primaryPS]])[-1]
-            if classicPS == 0:
+
+        elif self.cond == 'S' and ret != 0 and bbc != 0:
+            features = [[TrD9, TrD3, st4]]
+            features = normalize(features)
+            a, b, c = features[0][0], features[0][1], features[0][2]
+            classicPS = self.CMS.predict([[a, b, c, bbc]])
+            primaryPS = self.PMS.predict([[a, b, c, bbc]])[-1]
+            metaPS = self.MMS.predict([[a, b, c, bbc, primaryPS]])[-1]
+            if primaryPS == 0 and metaPS == 1:
                 self.sell_price = self.data.Close[-1]
                 self.sell_price = close
                 # print(self.data.index[-1], 'Model sell at:', self.sell_price, 'Profit: ',
@@ -75,7 +89,7 @@ class Prelder(Strategy):
 
 
 def statistics(data, strategy):
-    bt = Backtest(data, strategy, cash=100000, commission=0.045, exclusive_orders=True)
+    bt = Backtest(data, strategy, cash=100000, commission=0.0026, exclusive_orders=True)
     output = bt.run()
     print(output)
     # winsound.Beep(1000, 1500)
