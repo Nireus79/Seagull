@@ -52,11 +52,13 @@ class Prelder(Strategy):
         TrD3 = self.data['TrD3'][-1]
         vv = self.data['Vol_Vol'][-1]
         DS4 = self.data['4H%DS'][-1]
+        mac4 = self.data['4Hmacd'][-1]
         MAV = self.data['MAV'][-1]
         MAVS = self.data['MAV_signal'][-1]
+        VtrD6 = self.data['VtrD6'][-1]
 
         if self.cond == 'B' and ret != 0 and bbc != 0 and MAVS > 0:
-            features = [[TrD3, DS4]]
+            features = [[TrD3, st4]]
             features = normalize(features)
             a, b = features[0][0], features[0][1]
             classicPB = self.CMB.predict([[a, b, bbc]])
@@ -69,13 +71,13 @@ class Prelder(Strategy):
                 self.cond = 'S'
                 self.buy()
 
-        elif self.cond == 'S' and ret != 0 and bbc != 0:
-            features = [[TrD9, TrD3, st4]]
+        elif self.cond == 'S' and ret != 0:
+            features = [[TrD9, st4]]
             features = normalize(features)
-            a, b, c = features[0][0], features[0][1], features[0][2]
-            classicPS = self.CMS.predict([[a, b, c, bbc]])
-            primaryPS = self.PMS.predict([[a, b, c, bbc]])[-1]
-            metaPS = self.MMS.predict([[a, b, c, bbc, primaryPS]])[-1]
+            a, b = features[0][0], features[0][1]
+            classicPS = self.CMS.predict([[a, b, bbc]])
+            primaryPS = self.PMS.predict([[a, b, bbc]])[-1]
+            metaPS = self.MMS.predict([[a, b, bbc, primaryPS]])[-1]
             if primaryPS == 0 and metaPS == 1:
                 self.sell_price = self.data.Close[-1]
                 self.sell_price = close

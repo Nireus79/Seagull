@@ -73,7 +73,7 @@ eth30m['1D_Volume'] = eth1D['Volume']
 
 cpus = 1
 ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
-minRet = 0.014  # The minimum target return(def .01)
+minRet = 0.014  # The minimum target return(def .01) 0.014 = half 0.026 commission
 delta = 12
 span = 100  # 100
 window = 20  # 20

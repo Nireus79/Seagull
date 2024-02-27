@@ -26,10 +26,10 @@ import joblib
 # Two train sets
 part = 5
 events_dataBuy = events_data.copy()  # .loc[events_data['bb_cross'] != 0]
-BuyFeatures = ['TrD3', '4H%DS', 'bb_cross']  # ['4H%DS', 'TrD3', 'bb_cross']
+BuyFeatures = ['TrD3', 'St4H', 'bb_cross']  # ['4H%DS', 'TrD3', 'bb_cross']
 
 events_dataSell = events_data.copy()  # .loc[events_data['bb_cross'] != 0]
-SellFeatures = ['TrD9', 'TrD3', 'St4H', 'bb_cross']  # ['TrD3', 'St4H', 'TrD9', 'bb_cross']
+SellFeatures = ['TrD9', 'St4H', 'bb_cross']  # ['TrD3', 'St4H', 'TrD9', 'bb_cross']
 
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')

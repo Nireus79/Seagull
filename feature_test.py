@@ -108,7 +108,7 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
 s = ['TrD9', 'bb_cross']
 b = ['TrD3', 'bb_cross']
 
-research_features(None, 'All', 2, 'MLP', 1, events_data)
+research_features(None, 'All', 2, 'MLP', 5, events_data)
 
 # 5
 # tEvents / minRet 0.014
