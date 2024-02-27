@@ -51,7 +51,7 @@ class Prelder(Strategy):
         TrD9 = self.data['TrD9'][-1]
         TrD3 = self.data['TrD3'][-1]
         vv = self.data['Vol_Vol'][-1]
-        DS4 = self.data['4H%K'][-1]
+        DS4 = self.data['4H%DS'][-1]
         mac4 = self.data['4Hmacd'][-1]
         MAV = self.data['MAV'][-1]
         MAVS = self.data['MAV_signal'][-1]
