@@ -115,6 +115,8 @@ def spliter(research_data, signal, part, feature_columns):
         X = X[feature_columns]
     validation_size = 0.2
     test_size = int(len(X) * validation_size)
+    if part == 0:
+        return X, Y
     if part == 1:
         X_test, X_train = X[:test_size], X[test_size:]
         Y_test, Y_train = Y[:test_size], Y[test_size:]
@@ -136,7 +138,7 @@ def spliter(research_data, signal, part, feature_columns):
         Y_test, Y_train = Y[test_size * 4:], Y[:test_size * 4]
         return X_train, X_test, Y_train, Y_test
     else:
-        print('Give part number 1 to 5 only.')
+        print('Give part number 0 to 5 only.')
 
 
 def meta_spliter(full_data, research_data, signal, part):

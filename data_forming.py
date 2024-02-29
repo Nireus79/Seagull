@@ -261,7 +261,8 @@ data['Vol_Vol'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean(
 
 tEvents = getTEvents(data['Close'], h=data['Volatility'])
 t1 = addVerticalBarrier(tEvents, data['Close'], delta)
-
+data['event'] = data['Volatility'].loc[tEvents]
+data['event'] = data['Volatility'][data['Volatility'] > minRet]
 events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
 labels = metaBins(events, data.Close, t1)
 clean_labels = dropLabels(labels, minRet)

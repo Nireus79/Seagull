@@ -4,10 +4,16 @@ from meta import backtest_data, ModelSell, ModelBuy, PrimeModelSell, PrimeModelB
 import pandas as pd
 import warnings
 from sklearn.preprocessing import normalize
+import joblib
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
+
+# PrimeModelBuy = joblib.load('PrimeModelBuy.pkl')
+# MetaModelBuy = joblib.load('MetaModelBuy.pkl')
+# PrimeModelSell = joblib.load('PrimeModelSell.pkl')
+# MetaModelSell = joblib.load('MetaModelSell.pkl')
 
 
 # class SIM(Strategy):
@@ -30,8 +36,8 @@ pd.set_option('display.max_columns', None)
 class Prelder(Strategy):
 
     def init(self):
-        self.CMB = ModelBuy
-        self.CMS = ModelSell
+        # self.CMB = ModelBuy
+        # self.CMS = ModelSell
         self.PMB = PrimeModelBuy
         self.PMS = PrimeModelSell
         self.MMB = MetaModelBuy
@@ -42,7 +48,7 @@ class Prelder(Strategy):
 
     def next(self):
         close = self.data['Close'][-1]
-        ret = self.data['ret'][-1]
+        event = self.data['event'][-1]
         bbc = self.data['bb_cross'][-1]
         bbl = self.data['bb_l'][-1]
         st4 = self.data['St4H'][-1]
@@ -57,11 +63,11 @@ class Prelder(Strategy):
         MAVS = self.data['MAV_signal'][-1]
         VtrD6 = self.data['VtrD6'][-1]
 
-        if self.cond == 'B' and ret != 0 and bbc != 0 and MAVS > 0:
+        if self.cond == 'B' and event != 0 and bbc != 0 and vol > 0.014 and MAVS > 0:
             features = [[TrD3, DS4]]
             features = normalize(features)
             a, b = features[0][0], features[0][1]
-            classicPB = self.CMB.predict([[a, b, bbc]])
+            # classicPB = self.CMB.predict([[a, b, bbc]])
             primaryPB = self.PMB.predict([[a, b, bbc]])[-1]
             metaPB = self.MMB.predict([[a, b, bbc, primaryPB]])[-1]
             if primaryPB == metaPB == 1:
@@ -71,11 +77,11 @@ class Prelder(Strategy):
                 self.cond = 'S'
                 self.buy()
 
-        elif self.cond == 'S' and ret != 0:
+        elif self.cond == 'S' and event != 0 and bbc != 0:
             features = [[TrD9, st4]]
             features = normalize(features)
             a, b = features[0][0], features[0][1]
-            classicPS = self.CMS.predict([[a, b, bbc]])
+            # classicPS = self.CMS.predict([[a, b, bbc]])
             primaryPS = self.PMS.predict([[a, b, bbc]])[-1]
             metaPS = self.MMS.predict([[a, b, bbc, primaryPS]])[-1]
             if primaryPS == 0 and metaPS == 1:
