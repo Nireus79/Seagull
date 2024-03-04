@@ -18,9 +18,14 @@ pd.set_option('display.max_columns', None)
 def model_test(comb, X_tr, X_ts, Y_tr, Y_ts, md):
     X_trc, X_tsc = X_tr.copy(), X_ts.copy()
     X_trs, X_tss = X_trc[comb], X_tsc[comb]
-    X_trn, X_tsn = normalizer(X_trs), normalizer(X_tss)
+
     if 'bb_cross' in comb:
-        X_trn.bb_cross, X_tsn.bb_cross = X_tr.bb_cross, X_ts.bb_cross
+        X_trc.drop(columns=['bb_cross'], axis=1, inplace=True)
+        X_tsc.drop(columns=['bb_cross'], axis=1, inplace=True)
+        X_trn, X_tsn = normalizer(X_trs), normalizer(X_tss)
+        X_trn['bb_cross'], X_tsn['bb_cross'] = X_tr.bb_cross, X_ts.bb_cross
+    else:
+        X_trn, X_tsn = normalizer(X_trs), normalizer(X_tss)
     if md == 'MLP':
         Model = MLPClassifier()
         Model.fit(X_trn, Y_tr)
@@ -105,72 +110,17 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
     print(reps.tail(10).sort_values(by=['recall1']))
 
 
-s = ['TrD9', 'bb_cross']
-b = ['TrD3', 'bb_cross']
+events_data = events_data.loc[events_data['bb_cross'] != 0]
+print('Feature test events')
+print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
+print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
+print('event data min ret', events_data.ret.min())
+print('event data max ret', events_data.ret.max())
+print('event data mean ret', events_data.ret.mean())
 
-research_features(None, 'All', 2, 'MLP', 5, events_data)
 
-# 5
-# tEvents / minRet 0.014
-# [TrD9, bb_cross] 0.949192 0.958042 0.843478 0.815126
-# [TrD3, bb_cross] 0.948718 0.948718 0.815126 0.815126
-
-# Sell / tEvents / minRet 0
-# [TrD9, bb_cross] 0.936667 0.962329 0.837037 0.748344
-# [TrD3, bb_cross] 0.936134 0.953767 0.807143 0.748344
-# [bb_cross, MAV_signal, TrD9] 0.936667 0.962329 0.837037 0.748344
-# [TrD3, St4H, TrD9, bb_cross] 0.942664 0.957192 0.823944 0.774834
-# [Dema9, VtrD6, TrD9, bb_cross] 0.843796 0.989726 0.88 0.291391
-# [srl_corr, TrD3, TrD9, bb_cross] 0.942568 0.955479 0.818182 0.774834
-
-# Buy bb_cross != 0 / minRet 0
-# [TrD3, bb_cross]  0.795699 0.850575 0.80303 0.736111
-# [roc10, TrD3] 0.795699 0.850575 0.80303 0.736111
-# [St4H, TrD3, bb_cross]    0.802139  0.862069    0.816794  0.743056
-# [%K, TrD3, bb_cross]  0.803191  0.867816 0.823077 0.743056
-# [4H%DS, TrD3, bb_cross]  0.807292 0.890805 0.849206 0.743056
-# [%K, roc10, TrD3, bb_cross] 0.807487 0.867816 0.824427 0.75
-
-# 4
-# tEvents / minRet 0
-# [TrD3, bb_cross]
-# precision0             0.95082
-# recall0               0.926941
-# precision1            0.728814
-# recall1               0.803738
-
-# 3
-# [4Hmacd, bb_cross]
-# precision0              0.962466
-# recall0                 0.831019
-# precision1              0.575581
-# recall1                 0.876106
-# [bb_cross, Vol_Vol]    0.911111  0.854167    0.550000  0.681416
-# [bb_cross, MAV_signal]    0.882619  0.905093    0.598039  0.539823
-
-# 2
-# [TrD3, bb_cross]
-# precision0            0.952273
-# recall0               0.961009
-# precision1            0.838095
-# recall1               0.807339
-# [TrD13, bb_cross]
-# precision0             0.941964
-# recall0                 0.96789
-# precision1              0.85567
-# recall1                0.761468
-
-# 1
-# [atr, bb_cross]
-# precision0           0.962536
-# recall0              0.747204
-# precision1           0.429293
-# recall1              0.867347
-
-# [4Hmacd, bb_cross]
-# precision0              0.836466
-# recall0                 0.995526
-# precision1              0.846154
-# recall1                 0.112245
-# [bb_cross, MAV_signal]    0.911628  0.876957    0.521739  0.612245
-# [bb_cross, MAV]    0.912037  0.881432    0.530973  0.612245
+# [TrD3, bb_cross] 0.87037 0.770492 0.762712 0.865385
+# [TrD3, TrD9, bb_cross] 0.872727 0.786885 0.775862 0.865385
+b0 = ['macd', 'TrD3', 'TrD13', 'bb_cross']  # 0.877193 0.819672 0.803571 0.865385
+b1 = ['macd', 'vdiff', 'TrD6', 'bb_cross']  # 0.875 0.803279 0.789474 0.865385
+research_features(None, 'All', 3, 'MLP', 5, events_data)

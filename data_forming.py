@@ -72,9 +72,9 @@ eth30m['1D_Volume'] = eth1D['Volume']
 # eth30m['USDT1D_Volume'] = usdt1D['Volume']
 
 cpus = 1
-ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
-minRet = 0.014  # The minimum target return(def .01) 0.014 = half 0.026 commission
-delta = 12
+ptsl = [2, 1]  # profit-taking / stop-loss limit multipliers
+minRet = 0.0  # The minimum target return(def .01)
+delta = 24
 span = 100  # 100
 window = 20  # 20
 bb_stddev = 2
@@ -259,11 +259,11 @@ data['Vol_Vol'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean(
 # data['USDT_Volatility'] = getDailyVol(data['USDT_Close'], span, delta).rolling(window).mean()
 # data['USDT_Vol_Vol'] = getDailyVol(data['USDT_Volume'], span, delta).rolling(window).mean()
 
-tEvents = getTEvents(data['Close'], h=data['Volatility'])
+tEvents = getTEvents(data['Close'], data['Volatility'], ptsl)
 t1 = addVerticalBarrier(tEvents, data['Close'], delta)
 data['event'] = data['Volatility'].loc[tEvents]
 data['event'] = data['Volatility'][data['Volatility'] > minRet]
-events = getEvents(data['Close'], tEvents, ptsl, data['Volatility'], minRet, cpus, t1, side=bb_sides)
+events = getEvents(tEvents, ptsl, data['Volatility'], minRet, t1, side=bb_sides)
 labels = metaBins(events, data.Close, t1)
 clean_labels = dropLabels(labels, minRet)
 data['ret'] = clean_labels['ret']
@@ -285,7 +285,7 @@ full_data = data.copy()
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
 events_data.drop(columns=['Open', 'High', 'Low', 'Close'], axis=1, inplace=True)
-# events_data = events_data.loc[events_data['bb_cross'] != 0]
+events_data = events_data.loc[events_data['bb_cross'] != 0]
 # signal = 'ret'
 signal = 'bin'
 # print(data.columns)

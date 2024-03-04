@@ -138,7 +138,7 @@ def getDailyVol(close, span0, delta):
     return df0
 
 
-def getTEvents(gRaw, h):
+def getTEvents(gRaw, h, ptsl):
     """Symmetric CUSUM Filter [2.5.2.1]
     T events are the moments that a shift in
     the mean value of a measured quantity away from a target value.
@@ -177,6 +177,8 @@ sums of these changes cross certain thresholds (h.loc[i]), it signifies a shift 
 and the corresponding timestamp is recorded as a T event. This is a common technique used in event-driven finance and
 signal processing to detect significant changes in time series data.
     """
+    h['pt'] = h.apply(lambda x: x * ptsl[0] if ptsl[0] > 0 else x)
+    h['sl'] = h.apply(lambda x: -x * ptsl[1] if ptsl[1] > 0 else -x)
     tEvents, sPos, sNeg = [], 0, 0
     diff = np.log(gRaw.astype('float64')).diff().dropna()
     for i in tqdm(diff.index[1:]):
@@ -188,10 +190,10 @@ signal processing to detect significant changes in time series data.
             print(sNeg + diff.loc[i], type(sNeg + diff.loc[i]))
             break
         sPos, sNeg = max(0., pos), min(0., neg)
-        if sNeg < -h.loc[i]:  # .loc[i] # gives threshold relative to data['Volatility'].rolling(window).mean()
+        if sNeg < h['sl'].loc[i]:  # .loc[i] # gives threshold relative to data['Volatility'] not a fixed mean
             sNeg = 0
             tEvents.append(i)
-        elif sPos > h.loc[i]:
+        elif sPos > h['pt'].loc[i]:
             sPos = 0
             tEvents.append(i)
     return pd.DatetimeIndex(tEvents)
@@ -233,7 +235,7 @@ def applyPtSlOnT1(close, events, ptSl, molecule):
     return out
 
 
-def getEvents(close, tEvents, ptSl, trgt, minRet, numThreads, t1, side):
+def getEvents(tEvents, ptSl, trgt, minRet, t1, side):
     """
     we accept a new side optional argument (with default None), which contains the side of our bets
     as decided by the primary model. When side is not None, the function understands
@@ -282,11 +284,9 @@ efficiency. The specific logic for trading and event generation would depend on 
 strategy and the specific implementation of applyPtSlOnT1. :param close: :param tEvents: :param ptSl: :param trgt:
     :param side:
     :param t1:
-    :param numThreads:
     :param trgt:
     :param ptSl:
     :param tEvents:
-    :param close:
 :param minRet: :param numThreads: :param t1: :param side: :return: df with event timestamp t1 timestamp target and side
     """
     # 1) get target
@@ -304,9 +304,9 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
         # control of common indexes between target and side before filtering
         side_, ptSl_ = side.loc[common_indexes], ptSl[:2]
     events = (pd.concat({'t1': t1, 'trgt': trgt, 'side': side_}, axis=1).dropna(subset=['trgt']))
-    df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
-                      numThreads=numThreads, close=close, events=events,
-                      ptSl=ptSl_)
+    # df0 = mpPandasObj(func=applyPtSlOnT1, pdObj=('molecule', events.index),
+    #                   numThreads=numThreads, close=close, events=events,
+    #                   ptSl=ptSl_)
     # events['t1'] = df0.dropna(how='all').min(axis=1)
     if side is None:
         events = events.drop('side', axis=1)
