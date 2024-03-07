@@ -72,9 +72,9 @@ eth30m['1D_Volume'] = eth1D['Volume']
 # eth30m['USDT1D_Volume'] = usdt1D['Volume']
 
 cpus = 1
-ptsl = [2, 1]  # profit-taking / stop-loss limit multipliers
-minRet = 0.0  # The minimum target return(def .01)
-delta = 24
+ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
+minRet = 0.026  # The minimum target return(def .01)
+delta = 12
 span = 100  # 100
 window = 20  # 20
 bb_stddev = 2
@@ -84,9 +84,9 @@ data.ffill(inplace=True)
 
 # data['ema3'] = data['Close'].rolling(3).mean()
 # data['ema6'] = data['Close'].rolling(6).mean()
-# data['ema9'] = data['Close'].rolling(9).mean()
+data['ema9'] = data['Close'].rolling(9).mean()
 # data['ema13'] = data['Close'].rolling(13).mean()
-# data['ema20'] = data['Close'].rolling(20).mean()
+data['ema20'] = data['Close'].rolling(20).mean()
 #
 # data['vema3'] = data['Volume'].rolling(3).mean()
 # data['vema6'] = data['Volume'].rolling(6).mean()
@@ -147,7 +147,7 @@ data['4H%D'] = data['4H%K'].rolling(3).mean()
 data['4H%DS'] = data['4H%D'].rolling(3).mean()
 data['4Hmacd'] = macd_diff(data['4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 data['4H_rsi'] = rsi(data['4H_Close'], window=14, fillna=False)
-# data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
+data['4H_atr'] = average_true_range(data['4H_High'], data['4H_Low'], data['4H_Close'], window=14, fillna=False)
 # data['4H_Vema3'] = data['4H_Volume'].rolling(3).mean()
 # data['4H_Vema6'] = data['4H_Volume'].rolling(6).mean()
 # data['4H_Vema9'] = data['4H_Volume'].rolling(9).mean()
@@ -167,9 +167,9 @@ data['Dvema13'] = data['1D_Volume'].rolling(13).mean()
 data['Dvema20'] = data['1D_Volume'].rolling(20).mean()
 
 # data['Tr6'] = data.apply(lambda x: x['Close'] - x['ema6'], axis=1)
-# data['Tr9'] = data.apply(lambda x: x['Close'] - x['ema9'], axis=1)
+data['Tr9'] = data.apply(lambda x: x['Close'] - x['ema9'], axis=1)
 # data['Tr13'] = data.apply(lambda x: x['Close'] - x['ema13'], axis=1)
-# data['Tr20'] = data.apply(lambda x: x['Close'] - x['ema20'], axis=1)
+data['Tr20'] = data.apply(lambda x: x['Close'] - x['ema20'], axis=1)
 # data['Tr4h3'] = data.apply(lambda x: x['4H_Close'] - x['4H_ema3'], axis=1)
 # data['Tr4h6'] = data.apply(lambda x: x['4H_Close'] - x['4H_ema6'], axis=1)
 # data['Tr4h9'] = data.apply(lambda x: x['4H_Close'] - x['4H_ema9'], axis=1)
@@ -285,7 +285,7 @@ full_data = data.copy()
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
 events_data.drop(columns=['Open', 'High', 'Low', 'Close'], axis=1, inplace=True)
-events_data = events_data.loc[events_data['bb_cross'] != 0]
+print(data)
 # signal = 'ret'
 signal = 'bin'
 # print(data.columns)

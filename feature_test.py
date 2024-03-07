@@ -1,8 +1,5 @@
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from toolbox import spliter, normalizer
 from data_forming import events_data, signal
@@ -84,8 +81,10 @@ def report_generator(plethos, md, X_tr, X_ts, Y_tr, Y_ts, full_feats, std_feats)
     reports['features'] = reports.apply(lambda x: x[0][0], axis=1)
     reports['precision0'] = reports.apply(lambda x: x[0][1]['0']['precision'], axis=1)
     reports['recall0'] = reports.apply(lambda x: x[0][1]['0']['recall'], axis=1)
+    reports['f1-score0'] = reports.apply(lambda x: x[0][1]['0']['f1-score'], axis=1)
     reports['precision1'] = reports.apply(lambda x: x[0][1]['1']['precision'], axis=1)
     reports['recall1'] = reports.apply(lambda x: x[0][1]['1']['recall'], axis=1)
+    reports['f1-score1'] = reports.apply(lambda x: x[0][1]['1']['f1-score'], axis=1)
     reports.drop(columns=['reports'], axis=1, inplace=True)
     return reports
 
@@ -98,19 +97,24 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
     reps = report_generator(plethos, mode, X_train, X_test, Y_train, Y_test, full_features, selected_features)
     print('max precision0:', reps.loc[reps['precision0'].idxmax()])
     print('max recall0:', reps.loc[reps['recall0'].idxmax()])
+    print('max f1 0:', reps.loc[reps['f1-score0'].idxmax()])
     print('max precision1:', reps.loc[reps['precision1'].idxmax()])
     print('max recall1:', reps.loc[reps['recall1'].idxmax()])
-    print('max precision0:')
-    print(reps.tail(10).sort_values(by=['precision0']))
-    print('max recall0:')
-    print(reps.tail(10).sort_values(by=['recall0']))
-    print('max precision1:')
-    print(reps.tail(10).sort_values(by=['precision1']))
-    print('max recall1:')
-    print(reps.tail(10).sort_values(by=['recall1']))
+    print('max f1 1:', reps.loc[reps['f1-score1'].idxmax()])
+    # print('max precision0:')
+    # print(reps.tail(5).sort_values(by=['precision0']))
+    # print('max recall0:')
+    # print(reps.tail(5).sort_values(by=['recall0']))
+    print('max f1 0:')
+    print(reps.tail(5).sort_values(by=['f1-score0']))
+    # print('max precision1:')
+    # print(reps.tail(5).sort_values(by=['precision1']))
+    # print('max recall1:')
+    # print(reps.tail(5).sort_values(by=['recall1']))
+    print('max f1 1:')
+    print(reps.tail(5).sort_values(by=['f1-score1']))
 
 
-events_data = events_data.loc[events_data['bb_cross'] != 0]
 print('Feature test events')
 print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
@@ -118,9 +122,6 @@ print('event data min ret', events_data.ret.min())
 print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
 
-
-# [TrD3, bb_cross] 0.87037 0.770492 0.762712 0.865385
-# [TrD3, TrD9, bb_cross] 0.872727 0.786885 0.775862 0.865385
-b0 = ['macd', 'TrD3', 'TrD13', 'bb_cross']  # 0.877193 0.819672 0.803571 0.865385
-b1 = ['macd', 'vdiff', 'TrD6', 'bb_cross']  # 0.875 0.803279 0.789474 0.865385
-research_features(None, 'All', 3, 'MLP', 5, events_data)
+# [Tr9, TrD9] 0.8 0.9375 0.863309 0.862069 0.625 0.724638
+# [Tr9, TrD6] 0.808219 0.921875 0.861314 0.83871 0.65 0.732394
+research_features(None, 'All', 2, 'MLP', 5, events_data)

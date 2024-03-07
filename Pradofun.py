@@ -310,7 +310,7 @@ strategy and the specific implementation of applyPtSlOnT1. :param close: :param 
     # events['t1'] = df0.dropna(how='all').min(axis=1)
     if side is None:
         events = events.drop('side', axis=1)
-    return events
+    return events.dropna()
 
 
 def addVerticalBarrier(tEvents, close, delta):

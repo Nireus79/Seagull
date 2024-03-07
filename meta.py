@@ -13,12 +13,12 @@ import joblib
 # pd.set_option('display.max_columns', None)
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
-part = 5
-events_dataBuy = events_data.copy()  # .loc[events_data['bb_cross'] != 0]
-BuyFeatures = ['TrD6', 'macd', 'vdiff', 'bb_cross']
+part = 4
+events_dataBuy = events_data.copy()
+BuyFeatures = ['TrD3', 'macd', 'bb_cross']
 
-events_dataSell = events_data.copy()  # .loc[events_data['bb_cross'] != 0]
-SellFeatures = ['TrD13',  'TrD3', 'macd', 'bb_cross']
+events_dataSell = events_data.copy()
+SellFeatures = ['TrD9', '4Hmacd', 'vrsi', 'macd']
 
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')

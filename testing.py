@@ -10,29 +10,6 @@ warnings.filterwarnings('ignore')
 pd.set_option('display.max_columns', None)
 
 
-# PrimeModelBuy = joblib.load('PrimeModelBuy.pkl')
-# MetaModelBuy = joblib.load('MetaModelBuy.pkl')
-# PrimeModelSell = joblib.load('PrimeModelSell.pkl')
-# MetaModelSell = joblib.load('MetaModelSell.pkl')
-
-
-# class SIM(Strategy):
-#
-#     def init(self):
-#         self.cond = 'B'
-#
-#     def next(self):
-#         B = self.data['Buy'][-1]
-#         S = self.data['Sell'][-1]
-#         sim_data['NAV'].loc[self.data.index[-1]] = self.equity / 100000
-#         if self.cond == 'B' and B:
-#             self.cond = 'S'
-#             self.buy()
-#         elif self.cond == 'S' and S:
-#             self.cond = 'B'
-#             self.sell()
-
-
 class Prelder(Strategy):
     mav = 10
     mavs = -100
@@ -46,55 +23,58 @@ class Prelder(Strategy):
         self.MMS = MetaModelSell
         self.cond = 'B'
         self.stop = 0
+        self.profit = 0
 
     def next(self):
         event = self.data['event'][-1]
         TrD3 = self.data['TrD3'][-1]
-        TrD6 = self.data['TrD6'][-1]
-        TrD13 = self.data['TrD13'][-1]
+        TrD9 = self.data['TrD9'][-1]
         bbc = self.data['bb_cross'][-1]
-        bb_sq = self.data['bb_sq'][-1]
-        St4 = self.data['St4H'][-1]
+        St4H = self.data['St4H'][-1]
         DS4 = self.data['4H%DS'][-1]
         mac = self.data['macd'][-1]
-        vdiff = self.data['vdiff'][-1]
-        vol = self.data['Volatility'][-1]
-
+        mac4 = self.data['4Hmacd'][-1]
         atr = self.data['atr'][-1]
         rsi = self.data['rsi'][-1]
+        vrsi = self.data['vrsi'][-1]
         MAV = self.data['MAV'][-1]
         MAVS = self.data['MAV_signal'][-1]
-        if self.cond == 'B' and event != 0 and bbc != 0 and MAV > 0.026:
-            features = [[TrD6, mac, vdiff]]
+        vol = self.data['Volatility'][-1]
+        if self.cond == 'B' and event != 0 and bbc != 0 and MAV > 0.026 and MAVS > 0:
+            features = [[TrD3, mac]]
             features = normalize(features)
-            a, b, c = features[0][0], features[0][1], features[0][2]
+            a, b = features[0][0], features[0][1]
             # classicPB = self.CMB.predict([[a, b, bbc]])
-            primaryPB = self.PMB.predict([[a, b, c, bbc]])[-1]
-            metaPB = self.MMB.predict([[a, b, c, bbc, primaryPB]])[-1]
+            primaryPB = self.PMB.predict([[a, b, bbc]])[-1]
+            metaPB = self.MMB.predict([[a, b, bbc, primaryPB]])[-1]
             print(self.data.index[-1], primaryPB, metaPB)
             if primaryPB == 1.0 and metaPB == 1:
-                self.stop = self.data.Close[-2] - atr
+                self.profit = self.data.High[-1] + ((self.data.High[-1] * MAV)*3) + atr
+                self.stop = self.data.Low[-1] - (self.data.Low[-1] * vol)
+                print('{} SET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
                 print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                 self.cond = 'S'
                 self.buy()
-        # elif self.cond == 'S' and self.data.Close[-1] < self.stop:
-        #     self.cond = 'B'
-        #     self.stop = 0
-        #     print('{} P Sell. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
-        #     self.sell()
-        elif self.cond == 'S' and event != 0 and bbc != 0:
-            features = [[TrD13, TrD3, mac]]
-            features = normalize(features)
-            a, b, c = features[0][0], features[0][1], features[0][2]
-            # classicPS = self.CMS.predict([[a, b, bbc]])
-            primaryPS = self.PMS.predict([[a, b, c, bbc]])[-1]
-            metaPS = self.MMS.predict([[a, b, c, bbc, primaryPS]])[-1]
-            print(self.data.index[-1], primaryPS, metaPS)
-            if primaryPS == 1.0 and metaPS == 1:
-                self.stop = 0
-                print('{} Sell. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
-                self.cond = 'B'
-                self.sell()
+        elif self.cond == 'S':
+            if self.data.Close[-1] > self.profit or self.data.Close[-1] < self.stop:
+                if event != 0 and bbc != 0:
+                    features = [[TrD9, mac4, vrsi, mac]]
+                    features = normalize(features)
+                    a, b, c, d = features[0][0], features[0][1], features[0][2], features[0][3]
+                    # classicPS = self.CMS.predict([[a, b, bbc]])
+                    primaryPS = self.PMS.predict([[a, b, c, d]])[-1]
+                    metaPS = self.MMS.predict([[a, b, c, d, primaryPS]])[-1]
+                    print(self.data.index[-1], primaryPS, metaPS)
+                    if primaryPS == 0.0 and metaPS == 1:
+                        self.stop = 0
+                        self.profit = 0
+                        print('{} Sell. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
+                        self.cond = 'B'
+                        self.sell()
+                    else:
+                        self.profit = self.data.High[-1] + ((self.data.High[-1] * MAV)*3) + atr
+                        self.stop = self.data.Low[-1] - (self.data.Low[-1] * vol)
+                        print('{} RESET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
 
 
 def statistics(data, strategy):
