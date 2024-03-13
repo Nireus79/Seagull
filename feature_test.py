@@ -95,26 +95,29 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
     full_features = X_train.columns
 
     reps = report_generator(plethos, mode, X_train, X_test, Y_train, Y_test, full_features, selected_features)
-    print('max precision0:', reps.loc[reps['precision0'].idxmax()])
-    print('max recall0:', reps.loc[reps['recall0'].idxmax()])
-    print('max f1 0:', reps.loc[reps['f1-score0'].idxmax()])
-    print('max precision1:', reps.loc[reps['precision1'].idxmax()])
-    print('max recall1:', reps.loc[reps['recall1'].idxmax()])
-    print('max f1 1:', reps.loc[reps['f1-score1'].idxmax()])
+    # print('max precision0:', reps.loc[reps['precision0'].idxmax()])
+    # print('max recall0:', reps.loc[reps['recall0'].idxmax()])
+    # print('max f1 0:', reps.loc[reps['f1-score0'].idxmax()])
+    # print('max precision1:', reps.loc[reps['precision1'].idxmax()])
+    # print('max recall1:', reps.loc[reps['recall1'].idxmax()])
+    # print('max f1 1:', reps.loc[reps['f1-score1'].idxmax()])
     # print('max precision0:')
-    # print(reps.tail(5).sort_values(by=['precision0']))
+    # print(reps.tail(1).sort_values(by=['precision0']))
     # print('max recall0:')
     # print(reps.tail(5).sort_values(by=['recall0']))
-    print('max f1 0:')
-    print(reps.tail(5).sort_values(by=['f1-score0']))
+    # print('max f1 0:')
+    # print(reps.tail(5).sort_values(by=['f1-score0']))
     # print('max precision1:')
     # print(reps.tail(5).sort_values(by=['precision1']))
     # print('max recall1:')
     # print(reps.tail(5).sort_values(by=['recall1']))
-    print('max f1 1:')
-    print(reps.tail(5).sort_values(by=['f1-score1']))
+    # print('max f1 1:')
+    # print(reps.tail(5).sort_values(by=['f1-score1']))
+    # print(reps)
+    return reps
 
 
+events_data = events_data.loc[events_data['bb_cross'] != 0]
 print('Feature test events')
 print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
@@ -122,6 +125,32 @@ print('event data min ret', events_data.ret.min())
 print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
 
-# [Tr9, TrD9] 0.8 0.9375 0.863309 0.862069 0.625 0.724638
-# [Tr9, TrD6] 0.808219 0.921875 0.861314 0.83871 0.65 0.732394
-research_features(None, 'All', 2, 'MLP', 5, events_data)
+
+def cross_elimination(selected_features, eligible_features, plethos, mode, events):
+    cross = pd.DataFrame()
+    for c in tqdm(range(1, 6)):
+        res = research_features(selected_features, eligible_features, plethos, mode, c, events)
+        cross['feats_' + str(c)] = res['features']
+        cross['f1-score0_' + str(c)] = res['f1-score0']
+        cross['f1-score1_' + str(c)] = res['f1-score1']
+    cross['f1_0_mean'] = cross.apply(lambda x:
+                                     (x['f1-score0_1'] + x['f1-score0_2']
+                                      + x['f1-score0_3'] + x['f1-score0_4'] + x['f1-score0_5']) / 5, axis=1)
+    cross['f1_1_mean'] = cross.apply(lambda x:
+                                     (x['f1-score1_1'] + x['f1-score1_2']
+                                      + x['f1-score1_3'] + x['f1-score1_4'] + x['f1-score1_5']) / 5, axis=1)
+    cross = cross[['feats_1', 'f1_0_mean', 'f1_1_mean']]
+    print(cross.loc[cross['f1_0_mean'].idxmax()])
+    print(cross.loc[cross['f1_1_mean'].idxmax()])
+    print(cross.tail(5).sort_values(by=['f1_0_mean']))
+    print(cross.tail(5).sort_values(by=['f1_1_mean']))
+
+
+cross_elimination(None, 'All', 4, 'MLP', events_data)
+
+# feats_0      [TrD6, 4H_atr, MAV, bb_cross]
+# f1_0_mean                         0.847973
+# f1_1_mean                          0.76961
+# feats_1      [TrD3, vdiff, Volatility, bb_cross]
+# f1_0_mean                               0.833384
+# f1_1_mean                               0.773562

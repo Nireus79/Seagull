@@ -3,6 +3,8 @@ import glob
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_squared_error
+
+
 # from keras.models import Sequential
 # from keras.layers import Dense
 # from keras.optimizers import SGD
@@ -139,6 +141,55 @@ def spliter(research_data, signal, part, feature_columns):
         return X_train, X_test, Y_train, Y_test
     else:
         print('Give part number 0 to 5 only.')
+
+
+def spliterC(research_data, signal, part, feature_columns):
+    """
+    spliter takes a full dataset, and a dataset containing only cases for training and testing.
+    drops the column of returns if classification is researched
+    or bins if regression is researched.
+    Then splits the research_data into X (features) and Y(labels),
+    drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
+    Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
+    :param feature_columns:
+    :param research_data: dataset containing only cases for training and testing
+    :param signal:
+    :param part: 1 to 5
+    :return: X_train, X_test, Y_train, Y_test
+    """
+    # Extracting features and labels
+    Y = research_data[signal]
+    X = research_data.drop(columns=[signal])
+
+    # Drop unnecessary columns based on signal type
+    if signal == 'ret':
+        X = X.drop(columns=['bin'])
+    elif signal == 'bin':
+        X = X.drop(columns=['ret'])
+
+    # Filter features if specified
+    if feature_columns != 'All':
+        X = X[feature_columns]
+
+    # If part is 0, return the whole dataset
+    if part == 0:
+        return X, Y
+
+    # Calculate the size of the test set
+    test_size = len(X) // 5
+
+    # Splitting data based on part
+    start_index = (part - 1) * test_size
+    end_index = part * test_size
+
+    if part == 5:
+        X_test, X_train = X[:start_index], X[start_index:]
+        Y_test, Y_train = Y[:start_index], Y[start_index:]
+    else:
+        X_test, X_train = X[start_index:end_index], pd.concat([X[:start_index], X[end_index:]])
+        Y_test, Y_train = Y[start_index:end_index], pd.concat([Y[:start_index], Y[end_index:]])
+
+    return X_train, X_test, Y_train, Y_test
 
 
 def meta_spliter(full_data, research_data, signal, part):
