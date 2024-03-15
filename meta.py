@@ -4,7 +4,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from toolbox import normalizer, spliter
-from data_forming import full_data, events_data, signal
+from data_forming import full_data, events_data, signal, delta
 import numpy as np
 import pandas as pd
 import joblib
@@ -29,7 +29,7 @@ SellFeatures = ['TrD6', 'TrD13', 'St4H', 'atr', 'vdiff', 'bb_cross']
 print('Buy model ---------------------------------------------------------------------------------------------------')
 print('event 0', np.sum(np.array(events_dataBuy[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataBuy[signal]) == 1, axis=0))
-X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures)
+X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures, delta)
 X_trainBuy_c, X_testBuy_c = X_trainBuy.copy(), X_testBuy.copy()
 
 if 'bb_cross' in X_trainBuy_c.columns:
@@ -80,7 +80,7 @@ print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=
 print('Sell model ------------------------------------------------------------------------------------------------')
 print('event 0', np.sum(np.array(events_dataSell[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_dataSell[signal]) == 1, axis=0))
-X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, SellFeatures)
+X_trainSell, X_testSell, Y_trainSell, Y_testSell = spliter(events_dataSell, signal, part, SellFeatures, delta)
 X_trainSell_c, X_testSell_c = X_trainSell.copy(), X_testSell.copy()
 
 if 'bb_cross' in X_trainSell_c.columns:

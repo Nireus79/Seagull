@@ -25,10 +25,10 @@ eth5m = pd.read_csv('csv/tb/ETHEUR_5m.csv')
 # btc5m = pd.read_csv('csv/tb/BTCEUR_5m.csv')
 # usdt5m = pd.read_csv('csv/tb/EURUSDT_5m.csv')
 
+# eth5m['unix'] = eth5m.time
 eth5m.time = pd.to_datetime(eth5m.time, unit='ms')
 eth5m.set_index('time', inplace=True)
 eth5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
-
 # btc5m.time = pd.to_datetime(btc5m.time, unit='ms')
 # btc5m.set_index('time', inplace=True)
 # btc5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
@@ -170,7 +170,7 @@ data['VtrD9'] = data.apply(lambda x: x['Volume'] - x['Dvema9'], axis=1)
 data['VtrD13'] = data.apply(lambda x: x['Volume'] - x['Dvema13'], axis=1)
 # data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
 
-# data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
+data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
 data['St4H'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
 # USDT ----------------------------------------------------------------------------------------------------------------
 # data['USDT_ema3'] = data['USDT_Close'].rolling(3).mean()
@@ -228,7 +228,7 @@ data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta)
 data['MAV'] = data['Volatility'].rolling(window).mean()
 data['MAV_signal'] = data.apply(lambda x: x.MAV - x.Volatility, axis=1)
-# data['Vol_Vol'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean()
+data['Vol_Vol'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean()
 # data['USDT_Volatility'] = getDailyVol(data['USDT_Close'], span, delta).rolling(window).mean()
 # data['USDT_Vol_Vol'] = getDailyVol(data['USDT_Volume'], span, delta).rolling(window).mean()
 
@@ -247,7 +247,9 @@ data = data.loc[~data.index.duplicated(keep='first')]
 
 data.drop(columns=['ave', 'price', 'upper', 'lower',
                    '4H_Close', '4H_Volume',
-                   '1D_Close', '1D_Volume'
+                   '1D_Close', '1D_Volume',
+                   'Dema3', 'Dema6', 'Dema9', 'Dema13',
+                   'Dvema3', 'Dvema6', 'Dvema9', 'Dvema13'
                    ], axis=1, inplace=True)
 # ,
 #                    'USDT_Open', 'USDT_High', 'USDT_Low', 'USDT_Close',

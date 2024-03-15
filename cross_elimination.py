@@ -6,18 +6,23 @@ from data_forming import events_data, signal
 import pandas as pd
 import itertools
 from tqdm import tqdm
+import numpy as np
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 
 def model_test(comb, X_tr, X_ts, Y_tr, Y_ts, md):
-    X_trs, X_tss = X_tr[comb], X_ts[comb]
-    X_trn, X_tsn = normalizer(X_trs), normalizer(X_tss)
+    X_trc, X_tsc = X_tr.copy(), X_ts.copy()
+    X_trs, X_tss = X_trc[comb], X_tsc[comb]
 
     if 'bb_cross' in comb:
-        X_trn['bb_cross'], X_tsn['bb_cross'] = X_tr['bb_cross'], X_ts['bb_cross']
-
+        X_trc.drop(columns=['bb_cross'], axis=1, inplace=True)
+        X_tsc.drop(columns=['bb_cross'], axis=1, inplace=True)
+        X_trn, X_tsn = normalizer(X_trs), normalizer(X_tss)
+        X_trn['bb_cross'], X_tsn['bb_cross'] = X_tr.bb_cross, X_ts.bb_cross
+    else:
+        X_trn, X_tsn = normalizer(X_trs), normalizer(X_tss)
     if md == 'MLP':
         Model = MLPClassifier()
         Model.fit(X_trn, Y_tr)
@@ -71,6 +76,15 @@ def research_features(selected_features, eligible_features, plethos, mode, prt, 
     return reps
 
 
+events_data = events_data.loc[events_data['bb_cross'] != 0]
+print('Feature test events')
+print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
+print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
+print('event data min ret', events_data.ret.min())
+print('event data max ret', events_data.ret.max())
+print('event data mean ret', events_data.ret.mean())
+
+
 def cross_elimination(selected_features, eligible_features, plethos, mode, events):
     cross = pd.DataFrame()
     for c in tqdm(range(1, 6)):
@@ -89,4 +103,4 @@ def cross_elimination(selected_features, eligible_features, plethos, mode, event
     print(cross.tail(5).sort_values(by=['f1_1_mean']))
 
 
-cross_elimination(None, 'All', 4, 'MLP', events_data)
+cross_elimination(None, 'All', 3, 'MLP', events_data)

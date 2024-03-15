@@ -146,7 +146,27 @@ def cross_elimination(selected_features, eligible_features, plethos, mode, event
     print(cross.tail(5).sort_values(by=['f1_1_mean']))
 
 
-cross_elimination(None, 'All', 4, 'MLP', events_data)
+cross_elimination(None, 'All', 3, 'MLP', events_data)
+# feats_0      [mom10, TrD6]
+# f1_0_mean         0.844105
+# f1_1_mean         0.778296
+# feats_1      [TrD3, bb_cross]
+# f1_0_mean            0.828591
+# f1_1_mean            0.780924
+
+# feats_0      [mom20, bb_sq, TrD9]
+# f1_0_mean                0.847182
+# f1_1_mean                0.763432
+# feats_1      [roc20, TrD3, bb_cross]
+# f1_0_mean                   0.840276
+# f1_1_mean                   0.786383
+
+# feats_0      [mom10, TrD6, bb_cross]
+# f1_0_mean                   0.854347
+# f1_1_mean                   0.790783
+# feats_1      [vdiff, TrD6, bb_cross]
+# f1_0_mean                   0.842361
+# f1_1_mean                   0.796199
 
 # feats_0      [TrD6, 4H_atr, MAV, bb_cross]
 # f1_0_mean                         0.847973
