@@ -1,14 +1,15 @@
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report
 from toolbox import spliter, normalizer
-from data_forming import events_data, signal
+from data_forming import events_data, signal, delta
 import pandas as pd
 import itertools
 from tqdm import tqdm
 import numpy as np
 
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 
@@ -90,10 +91,8 @@ def report_generator(plethos, md, X_tr, X_ts, Y_tr, Y_ts, full_feats, std_feats)
 
 
 def research_features(selected_features, eligible_features, plethos, mode, prt, events):
-    X_train, X_test, Y_train, Y_test = spliter(events, signal, prt, feature_columns=eligible_features)
-
+    X_train, X_test, Y_train, Y_test = spliter(events, signal, prt, eligible_features, delta)
     full_features = X_train.columns
-
     reps = report_generator(plethos, mode, X_train, X_test, Y_train, Y_test, full_features, selected_features)
     # print('max precision0:', reps.loc[reps['precision0'].idxmax()])
     # print('max recall0:', reps.loc[reps['recall0'].idxmax()])
@@ -146,7 +145,27 @@ def cross_elimination(selected_features, eligible_features, plethos, mode, event
     print(cross.tail(5).sort_values(by=['f1_1_mean']))
 
 
-cross_elimination(None, 'All', 3, 'MLP', events_data)
+def MDI():
+    X, Y = spliter(events_data, signal, 0, 'All', delta)
+    rf = RandomForestRegressor()
+    rf.fit(X, Y)
+    names = X.columns
+
+    print("Features sorted by their score:")
+    print(sorted(zip(map(lambda x: round(x, 4), rf.feature_importances_), names),
+                 reverse=True))
+
+
+# MDI()
+# MDI importance
+MDIB = ['TrD3', 'TrD6', 'TrD9', 'TrD13', 'TrD20',
+        '4H%K', '4H%D', '4H_rsi',
+        'rsi', '%D', 'vroc10', 'vsrl_corr',
+        'macd', 'bb_l', 'bb_cross']
+MDIF = ['bb_cross', 'TrD6', 'TrD9', 'TrD3', 'bb_l', 'bb_t', 'TrD13', 'TrD20', 'rsi', 'mom30', 'vsrl_corr']
+
+
+cross_elimination(None, MDIB, 2, 'MLP', events_data)
 # feats_0      [mom10, TrD6]
 # f1_0_mean         0.844105
 # f1_1_mean         0.778296
@@ -160,7 +179,6 @@ cross_elimination(None, 'All', 3, 'MLP', events_data)
 # feats_1      [roc20, TrD3, bb_cross]
 # f1_0_mean                   0.840276
 # f1_1_mean                   0.786383
-
 # feats_0      [mom10, TrD6, bb_cross]
 # f1_0_mean                   0.854347
 # f1_1_mean                   0.790783

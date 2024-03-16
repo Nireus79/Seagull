@@ -154,48 +154,37 @@ def spliter(research_data, signal, part, feature_columns, d):
     :param feature_columns:
     :param research_data: dataset containing only cases for training and testing
     :param signal:
-    :param part: 1 to 5
+    :param part: 0 to 5 ) returns whole data
     :return: X_train, X_test, Y_train, Y_test
     """
     # Extracting features and labels
     Y = research_data[signal]
     X = research_data.drop(columns=[signal])
-
     # Drop unnecessary columns based on signal type
     if signal == 'ret':
         X = X.drop(columns=['bin'])
     elif signal == 'bin':
         X = X.drop(columns=['ret'])
-
     # Filter features if specified
     if feature_columns != 'All':
         X = X[feature_columns]
-
     # If part is 0, return the whole dataset
     if part == 0:
         return X, Y
-
     # Calculate the size of the test set
     test_size = len(X) // 5
-
     # Splitting data based on part
     start_index = (part - 1) * test_size
     end_index = part * test_size
-
-    if part == 5:
-        X_test, X_train = X[:start_index], X[start_index:]
-        Y_test, Y_train = Y[:start_index], Y[start_index:]
-        X_train = X_train[X_train.index < (X_test.index[0] - pd.Timedelta(hours=d))]
-        Y_train = Y_train[Y_train.index < (Y_test.index[0] - pd.Timedelta(hours=d))]
-    else:
-        X_test, Xtr1, Xtr2 = X[start_index:end_index], X[:start_index], X[end_index:]
-        Y_test, Ytr1, Ytr2 = Y[start_index:end_index], Y[:start_index], Y[end_index:]
-        Xtr1 = Xtr1[Xtr1.index < X_test.index[0] - pd.Timedelta(hours=d)]
-        X_test = X_test[X_test.index < Xtr2.index[0] - pd.Timedelta(hours=d)]
-        X_train = pd.concat([Xtr1, Xtr2])
-        Ytr1 = Ytr1[Ytr1.index < Y_test.index[0] - pd.Timedelta(hours=d)]
-        Y_test = Y_test[Y_test.index < Ytr2.index[0] - pd.Timedelta(hours=d)]
-        Y_train = pd.concat([Ytr1, Ytr2])
+    # Dropping overlapping events
+    X_test, Xtr1, Xtr2 = X[start_index:end_index], X[:start_index], X[end_index:]
+    Y_test, Ytr1, Ytr2 = Y[start_index:end_index], Y[:start_index], Y[end_index:]
+    Xtr1 = Xtr1[Xtr1.index < X_test.index[0] - pd.Timedelta(hours=d)]
+    X_test = X_test[X_test.index < Xtr2.index[0] - pd.Timedelta(hours=d)]
+    X_train = pd.concat([Xtr1, Xtr2])
+    Ytr1 = Ytr1[Ytr1.index < Y_test.index[0] - pd.Timedelta(hours=d)]
+    Y_test = Y_test[Y_test.index < Ytr2.index[0] - pd.Timedelta(hours=d)]
+    Y_train = pd.concat([Ytr1, Ytr2])
     return X_train, X_test, Y_train, Y_test
 
 
@@ -266,7 +255,6 @@ def evaluate_arima_model(X_train, Y_train, arima_order):
     return error
 
 
-#
 def evaluate_arima_models(X_train, Y_train, p_values, d_values, q_values):
     """
     evaluate combinations of p, d and q values for an ARIMA model
