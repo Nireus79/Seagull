@@ -127,7 +127,7 @@ print('event data mean ret', events_data.ret.mean())
 
 def cross_elimination(selected_features, eligible_features, plethos, mode, events):
     cross = pd.DataFrame()
-    for c in tqdm(range(1, 6)):
+    for c in tqdm(range(1, 10)):
         res = research_features(selected_features, eligible_features, plethos, mode, c, events)
         cross['feats_' + str(c)] = res['features']
         cross['f1-score0_' + str(c)] = res['f1-score0']
@@ -158,21 +158,36 @@ def MDI():
 
 # MDI()
 # MDI importance
-MDIB = ['TrD3', 'TrD6', 'TrD9', 'TrD13', 'TrD20',
-        '4H%K', '4H%D', '4H_rsi',
-        'rsi', '%D', 'vroc10', 'vsrl_corr',
-        'macd', 'bb_l', 'bb_cross']
-MDIF = ['bb_cross', 'TrD6', 'TrD9', 'TrD3', 'bb_l', 'bb_t', 'TrD13', 'TrD20', 'rsi', 'mom30', 'vsrl_corr']
 
+B = ['TrD3', 'srl_corr', 'bb_l', 'bb_t', 'TrD6', '4H_rsi', 'Tr6', 'rsi', 'StD', 'MAV_signal', 'roc10', 'TrD20',
+        'roc20', 'vdiff', '4H%K', 'vroc30', '4H%D', '%D', 'TrD9', '%K', 'vsrl_corr', 'macd', '4H%DS', 'diff']
 
-cross_elimination(None, MDIB, 2, 'MLP', events_data)
+F = ['bb_cross', 'TrD6', 'TrD9', 'TrD3', 'bb_l', 'bb_t', 'TrD13', 'TrD20', 'rsi', 'mom30', 'vsrl_corr']
+
+cross_elimination(None, B, 2, 'MLP', events_data)
+
+# 0.026 12
+# BB
+# 2 -----------------------------------------------
+# feats_0      [TrD13, bb_cross]
+# f1_0_mean             0.832535
+# f1_1_mean             0.760532
+# feats_1      [TrD3, bb_cross]
+# f1_0_mean            0.821403
+# f1_1_mean            0.764287
 # feats_0      [mom10, TrD6]
 # f1_0_mean         0.844105
 # f1_1_mean         0.778296
 # feats_1      [TrD3, bb_cross]
 # f1_0_mean            0.828591
 # f1_1_mean            0.780924
-
+# 3 ------------------------------------------
+# feats_0      [TrD9, %D, bb_cross]
+# f1_0_mean                0.839207
+# f1_1_mean                0.742998
+# feats_1      [TrD3, macd, bb_cross]
+# f1_0_mean                  0.827968
+# f1_1_mean                  0.768627
 # feats_0      [mom20, bb_sq, TrD9]
 # f1_0_mean                0.847182
 # f1_1_mean                0.763432
@@ -185,10 +200,46 @@ cross_elimination(None, MDIB, 2, 'MLP', events_data)
 # feats_1      [vdiff, TrD6, bb_cross]
 # f1_0_mean                   0.842361
 # f1_1_mean                   0.796199
-
+# 4 --------------------------------------------------------
+# feats_0      [TrD9, rsi, vsrl_corr, bb_cross]
+# f1_0_mean                            0.844016
+# f1_1_mean                            0.742464
+# feats_1      [TrD9, vsrl_corr, macd, bb_cross]
+# f1_0_mean                             0.838002
+# f1_1_mean                             0.772018
 # feats_0      [TrD6, 4H_atr, MAV, bb_cross]
 # f1_0_mean                         0.847973
 # f1_1_mean                          0.76961
 # feats_1      [TrD3, vdiff, Volatility, bb_cross]
 # f1_0_mean                               0.833384
 # f1_1_mean                               0.773562
+# 5 -----------------------------------------------
+# feats_0      [TrD9, 4H%K, rsi, vsrl_corr, bb_cross]
+# f1_0_mean                                   0.84388
+# f1_1_mean                                  0.751047
+# feats_1      [TrD3, TrD6, TrD13, 4H%K, bb_cross]
+# f1_0_mean                               0.836812
+# f1_1_mean                               0.768446
+
+
+# Full
+# feats_0      [bb_cross, TrD13]
+# f1_0_mean             0.952136
+# f1_1_mean             0.765074
+# feats_1      [bb_cross, TrD6]
+# f1_0_mean            0.951798
+# f1_1_mean            0.772208
+
+# feats_0      [bb_cross, TrD9, vsrl_corr]
+# f1_0_mean                       0.954613
+# f1_1_mean                       0.772367
+# feats_1      [bb_cross, TrD9, vsrl_corr]
+# f1_0_mean                       0.954613
+# f1_1_mean                       0.772367
+
+# feats_0      [bb_cross, TrD6, bb_l, vsrl_corr]
+# f1_0_mean                             0.956085
+# f1_1_mean                             0.775823
+# feats_1      [bb_cross, TrD6, TrD9, bb_t]
+# f1_0_mean                        0.954317
+# f1_1_mean                        0.778422

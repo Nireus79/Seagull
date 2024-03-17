@@ -72,8 +72,8 @@ eth30m['1D_Volume'] = eth1D['Volume']
 
 cpus = 1
 ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
-minRet = 0.026  # The minimum target return(def .01)
-delta = 12
+minRet = 0.01  # The minimum target return(def .01)
+delta = 24
 span = 100  # 100
 window = 20  # 20
 bb_stddev = 2
@@ -141,7 +141,7 @@ data['Dema6'] = data['1D_Close'].rolling(6).mean()
 data['Dema9'] = data['1D_Close'].rolling(9).mean()
 data['Dema13'] = data['1D_Close'].rolling(13).mean()
 data['Dema20'] = data['1D_Close'].rolling(20).mean()
-#
+
 data['Dvema3'] = data['1D_Volume'].rolling(3).mean()
 data['Dvema6'] = data['1D_Volume'].rolling(6).mean()
 data['Dvema9'] = data['1D_Volume'].rolling(9).mean()
@@ -247,13 +247,9 @@ data = data.loc[~data.index.duplicated(keep='first')]
 data.drop(columns=['ave', 'price', 'upper', 'lower',
                    '4H_Close', '4H_Volume',
                    '1D_Close', '1D_Volume',
-                   'Dema3', 'Dema6', 'Dema9', 'Dema13',
-                   'Dvema3', 'Dvema6', 'Dvema9', 'Dvema13'
+                   'Dema3', 'Dema6', 'Dema9', 'Dema13'
                    ], axis=1, inplace=True)
-# ,
-#                    'USDT_Open', 'USDT_High', 'USDT_Low', 'USDT_Close',
-#                    'USDT4H_High', 'USDT4H_Low', 'USDT4H_Close', 'USDT4H_Volume',
-#                    'USDT1D_Close', 'USDT1D_Volume'
+
 data = data.fillna(0)
 full_data = data.copy()
 events_data = full_data.loc[events.index]

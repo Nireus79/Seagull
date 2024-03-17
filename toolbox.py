@@ -157,6 +157,7 @@ def spliter(research_data, signal, part, feature_columns, d):
     :param part: 0 to 5 ) returns whole data
     :return: X_train, X_test, Y_train, Y_test
     """
+    kFolds = 10
     # Extracting features and labels
     Y = research_data[signal]
     X = research_data.drop(columns=[signal])
@@ -172,7 +173,7 @@ def spliter(research_data, signal, part, feature_columns, d):
     if part == 0:
         return X, Y
     # Calculate the size of the test set
-    test_size = len(X) // 5
+    test_size = len(X) // kFolds
     # Splitting data based on part
     start_index = (part - 1) * test_size
     end_index = part * test_size
@@ -180,11 +181,12 @@ def spliter(research_data, signal, part, feature_columns, d):
     X_test, Xtr1, Xtr2 = X[start_index:end_index], X[:start_index], X[end_index:]
     Y_test, Ytr1, Ytr2 = Y[start_index:end_index], Y[:start_index], Y[end_index:]
     Xtr1 = Xtr1[Xtr1.index < X_test.index[0] - pd.Timedelta(hours=d)]
-    X_test = X_test[X_test.index < Xtr2.index[0] - pd.Timedelta(hours=d)]
     X_train = pd.concat([Xtr1, Xtr2])
     Ytr1 = Ytr1[Ytr1.index < Y_test.index[0] - pd.Timedelta(hours=d)]
-    Y_test = Y_test[Y_test.index < Ytr2.index[0] - pd.Timedelta(hours=d)]
     Y_train = pd.concat([Ytr1, Ytr2])
+    if part < kFolds:
+        X_test = X_test[X_test.index < Xtr2.index[0] - pd.Timedelta(hours=d)]
+        Y_test = Y_test[Y_test.index < Ytr2.index[0] - pd.Timedelta(hours=d)]
     return X_train, X_test, Y_train, Y_test
 
 

@@ -13,14 +13,14 @@ import joblib
 # pd.set_option('display.max_columns', None)
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
-part = 5
+part = 10
 events_dataBuy = events_data.copy().loc[events_data['bb_cross'] != 0]
-BuyFeatures = ['TrD3', 'TrD9', 'St4H', 'rsi', 'vdiff', 'bb_cross']
+BuyFeatures = ['TrD3', 'vdiff', 'Volatility', 'bb_cross']
 # ['TrD3', 'TrD9', 'St4H', '4H%K', '4H_atr', 'bb_cross']
 # ['TrD3', 'macd', 'bb_cross']  # ['TrD3', 'macd', 'bb_cross']
 
 events_dataSell = events_data.copy().loc[events_data['bb_cross'] != 0]
-SellFeatures = ['TrD6', 'TrD13', 'St4H', 'atr', 'vdiff', 'bb_cross']
+SellFeatures = ['TrD6', '4H_atr', 'MAV', 'bb_cross']
 # ['TrD6', 'TrD13', 'Tr13', '%K', 'atr', 'bb_cross']
 # ['TrD3', 'TrD13', 'St4H', '4H_atr', 'bb_sq', 'bb_cross']
 # ['TrD20', 'diff', 'bb_cross']  # ['TrD9', '4Hmacd', 'vrsi', 'macd']

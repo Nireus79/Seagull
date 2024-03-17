@@ -30,56 +30,56 @@ class Prelder(Strategy):
         event = self.data['event'][-1]
         TrD3 = self.data['TrD3'][-1]
         TrD6 = self.data['TrD6'][-1]
-        TrD9 = self.data['TrD9'][-1]
-        TrD13 = self.data['TrD13'][-1]
-        St4H = self.data['St4H'][-1]
+        # TrD9 = self.data['TrD9'][-1]
+        # TrD13 = self.data['TrD13'][-1]
+        # St4H = self.data['St4H'][-1]
         bbc = self.data['bb_cross'][-1]
         atr4 = self.data['4H_atr'][-1]
         atr = self.data['atr'][-1]
         MAV = self.data['MAV'][-1]
         MAVS = self.data['MAV_signal'][-1]
-        rsi = self.data['rsi'][-1]
+        # rsi = self.data['rsi'][-1]
         vdiff = self.data['vdiff'][-1]
-        # vol = self.data['Volatility'][-1]
-        if self.cond == 'B' and event != 0 and bbc != 0 and MAV > 0.026 and MAVS > 0:
-            features = [[TrD3, TrD9, St4H, rsi, vdiff]]
+        vol = self.data['Volatility'][-1]
+        if self.cond == 'B' and event != 0 and bbc != 0 and MAV > 0.026:
+            features = [[TrD3, vdiff, vol]]
             features = normalize(features)
-            a, b, c, d, e = features[0][0], features[0][1], features[0][2], features[0][3], features[0][4]
+            a, b, c = features[0][0], features[0][1], features[0][2]
             # classicPB = self.CMB.predict([[a, b, c, d, bbc]])
-            primaryPB = self.PMB.predict([[a, b, c, d, e, bbc]])[-1]
-            metaPB = self.MMB.predict([[a, b, c, d, e, bbc, primaryPB]])[-1]
+            primaryPB = self.PMB.predict([[a, b, c, bbc]])[-1]
+            metaPB = self.MMB.predict([[a, b, c, bbc, primaryPB]])[-1]
             print(self.data.index[-1], primaryPB, metaPB)
             if primaryPB == metaPB:
                 self.profit = self.data.High[-1] + ((self.data.High[-1] * MAV) * 3)
-                self.stop = self.data.Low[-1] - atr  # (self.data.Low[-1] * MAV)
+                self.stop = self.data.Low[-1] - (self.data.Low[-1] * MAV)
                 print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                 print('{} SET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
                 self.cond = 'S'
                 self.buy()
         elif self.cond == 'S':
-            # if self.data.Close[-1] > self.profit or self.data.Close[-1] < self.stop:
-            if event != 0 and bbc != 0:
-                features = [[TrD6, TrD13, St4H, atr, vdiff]]
-                features = normalize(features)
-                a, b, c, d, e = features[0][0], features[0][1], features[0][2], features[0][3], features[0][4]
-                # classicPS = self.CMS.predict([[a, b, c, d, bbc]])
-                primaryPS = self.PMS.predict([[a, b, c, d, e, bbc]])[-1]
-                metaPS = self.MMS.predict([[a, b, c, d, e, bbc, primaryPS]])[-1]
-                print(self.data.index[-1], primaryPS, metaPS)
-                if primaryPS != metaPS:
-                    self.stop = 0
-                    self.profit = 0
-                    print('{} Sell. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
-                    self.cond = 'B'
-                    self.sell()
-                else:
-                    self.profit = self.data.High[-1] + ((self.data.High[-1] * MAV) * 3)
-                    self.stop = self.data.Low[-1] - atr  # (self.data.Low[-1] * MAV)
-                    print('{} RESET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
+            if self.data.Close[-1] > self.profit or self.data.Close[-1] < self.stop:
+                if event != 0 and bbc != 0:
+                    features = [[TrD6, atr4, MAV]]
+                    features = normalize(features)
+                    a, b, c = features[0][0], features[0][1], features[0][2]
+                    # classicPS = self.CMS.predict([[a, b, c, d, bbc]])
+                    primaryPS = self.PMS.predict([[a, b, c, bbc]])[-1]
+                    metaPS = self.MMS.predict([[a, b, c, bbc, primaryPS]])[-1]
+                    print(self.data.index[-1], primaryPS, metaPS)
+                    if primaryPS != metaPS:
+                        self.stop = 0
+                        self.profit = 0
+                        print('{} Sell. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
+                        self.cond = 'B'
+                        self.sell()
+                    else:
+                        self.profit = self.data.High[-1] + ((self.data.High[-1] * MAV) * 3)
+                        self.stop = self.data.Low[-1] - (self.data.Low[-1] * MAV)
+                        print('{} RESET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
 
 
 def statistics(data, strategy):
-    bt = Backtest(data, strategy, cash=100000, commission=0.028, exclusive_orders=True)
+    bt = Backtest(data, strategy, cash=100000, commission=0.026, exclusive_orders=True)
     output = bt.run()
     print(output)
     # winsound.Beep(1000, 1500)
@@ -87,7 +87,7 @@ def statistics(data, strategy):
 
 
 def opt(data, strategy):
-    bt = Backtest(data, strategy, cash=100000, commission=0.028, exclusive_orders=True)
+    bt = Backtest(data, strategy, cash=100000, commission=0.026, exclusive_orders=True)
     stats, heatmap = bt.optimize(
         # ema=range(5, 31, 1),
         # rs=range(50, 76, 1),
