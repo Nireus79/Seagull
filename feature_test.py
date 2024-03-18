@@ -125,9 +125,9 @@ print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
 
 
-def cross_elimination(selected_features, eligible_features, plethos, mode, events):
+def k_mean(selected_features, eligible_features, plethos, mode, events):
     cross = pd.DataFrame()
-    for c in tqdm(range(1, 10)):
+    for c in tqdm(range(1, 11)):
         res = research_features(selected_features, eligible_features, plethos, mode, c, events)
         cross['feats_' + str(c)] = res['features']
         cross['f1-score0_' + str(c)] = res['f1-score0']
@@ -160,12 +160,40 @@ def MDI():
 # MDI importance
 
 B = ['TrD3', 'srl_corr', 'bb_l', 'bb_t', 'TrD6', '4H_rsi', 'Tr6', 'rsi', 'StD', 'MAV_signal', 'roc10', 'TrD20',
-        'roc20', 'vdiff', '4H%K', 'vroc30', '4H%D', '%D', 'TrD9', '%K', 'vsrl_corr', 'macd', '4H%DS', 'diff']
+     'roc20', 'vdiff', '4H%K', 'vroc30', '4H%D', '%D', 'TrD9', '%K', 'vsrl_corr', 'macd', '4H%DS', 'diff']
 
-F = ['bb_cross', 'TrD6', 'TrD9', 'TrD3', 'bb_l', 'bb_t', 'TrD13', 'TrD20', 'rsi', 'mom30', 'vsrl_corr']
+F = ['bb_cross', 'TrD3', 'srl_corr', 'TrD6', 'MAV_signal', 'rsi', 'roc10', 'vdiff', 'Vol_Vol', 'bb_l', 'TrD9',
+     'StD', '%D']
 
-cross_elimination(None, B, 2, 'MLP', events_data)
+k_mean(None, B, 4, 'MLP', events_data)
 
+# 0.01 24
+
+# feats_0      [TrD3, Tr6]
+# f1_0_mean       0.757541
+# f1_1_mean       0.702267
+# feats_1      [TrD3, Tr6]
+# f1_0_mean       0.757541
+# f1_1_mean       0.702267
+
+# feats_1      [TrD3, Tr6, 4H%DS]
+# f1_0_mean              0.778613
+# f1_1_mean              0.652793
+# Name: 115, dtype: object
+# feats_1      [TrD3, srl_corr, Tr6]
+# f1_0_mean                 0.764655
+# f1_1_mean                  0.70871
+
+# full
+# feats_0      [TrD3, bb_l, TrD20]
+# f1_0_mean               0.888937
+# f1_1_mean               0.122366
+# Name: 30, dtype: object
+# feats_1      [TrD3, bb_l, Tr6]
+# f1_0_mean             0.878243
+# f1_1_mean             0.221691
+
+# ----------------------------------------------------------------------------------------------------------------------
 # 0.026 12
 # BB
 # 2 -----------------------------------------------
