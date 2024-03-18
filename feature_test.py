@@ -184,6 +184,13 @@ k_mean(None, B, 4, 'MLP', events_data)
 # f1_0_mean                 0.764655
 # f1_1_mean                  0.70871
 
+# feats_0      [TrD3, TrD6, Tr6, 4H%DS]
+# f1_0_mean                    0.781294
+# f1_1_mean                    0.654013
+# feats_1      [TrD3, srl_corr, Tr6, roc20]
+# f1_0_mean                        0.771984
+# f1_1_mean                        0.716253
+
 # full
 # feats_0      [TrD3, bb_l, TrD20]
 # f1_0_mean               0.888937
