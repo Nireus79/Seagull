@@ -1,4 +1,5 @@
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
@@ -15,15 +16,10 @@ import joblib
 
 part = 10
 events_dataBuy = events_data.copy().loc[events_data['bb_cross'] != 0]
-BuyFeatures = ['TrD3', 'vdiff', 'Volatility', 'bb_cross']
-# ['TrD3', 'TrD9', 'St4H', '4H%K', '4H_atr', 'bb_cross']
-# ['TrD3', 'macd', 'bb_cross']  # ['TrD3', 'macd', 'bb_cross']
+BuyFeatures = ['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l']
 
 events_dataSell = events_data.copy().loc[events_data['bb_cross'] != 0]
-SellFeatures = ['TrD6', '4H_atr', 'MAV', 'bb_cross']
-# ['TrD6', 'TrD13', 'Tr13', '%K', 'atr', 'bb_cross']
-# ['TrD3', 'TrD13', 'St4H', '4H_atr', 'bb_sq', 'bb_cross']
-# ['TrD20', 'diff', 'bb_cross']  # ['TrD9', '4Hmacd', 'vrsi', 'macd']
+SellFeatures = ['TrD6', 'St4H', 'mom20', 'macd', 'MAV']
 
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')

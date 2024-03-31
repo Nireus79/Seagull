@@ -3,9 +3,8 @@ import numpy as np
 from ta.momentum import rsi, stoch
 from ta.trend import macd_diff, macd_signal, macd, adx
 from ta.volatility import average_true_range
-from toolbox import rescaler, normalizer, standardizer, ROC, MOM, spliter, crossing_elder, crossing3
-from Pradofun import getDailyVol, getTEvents, addVerticalBarrier, dropLabels, \
-    getEvents, bbands, metaBins, df_rolling_autocorr, returns, getBins
+from toolbox import MOM, ROC, crossing3
+from Pradofun import *
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -23,7 +22,6 @@ pd.set_option('display.max_columns', None)
 
 eth5m = pd.read_csv('csv/tb/ETHEUR_5m.csv')
 # btc5m = pd.read_csv('csv/tb/BTCEUR_5m.csv')
-# usdt5m = pd.read_csv('csv/tb/EURUSDT_5m.csv')
 
 eth5m.time = pd.to_datetime(eth5m.time, unit='ms')
 eth5m.set_index('time', inplace=True)
@@ -32,9 +30,6 @@ eth5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
 # btc5m.set_index('time', inplace=True)
 # btc5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
 
-# usdt5m.time = pd.to_datetime(usdt5m.time, unit='ms')
-# usdt5m.set_index('time', inplace=True)
-# usdt5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
 
 ohlc = {
     'Open': 'first',
@@ -47,10 +42,6 @@ eth30m = eth5m.resample('30min').apply(ohlc)
 eth4h = eth5m.resample('4H').apply(ohlc)
 eth1D = eth5m.resample('D').apply(ohlc)
 
-# usdt30m = usdt5m.resample('30min').apply(ohlc)
-# usdt4h = usdt5m.resample('4H').apply(ohlc)
-# usdt1D = usdt5m.resample('D').apply(ohlc)
-
 eth30m['4H_Close'] = eth4h['Close']
 eth30m['4H_Low'] = eth4h['Low']
 eth30m['4H_High'] = eth4h['High']
@@ -58,22 +49,10 @@ eth30m['4H_Volume'] = eth4h['Volume']
 eth30m['1D_Close'] = eth1D['Close']
 eth30m['1D_Volume'] = eth1D['Volume']
 
-# eth30m['USDT_Close'] = usdt30m['Close']
-# eth30m['USDT_Open'] = usdt30m['Open']
-# eth30m['USDT_High'] = usdt30m['High']
-# eth30m['USDT_Low'] = usdt30m['Low']
-# eth30m['USDT_Volume'] = usdt30m['Volume']
-# eth30m['USDT4H_Close'] = usdt4h['Close']
-# eth30m['USDT4H_Low'] = usdt4h['Low']
-# eth30m['USDT4H_High'] = usdt4h['High']
-# eth30m['USDT4H_Volume'] = usdt4h['Volume']
-# eth30m['USDT1D_Close'] = usdt1D['Close']
-# eth30m['USDT1D_Volume'] = usdt1D['Volume']
-
 cpus = 1
 ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
-minRet = 0.01  # The minimum target return(def .01)
-delta = 24
+minRet = 0.026  # The minimum target return(def .01)
+delta = 12
 span = 100  # 100
 window = 20  # 20
 bb_stddev = 2
@@ -171,55 +150,6 @@ data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
 
 data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
 data['St4H'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
-# USDT ----------------------------------------------------------------------------------------------------------------
-# data['USDT_ema3'] = data['USDT_Close'].rolling(3).mean()
-# data['USDT_ema6'] = data['USDT_Close'].rolling(6).mean()
-# data['USDT_ema9'] = data['USDT_Close'].rolling(9).mean()
-# data['USDT_ema13'] = data['USDT_Close'].rolling(13).mean()
-# data['USDT_ema20'] = data['USDT_Close'].rolling(20).mean()
-#
-# data['USDT_adx'] = adx(data['USDT_High'], data['USDT_Low'], data['USDT_Close'], window=14, fillna=False)
-# data['USDT_macd'] = macd_diff(data['USDT_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['USDT_%K'] = stoch(data['USDT_High'], data['USDT_Low'], data['USDT_Close'],
-#                         window=14, smooth_window=3, fillna=False)
-# data['USDT_%D'] = data['USDT_%K'].rolling(3).mean()
-# data['USDT_%DS'] = data['USDT_%D'].rolling(3).mean()
-# data['USDT_rsi'] = rsi(data['USDT_Close'], window=14, fillna=False)
-# data['USDT_atr'] = average_true_range(data['USDT_High'], data['USDT_Low'], data['USDT_Close'], window=14, fillna=False)
-# data['USDT_diff'] = np.log(data['USDT_Close']).diff()
-# data['USDT_cusum'] = data['USDT_Close'].cumsum()
-# data['USDT_srl_corr'] = df_rolling_autocorr(returns(data['USDT_Close']), window=window).rename('USDT_srl_corr')
-# data['USDT_roc10'] = ROC(data['USDT_Close'], 10)
-# data['USDT_roc20'] = ROC(data['USDT_Close'], 20)
-# data['USDT_roc30'] = ROC(data['USDT_Close'], 30)
-# data['USDT_mom10'] = MOM(data['USDT_Close'], 10)
-# data['USDT_mom20'] = MOM(data['USDT_Close'], 20)
-# data['USDT_mom30'] = MOM(data['USDT_Close'], 30)
-# data['USDT_price'], data['USDT_ave'], data['USDT_upper'], data['USDT_lower'] = \
-#     bbands(data['USDT_Close'], window=window, numsd=bb_stddev)
-# data['USDTH4_ema3'] = data['USDT4H_Close'].rolling(3).mean()
-# data['USDTH4_ema6'] = data['USDT4H_Close'].rolling(6).mean()
-# data['USDT4H%K'] = stoch(data['USDT4H_High'], data['USDT4H_Low'], data['USDT4H_Close'],
-#                          window=14, smooth_window=3, fillna=False)
-# data['USDT4H%D'] = data['USDT4H%K'].rolling(3).mean()
-# data['USDT4H%DS'] = data['USDT4H%D'].rolling(3).mean()
-# data['USDT4Hmacd'] = macd_diff(data['USDT4H_Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
-# data['USDT4H_rsi'] = rsi(data['USDT4H_Close'], window=14, fillna=False)
-# data['USDT4H_atr'] = average_true_range(data['USDT4H_High'], data['USDT4H_Low'], data['USDT4H_Close'],
-#                                         window=14, fillna=False)
-# data['USDTDema3'] = data['USDT1D_Close'].rolling(3).mean()
-# data['USDTDema6'] = data['USDT1D_Close'].rolling(6).mean()
-# data['USDTDema9'] = data['USDT1D_Close'].rolling(9).mean()
-# data['USDTDema13'] = data['USDT1D_Close'].rolling(13).mean()
-# data['USDTDema20'] = data['USDT1D_Close'].rolling(20).mean()
-# data['USDTTrD3'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema3'], axis=1)
-# data['USDTTrD6'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema6'], axis=1)
-# data['USDTTrD9'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema9'], axis=1)
-# data['USDTTrD13'] = data.apply(lambda x: x['USDT_Close'] - x['USDTDema13'], axis=1)
-# data['USDTStD4'] = data.apply(lambda x: x['USDT4H%K'] - x['USDT4H%D'], axis=1)
-# data['USDTStD'] = data.apply(lambda x: x['USDT_%K'] - x['USDT_%D'], axis=1)
-# data['USDTbb_sq'] = data.apply(lambda x: x['USDT_upper'] - x['USDT_lower'], axis=1)
-# data['USDTbb_l'] = data.apply(lambda x: (x['USDT_upper'] - x['USDT_Close']) / x['USDTbb_sq'], axis=1)
 
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 # elder_sides = crossing_elder(data, '4H%K', '4H%D')
@@ -237,9 +167,9 @@ data['event'] = data['Volatility'].loc[tEvents]
 data['event'] = data['Volatility'][data['Volatility'] > minRet]
 events = getEvents(tEvents, ptsl, data['Volatility'], minRet, t1, side=bb_sides)
 labels = metaBins(events, data.Close, t1)
-clean_labels = dropLabels(labels, minRet)
-data['ret'] = clean_labels['ret']
-data['bin'] = clean_labels['bin']
+labels = dropLabels(labels, minRet)
+data['ret'] = labels['ret']
+data['bin'] = labels['bin']
 
 data.replace([np.inf, -np.inf], np.nan, inplace=True)
 data = data.loc[~data.index.duplicated(keep='first')]
@@ -247,19 +177,20 @@ data = data.loc[~data.index.duplicated(keep='first')]
 data.drop(columns=['ave', 'price', 'upper', 'lower',
                    '4H_Close', '4H_Volume',
                    '1D_Close', '1D_Volume',
-                   'Dema3', 'Dema6', 'Dema9', 'Dema13'
+                   'Dema6'
                    ], axis=1, inplace=True)
 
 data = data.fillna(0)
 full_data = data.copy()
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
-events_data.drop(columns=['Open', 'High', 'Low', 'Close'], axis=1, inplace=True)
+events_data.drop(columns=['Open', 'High', 'Low'], axis=1, inplace=True)
 
 # signal = 'ret'
 signal = 'bin'
 # print(data.columns)
-# events_data = events_data.loc[events_data['bb_cross'] != 0]
+# Volatility corr -0.139562
+events_data = events_data.loc[events_data['bb_cross'] != 0]
 # BALANCE CLASSES (down sampling)
 # minority = events_data[events_data[signal] == 1]
 # majority = events_data[events_data[signal] == 0].sample(n=len(minority), replace=True)
@@ -271,3 +202,16 @@ print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 print('event data min ret', events_data.ret.min())
 print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
+
+# numCoEvents = mpPandasObj(mpNumCoEvents, ('molecule', events.index),
+#                           cpus, closeIdx=data.Close.index, t1=events['t1'])
+#
+# print(numCoEvents)
+#
+# out = pd.DataFrame()
+# out['ind'] = numCoEvents.index
+# out.set_index('ind', inplace=True)
+# out['tW'] = mpPandasObj(mpSampleTW, ('molecule', events.index),
+#                         cpus, t1=events['t1'], numCoEvents=numCoEvents)
+#
+# print(out)

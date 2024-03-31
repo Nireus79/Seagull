@@ -19,8 +19,10 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 import warnings
-from data_forming import X_train, X_test, Y_train, Y_test
-
+from toolbox import spliter
+from data_forming import events_data, signal, delta
+part = 1
+X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, delta)
 warnings.filterwarnings('ignore')
 
 # pd.set_option('display.max_rows', None)

@@ -607,92 +607,51 @@ def df_rolling_autocorr(df, window, lag=1):
     return (df.rolling(window=window)
             .corr(df.shift(lag)))  # could .dropna() here
 
-# def getDailyVolRows(close, span0, rows, m):
-#     """
-#     The formula used in the function to calculate daily volatility is based on the exponential moving standard
-#     deviation (EMS). The function calculates daily volatility as an estimate of the standard deviation of daily
-#     returns.
-#
-# Here's a breakdown of the formula and the steps involved:
-#
-# Calculate the Number of Rows/Periods: The function takes a parameter called rows, which represents the number of
-# previous rows or periods to consider for calculating daily volatility.
-#
-# Find Start Date for Volatility Calculation: The function searches for the index position where the calculation should
-# start. It does this by finding the index position where the time series (in this case, the close prices) is a certain
-# number of rows before the current time.
-#
-# Create a Reindexed Series: The function creates a new Series called df0, which contains the index positions from the
-# original close Series corresponding to the start date determined in step 2.
-#
-# Calculate Daily Returns: It calculates daily returns as the percentage change in the close prices between the start
-# date and the current date. This is done by taking the ratio of the close prices on the current date and the close
-# prices on the start date and subtracting 1. This step helps calculate the daily returns of the asset.
-#
-# Calculate Exponential Moving Standard Deviation: Finally, it calculates the daily volatility by applying an
-# exponential moving standard deviation (EMS) to the daily returns. The ewm method is used for this purpose with a
-# given span0 parameter. The span0 parameter controls the weighting of the data points in the moving standard
-# deviation. It essentially determines how quickly the influence of older data diminishes. A smaller span0 value will
-# give more weight to recent data, while a larger span0 value will give more weight to historical data.
-#
-# The resulting Series, named 'dailyVol', contains the estimated daily volatility. It measures the variability of daily
-# returns, providing an indication of the asset's risk and price fluctuations over time.
-#
-# In summary, the formula is based on calculating the daily returns over a specified number of rows/periods and then
-# smoothing these returns using an exponential moving standard deviation to estimate the asset's daily volatility.
-#     """
-#     df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
-#     df0 = df0[df0 >= 0]  # df0 >= 0 includes the first row in the index
-#     df0 = (pd.Series(close.index[df0 - rows], index=close.index[close.shape[0] - df0.shape[0]:]))
-#     try:
-#         df0 = close.loc[df0.index] / close.loc[df0.values].values - 1
-#     except Exception as e:
-#         print(f'Error: {e}\nPlease confirm there are no duplicate indices.')
-#     df0ewm = df0.ewm(span=span0).std().rename('dailyVol')
-#     if m == 'p':
-#         return df0
-#     elif m == 'ewm':
-#         return df0ewm
 
-# def addVerticalBarrierRows(tEvents, close, rows):
-#     """For each index in tEvents,
-# it finds the timestamp of the next price bar at or immediately after a number
-# of days numDays. This vertical barrier can be passed as optional argument t1
-# in getEvents."""
-#     t1 = close.index.searchsorted(tEvents + pd.DateOffset(rows))
-#     t1 = t1[t1 < close.shape[0]]
-#     t1 = (pd.Series(close.index[t1], index=tEvents[:t1.shape[0]]))
-#     return t1
+def getRndT1(numObs, numBars, maxH):
+    # random t Series
+    t = pd.Series()
+    for i in range(numObs):
+        ix = np.random.randint(0, numBars)
+        val = ix + np.random.randint(1, maxH)
+        t.loc[ix] = val
+    return t.sort_index()
 
-# def getDailyTimeBarVolatilityRows(close, span0, rows):
-#     """
-#     DYNAMIC THRESHOLDS for time bars
-#     daily vol, reindexed to close
-#     :param rows:
-#     :param close:
-#     :param span0:
-#     :return:
-#     """
-#     df0 = close.index.searchsorted(close.index - pd.DateOffset(rows))
-#     df0 = df0[df0 > 0]
-#     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
-#     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
-#     df0 = df0.ewm(span=span0).std()
-#     return df0
-#
-#
-# def getDollarBarVolatilityByCandle(close, span0, market_value):
-#     """
-#     DYNAMIC THRESHOLDS for dollar bars
-#     volatility by market value, reindexed to close
-#     :param market_value:
-#     :param close:
-#     :param span0:
-#     :return:
-#     """
-#     df0 = close.index.searchsorted(close.index - market_value)
-#     df0 = df0[df0 > 0]
-#     df0 = pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:])
-#     df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
-#     df0 = df0.ewm(span=span0).std()
-#     return df0
+
+def auxMC(numObs, numBars, maxH):
+    # Parallelized auxiliary function
+    t = getRndT1(numObs, numBars, maxH)
+    barIx = range(t.max() + 1)
+    indM = getIndMatrix(barIx, t)
+    phi = np.random.choice(indM.columns, size=indM.shape[1])
+    stdU = getAvgUniqueness(indM[phi]).mean()
+    phi = seqBootstrap(indM)
+    seqU = getAvgUniqueness(indM[phi]).mean()
+    return {'stdU': stdU, 'seqU': seqU}
+
+
+def man():
+    t = pd.Series([2, 3, 5], index=[0, 2, 4])  # t0,t1 for each feature obs
+    barIx = range(t.max() + 1)  # index of bars
+    indM = getIndMatrix(barIx, t)
+    phi = np.random.choice(indM.columns, size=indM.shape[1])
+    print(phi)
+    print('Standard uniqueness:', getAvgUniqueness(indM[phi]).mean())
+    phi = seqBootstrap(indM)
+    print(phi)
+    print('Sequential uniqueness:', getAvgUniqueness(indM[phi]).mean())
+    return phi
+
+
+def mainMC(numObs=10, numBars=100, maxH=5, numIters=1E6, numThreads=24):
+    # Monte Carlo experiments
+    jobs = []
+    for i in range(int(numIters)):
+        job = {'func': auxMC, 'numObs': numObs, 'numBars': numBars, 'maxH': maxH}
+        jobs.append(job)
+        if numThreads == 1:
+            out = processJobs_(jobs)
+        else:
+            out = processJobs(jobs, numThreads=numThreads)
+        print(pd.DataFrame(out).describe())
+        return pd.DataFrame(out).describe()

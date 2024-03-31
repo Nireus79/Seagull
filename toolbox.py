@@ -142,7 +142,7 @@ def spliter_overlap(research_data, signal, part, feature_columns):
         print('Give part number 0 to 5 only.')
 
 
-def spliter(research_data, signal, part, feature_columns, d):
+def spliter(research_data, signal, part, feature_columns, delta):
     """
     spliter takes a full dataset, and a dataset containing only cases for training and testing.
     drops the column of returns if classification is researched
@@ -150,7 +150,7 @@ def spliter(research_data, signal, part, feature_columns, d):
     Then splits the research_data into X (features) and Y(labels),
     drops 'Open', 'High', 'Low', 'Close', 'Volume' as those needed only into the backtest_data for use in bt.py lib
     Then splits X and Y for training and testing by 0.8 and 0.2 according to arg given part.
-    :param d: time delta to eliminate overlapping events in k folding datasets
+    :param delta: time delta to eliminate overlapping events in k folding datasets
     :param feature_columns:
     :param research_data: dataset containing only cases for training and testing
     :param signal:
@@ -180,13 +180,13 @@ def spliter(research_data, signal, part, feature_columns, d):
     # Dropping overlapping events
     X_test, Xtr1, Xtr2 = X[start_index:end_index], X[:start_index], X[end_index:]
     Y_test, Ytr1, Ytr2 = Y[start_index:end_index], Y[:start_index], Y[end_index:]
-    Xtr1 = Xtr1[Xtr1.index < X_test.index[0] - pd.Timedelta(hours=d)]
+    Xtr1 = Xtr1[Xtr1.index < X_test.index[0] - pd.Timedelta(hours=delta)]
     X_train = pd.concat([Xtr1, Xtr2])
-    Ytr1 = Ytr1[Ytr1.index < Y_test.index[0] - pd.Timedelta(hours=d)]
+    Ytr1 = Ytr1[Ytr1.index < Y_test.index[0] - pd.Timedelta(hours=delta)]
     Y_train = pd.concat([Ytr1, Ytr2])
     if part < kFolds:
-        X_test = X_test[X_test.index < Xtr2.index[0] - pd.Timedelta(hours=d)]
-        Y_test = Y_test[Y_test.index < Ytr2.index[0] - pd.Timedelta(hours=d)]
+        X_test = X_test[X_test.index < Xtr2.index[0] - pd.Timedelta(hours=delta)]
+        Y_test = Y_test[Y_test.index < Ytr2.index[0] - pd.Timedelta(hours=delta)]
     return X_train, X_test, Y_train, Y_test
 
 

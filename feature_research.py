@@ -1,26 +1,31 @@
 from toolbox import spliter, normalizer
-from data_forming import full_data, events_data, signal
-from sklearn.feature_selection import SelectKBest, mutual_info_classif, RFE, f_classif, SelectPercentile
+from data_forming import full_data, events_data, signal, delta
+from sklearn.feature_selection import SelectKBest, RFE, f_classif, SelectPercentile
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import f1_score
+from sklearn.ensemble import RandomForestRegressor
 import seaborn as sns
 from boruta import BorutaPy
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from data_forming import events_data, signal, delta
 
-part = 5
-features = ['Tr9', 'Tr20', 'TrD3', 'TrD20', '4H%K', 'bb_sq']
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
 
-X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feature_columns=features)
-backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-X_train_c, X_test_c = X_train.copy(), X_test.copy()
-X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)
-if 'bb_cross' in X_train.columns:
-    print('bb_cross in X')
-    X_train_n.bb_cross, X_test_n.bb_cross = X_train.bb_cross, X_test.bb_cross
+# part = 5
+#
+# X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, 'All', delta)
+# backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+# X_train_c, X_test_c = X_train.copy(), X_test.copy()
+# X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)
+# if 'bb_cross' in X_train.columns:
+#     print('bb_cross in X')
+#     X_train_n.bb_cross, X_test_n.bb_cross = X_train.bb_cross, X_test.bb_cross
+
 
 # print('full_data.columns', full_data.columns)
 
@@ -162,15 +167,15 @@ def rfe(X_tr, Y_tr, X_ts, Y_ts):
 
     fig, ax = plt.subplots()
 
-    x = np.arange(1, len(X_train_n))
+    x = np.arange(1, len(X_tr))
     y = rfe_f1score_list
 
     ax.bar(x, y, width=0.2)
     ax.set_xlabel('Number of features selected using RFE')
     ax.set_ylabel('F1-Score (weighted)')
     ax.set_ylim(0, 1.2)
-    ax.set_xticks(np.arange(1, len(X_train_n)))
-    ax.set_xticklabels(np.arange(1, len(X_train_n)), fontsize=12)
+    ax.set_xticks(np.arange(1, len(X_tr)))
+    ax.set_xticklabels(np.arange(1, len(X_tr)), fontsize=12)
 
     for i, v in enumerate(y):
         plt.text(x=i + 1, y=v + 0.05, s=str(v), ha='center')
@@ -193,11 +198,21 @@ def Boruta(X_tr, Y_tr, X_ts, Y_ts):
     RFE_selector = RFE(estimator=gbc, n_features_to_select=5, step=10)
     RFE_selector.fit(X_tr, Y_tr)
     selected_features_mask = boruta_selector.support_
-    selected_features = X_train_n.columns[selected_features_mask]
+    selected_features = X_tr.columns[selected_features_mask]
     print('selected_features:', selected_features)
 
 
-signal = 'bin'
+def MDI():
+    X, Y = spliter(events_data, signal, 0, 'All', delta)
+    rf = RandomForestRegressor()
+    rf.fit(X, Y)
+    names = X.columns
+
+    print("Features sorted by their score:")
+    print(sorted(zip(map(lambda x: round(x, 4), rf.feature_importances_), names),
+                 reverse=True))
+
+
 # events_data_c = events_data.copy()
 # events_data_n = normalizer(events_data_c)
 # events_data_n[signal] = events_data[signal]
@@ -206,7 +221,25 @@ signal = 'bin'
 
 # Variance(events_data)
 # Correlation(events_data, signal)
-K_best(X_train_n, Y_train, X_test_n, Y_test)
-# SelectPrsnt()
-# rfe(X_train_c, Y_train_c, X_test_c, Y_test_c)
-# Boruta(X_train_c, Y_train_c, X_test_c, Y_test_c)
+# for i in range(1, 11):
+#     print(i)
+#     X_train, X_test, Y_train, Y_test = spliter(events_data, signal, i, 'All', delta)
+#     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
+#     X_train_c, X_test_c = X_train.copy(), X_test.copy()
+#     X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)
+#     if 'bb_cross' in X_train.columns:
+#         print('bb_cross in X')
+#         X_train_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+#         X_test_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+#         X_trainBuy_n, X_testBuy_n = normalizer(X_train_c), normalizer(X_test_c)
+#         X_trainBuy_n['bb_cross'], X_testBuy_n['bb_cross'] = X_train.bb_cross, X_test.bb_cross
+#     else:
+#         X_trainBuy_n, X_testBuy_n = normalizer(X_train_c), normalizer(X_test_c)
+#     K_best(X_train_n, Y_train, X_test_n, Y_test)
+#     SelectPrsnt(X_train, Y_train)
+#     rfe(X_train_n, Y_train, X_test_n, Y_test)
+#     Boruta(X_train_n, Y_train, X_test_n, Y_test)
+# MDI()
+Correlation(events_data, signal)
+
+

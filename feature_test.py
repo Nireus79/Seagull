@@ -156,125 +156,102 @@ def MDI():
                  reverse=True))
 
 
+F003124 = ['TrD3', 'TrD6', 'TrD20', 'bb_t', '4H%K', 'srl_corr', 'rsi', 'roc30', 'roc10', '4H%D', 'bb_l', 'roc20',
+           'diff',
+           '4H_rsi', 'StD', 'vroc30', 'vsrl_corr', '%K', 'mom20', 'vmom30', '%D', '%DS', 'mom30', 'vroc10', 'vmom20',
+           'vrsi', 'Volatility', 'event', 'MAV_signal', 'macd', 'MAV', 'TrD9', 'vdiff', 'Vol_Vol', 'TrD13', 'mom10',
+           'vmacd']
+S003124 = ['TrD3', '4Hmacd', 'srl_corr', 'mom20', 'bb_l']
+B003124 = ['TrD6', 'TrD3', 'macd', 'vmacd', 'bb_cross']
+F002624 = ['TrD3', 'bb_t', 'TrD6', 'TrD20', '4H%D', 'bb_l', 'srl_corr', 'rsi', 'vroc20', '%DS', 'TrD9', 'StD', 'mom10',
+           'diff', 'vroc30', 'MAV', '%D', 'vsrl_corr', 'roc30', 'MAV_signal', 'Vol_Vol', 'roc20', '4H%DS', 'roc10',
+           '4Hmacd', 'vdiff', 'vmacd', '4H%K', 'vroc10', 'mom20', 'vmom20', 'macd', 'Vtr6', 'TrD13', 'vmom30', 'event',
+           '4H_rsi', '%K', 'vrsi', 'mom30']
+S002624 = ['TrD6', 'mom20', 'roc30', 'MAV']
+B002624 = ['TrD6', 'Tr6', 'vsrl_corr', 'srl_corr']
+F002612 = ['TrD3', 'TrD9', 'TrD6', '4H%K', '4H_rsi', 'rsi', 'macd', '%D', '4Hmacd', 'vroc10', 'vsrl_corr', 'bb_l',
+           'TrD13', '4H%D', 'roc10', 'TrD20', 'mom20', 'mom30', 'diff', 'bb_t', 'Vol_Vol', 'srl_corr', 'MAV_signal',
+           '%K', 'MAV', 'StD', 'vdiff', 'roc20', '%DS', 'roc30', 'vmom20', 'vroc30', '4H%DS', 'vrsi', 'vroc20',
+           'vmom30', 'St4H', 'vmacd']
+S002612 = ['TrD6', 'St4H', 'mom20', 'macd', 'MAV']
+B002612 = ['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l']
+
+
 # MDI()
-# MDI importance
+k_mean(B002612, 'All', 1, 'MLP', events_data)
 
-B = ['TrD3', 'srl_corr', 'bb_l', 'bb_t', 'TrD6', '4H_rsi', 'Tr6', 'rsi', 'StD', 'MAV_signal', 'roc10', 'TrD20',
-     'roc20', 'vdiff', '4H%K', 'vroc30', '4H%D', '%D', 'TrD9', '%K', 'vsrl_corr', 'macd', '4H%DS', 'diff']
-
-F = ['bb_cross', 'TrD3', 'srl_corr', 'TrD6', 'MAV_signal', 'rsi', 'roc10', 'vdiff', 'Vol_Vol', 'bb_l', 'TrD9',
-     'StD', '%D']
-
-k_mean(None, B, 4, 'MLP', events_data)
-
-# 0.01 24
-
-# feats_0      [TrD3, Tr6]
-# f1_0_mean       0.757541
-# f1_1_mean       0.702267
-# feats_1      [TrD3, Tr6]
-# f1_0_mean       0.757541
-# f1_1_mean       0.702267
-
-# feats_1      [TrD3, Tr6, 4H%DS]
-# f1_0_mean              0.778613
-# f1_1_mean              0.652793
-# Name: 115, dtype: object
-# feats_1      [TrD3, srl_corr, Tr6]
-# f1_0_mean                 0.764655
-# f1_1_mean                  0.70871
-
-# feats_0      [TrD3, TrD6, Tr6, 4H%DS]
-# f1_0_mean                    0.781294
-# f1_1_mean                    0.654013
-# feats_1      [TrD3, srl_corr, Tr6, roc20]
-# f1_0_mean                        0.771984
-# f1_1_mean                        0.716253
-
-# full
-# feats_0      [TrD3, bb_l, TrD20]
-# f1_0_mean               0.888937
-# f1_1_mean               0.122366
-# Name: 30, dtype: object
-# feats_1      [TrD3, bb_l, Tr6]
-# f1_0_mean             0.878243
-# f1_1_mean             0.221691
-
-# ----------------------------------------------------------------------------------------------------------------------
 # 0.026 12
-# BB
-# 2 -----------------------------------------------
-# feats_0      [TrD13, bb_cross]
-# f1_0_mean             0.832535
-# f1_1_mean             0.760532
+# feats_0      [TrD6, mom20]
+# f1_0_mean         0.829747
+# f1_1_mean         0.736691
+# feats_0      [macd, TrD6, mom20]
+# f1_0_mean               0.842513
+# f1_1_mean               0.760887
+# feats_      [St4H, TrD6, mom20, macd]
+# f1_0_mean                     0.843465
+# f1_1_mean                     0.756247
+# feats_0       [MAV, TrD6, St4H, mom20, macd]
+# f1_0_mean                           0.84818
+# f1_1_mean                          0.757271
+
+# feats_1      [TrD3, mom20]
+# f1_0_mean         0.828354
+# f1_1_mean         0.742622
+# feats_1      [Tr6, TrD3, mom20]
+# f1_0_mean              0.836615
+# f1_1_mean              0.762914
+# feats_1      [bb_l, TrD3, mom20, mom30, Tr6]
+# f1_0_mean                           0.848538
+# f1_1_mean                           0.784576
+# feats_1      [4Hmacd, TrD3, mom20, Tr6, bb_l]
+# f1_0_mean                            0.843267
+# f1_1_mean                            0.771803
+
+# --------------------------------------------------------------------------
+# 0.026 24
+# feats_0      [mom20, TrD6]
+# f1_0_mean         0.762189
+# f1_1_mean          0.65013
+# feats_0      [roc30, TrD6, mom20]
+# f1_0_mean                0.769173
+# f1_1_mean                0.647389
+# feats_0      [MAV, TrD6, mom20, roc30]
+# f1_0_mean                      0.76689
+# f1_1_mean                     0.641328
+
+# feats_1      [Tr6, TrD6]
+# f1_0_mean       0.762034
+# f1_1_mean       0.661165
+# feats_1      [vsrl_corr, TrD6, Tr6]
+# f1_0_mean                  0.771196
+# f1_1_mean                  0.672233
+# feats_1      [srl_corr, TrD6, Tr6, vsrl_corr]
+# f1_0_mean                            0.775404
+# f1_1_mean                            0.675028
+# -------------------------------------------------------------------------
+# 0,031 24
+# feats_0      [mom20, TrD3]
+# f1_0_mean         0.764943
+# f1_1_mean         0.627874
+# feats_0      [bb_l, mom20, TrD3]
+# f1_0_mean               0.776589
+# f1_1_mean               0.629337
+# feats_0      [4Hmacd, TrD3, mom20, bb_l]
+# f1_0_mean                       0.781378
+# f1_1_mean                        0.63296
+# feats_0      [srl_corr, TrD3, 4Hmacd, mom20, bb_l]
+# f1_0_mean                                  0.78583
+# f1_1_mean                                 0.656225
+
 # feats_1      [TrD3, bb_cross]
-# f1_0_mean            0.821403
-# f1_1_mean            0.764287
-# feats_0      [mom10, TrD6]
-# f1_0_mean         0.844105
-# f1_1_mean         0.778296
-# feats_1      [TrD3, bb_cross]
-# f1_0_mean            0.828591
-# f1_1_mean            0.780924
-# 3 ------------------------------------------
-# feats_0      [TrD9, %D, bb_cross]
-# f1_0_mean                0.839207
-# f1_1_mean                0.742998
-# feats_1      [TrD3, macd, bb_cross]
-# f1_0_mean                  0.827968
-# f1_1_mean                  0.768627
-# feats_0      [mom20, bb_sq, TrD9]
-# f1_0_mean                0.847182
-# f1_1_mean                0.763432
-# feats_1      [roc20, TrD3, bb_cross]
-# f1_0_mean                   0.840276
-# f1_1_mean                   0.786383
-# feats_0      [mom10, TrD6, bb_cross]
-# f1_0_mean                   0.854347
-# f1_1_mean                   0.790783
-# feats_1      [vdiff, TrD6, bb_cross]
-# f1_0_mean                   0.842361
-# f1_1_mean                   0.796199
-# 4 --------------------------------------------------------
-# feats_0      [TrD9, rsi, vsrl_corr, bb_cross]
-# f1_0_mean                            0.844016
-# f1_1_mean                            0.742464
-# feats_1      [TrD9, vsrl_corr, macd, bb_cross]
-# f1_0_mean                             0.838002
-# f1_1_mean                             0.772018
-# feats_0      [TrD6, 4H_atr, MAV, bb_cross]
-# f1_0_mean                         0.847973
-# f1_1_mean                          0.76961
-# feats_1      [TrD3, vdiff, Volatility, bb_cross]
-# f1_0_mean                               0.833384
-# f1_1_mean                               0.773562
-# 5 -----------------------------------------------
-# feats_0      [TrD9, 4H%K, rsi, vsrl_corr, bb_cross]
-# f1_0_mean                                   0.84388
-# f1_1_mean                                  0.751047
-# feats_1      [TrD3, TrD6, TrD13, 4H%K, bb_cross]
-# f1_0_mean                               0.836812
-# f1_1_mean                               0.768446
-
-
-# Full
-# feats_0      [bb_cross, TrD13]
-# f1_0_mean             0.952136
-# f1_1_mean             0.765074
-# feats_1      [bb_cross, TrD6]
-# f1_0_mean            0.951798
-# f1_1_mean            0.772208
-
-# feats_0      [bb_cross, TrD9, vsrl_corr]
-# f1_0_mean                       0.954613
-# f1_1_mean                       0.772367
-# feats_1      [bb_cross, TrD9, vsrl_corr]
-# f1_0_mean                       0.954613
-# f1_1_mean                       0.772367
-
-# feats_0      [bb_cross, TrD6, bb_l, vsrl_corr]
-# f1_0_mean                             0.956085
-# f1_1_mean                             0.775823
-# feats_1      [bb_cross, TrD6, TrD9, bb_t]
-# f1_0_mean                        0.954317
-# f1_1_mean                        0.778422
+# f1_0_mean            0.758881
+# f1_1_mean            0.658297
+# eats_1      [macd, TrD3, bb_cross]
+# f1_0_mean                   0.76471
+# f1_1_mean                  0.663179
+# feats_1      [TrD6, TrD3, macd, bb_cross]
+# f1_0_mean                        0.762143
+# f1_1_mean                        0.666735
+# feats_1      [vmacd, TrD6, TrD3, macd, bb_cross]
+# f1_0_mean                               0.774178
+# f1_1_mean                               0.677318
