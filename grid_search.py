@@ -1,11 +1,9 @@
 import matplotlib.pyplot as plt
-
-from data_forming import full_data, events_data, spliter
+from toolbox import spliter
+from data_forming import full_data, events_data
 import pandas as pd
 import numpy as np
 import warnings
-from toolbox import evaluate_ANN, evaluate_LSTM, create_LSTMmodel, evaluate_arima_models, create_ANN, \
-    evaluate_LSTM_combinations
 from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix
 from sklearn.preprocessing import PolynomialFeatures, LabelEncoder, StandardScaler
 
@@ -45,8 +43,8 @@ from statsmodels.tsa.arima.model import ARIMA
 
 # Error Metrics
 from sklearn.metrics import mean_squared_error, accuracy_score, classification_report
-from toolbox import evaluate_ANN, evaluate_LSTM, evaluate_LSTM_combinations, evaluate_arima_models, normalizer
-from data_forming import events_data, signal
+from toolbox import evaluate_arima_models, normalizer
+from data_forming import events_data, signal, delta
 
 # Saving the Model
 from pickle import dump
@@ -62,7 +60,7 @@ part = 5
 finf = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
 fin0 = ['St4H', 'TrD3']  # 0.741007/0.824
 comb = finf
-X_tr, X_ts, Y_train, Y_test = spliter(events_data, signal, part, feature_columns=comb)
+X_tr, X_ts, Y_train, Y_test = spliter(events_data, signal, part, comb, delta)
 X_trc, X_tsc = X_tr.copy(), X_ts.copy()
 X_train, X_test = normalizer(X_trc), normalizer(X_tsc)
 if 'bb_cross' in comb:
@@ -468,16 +466,16 @@ def GS_Gausian():
     print(classification_report(y_true, y_pred))
 
 
-def GS_LSTM(X_tr, X_ts, Y_ts):
-    print('LSTM parameters evaluation -------------------------------------------------------')
-    neurons_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
-    learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    momentum_list = [0.1, 0.2, 0.3, 0.4, 0.5]
-    # dense_list = [1, 5]
-    # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    # verbose_list = [0, 1]
-    # epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    evaluate_LSTM_combinations(X_tr, X_ts, Y_ts, neurons_list, learn_rate_list, momentum_list)
+# def GS_LSTM(X_tr, X_ts, Y_ts):
+#     print('LSTM parameters evaluation -------------------------------------------------------')
+#     neurons_list = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+#     learn_rate_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+#     momentum_list = [0.1, 0.2, 0.3, 0.4, 0.5]
+#     # dense_list = [1, 5]
+#     # batch_size_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+#     # verbose_list = [0, 1]
+#     # epochs_list = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+#     evaluate_LSTM_combinations(X_tr, X_ts, Y_ts, neurons_list, learn_rate_list, momentum_list)
 
 
 # seq_len = 2

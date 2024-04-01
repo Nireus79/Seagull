@@ -155,9 +155,10 @@ bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 # elder_sides = crossing_elder(data, '4H%K', '4H%D')
 data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta)
+data['Vol_Vol'] = getDailyVol(data['Volatility'], span, delta)
+data['VV'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean()
 data['MAV'] = data['Volatility'].rolling(window).mean()
 data['MAV_signal'] = data.apply(lambda x: x.MAV - x.Volatility, axis=1)
-data['Vol_Vol'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean()
 # data['USDT_Volatility'] = getDailyVol(data['USDT_Close'], span, delta).rolling(window).mean()
 # data['USDT_Vol_Vol'] = getDailyVol(data['USDT_Volume'], span, delta).rolling(window).mean()
 

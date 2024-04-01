@@ -65,9 +65,10 @@ class Frequency(Strategy):
 # med 1220 885
 #     1406 880
 class Prelder(Strategy):
-    pt = 1120
-    sl = 900
+    pt = 1020
+    sl = 975
     t = 14
+    c = 140
 
     def init(self):
         self.CMB = ModelBuy
@@ -101,12 +102,13 @@ class Prelder(Strategy):
             # classicPB = self.CMB.predict([[a, b, c, d, bbc]])
             primaryPB = self.PMB.predict([[a, b, c, d, e]])[-1]
             metaPB = self.MMB.predict([[a, b, c, d, e, primaryPB]])[-1]
+            risk = self.CMB.predict([[a, b, c, d, e]])[-1]
             # print(self.data.index[-1], primaryPB, metaPB)
             if primaryPB == metaPB:
                 #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
-                self.profit = self.data.Close * (self.pt / 1000)
-                self.stop = self.data.Close * (self.sl / 1000)
-                self.timestamp = self.data.index[-1] + pd.Timedelta(hours=self.t)
+                self.profit = self.data.Close * (1 + risk)
+                self.stop = self.data.Close * ((1 - risk) / 2)
+                # self.timestamp = self.data.index[-1] + pd.Timedelta(hours=self.t)
                 # print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                 # print('{} SET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
                 self.cond = 'S'
@@ -121,6 +123,7 @@ class Prelder(Strategy):
                     # classicPS = self.CMS.predict([[a, b, c, d, bbc]])
                     primaryPS = self.PMS.predict([[a, b, c, d, e]])[-1]
                     metaPS = self.MMS.predict([[a, b, c, d, e, primaryPS]])[-1]
+                    risk = self.CMB.predict([[a, b, c, d, e]])[-1]
                     # print(self.data.index[-1], primaryPS, metaPS)
                     if primaryPS != metaPS:
                         self.stop = 0
@@ -130,9 +133,9 @@ class Prelder(Strategy):
                         self.cond = 'B'
                         self.sell()
                     else:
-                        self.profit = self.data.Close * (self.pt / 1000)
-                        self.stop = self.data.Close * (self.sl / 1000)
-                        self.timestamp = self.data.index[-1]
+                        self.profit = self.data.Close * (1 + risk)
+                        self.stop = self.data.Close * ((1 - risk) / 2)
+                        # self.timestamp = self.data.index[-1]
                         # print('{} RESET P {} S {}'.format(self.data.index[-1], self.profit, self.stop))
 
 
@@ -149,11 +152,11 @@ def opt(data, strategy):
     stats, heatmap = bt.optimize(
         # ema=range(5, 31, 1),
         # rs=range(50, 76, 1),
-        t=range(25, 250),
+        c=range(0, 1000, 10),
         # pt=range(1000, 3000, 10),
         # sl=range(800, 1000, 10),
-        # maximize='Sharpe Ratio',
-        maximize='Equity Final [$]',
+        maximize='Sharpe Ratio',
+        # maximize='Equity Final [$]',
         # maximize='Max. Drawdown [%]',
         return_heatmap=True)
     print(stats)

@@ -1,8 +1,10 @@
 from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import classification_report
 from toolbox import normalizer, spliter
 from data_forming import full_data, events_data, signal, delta
@@ -14,7 +16,7 @@ import joblib
 # pd.set_option('display.max_columns', None)
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
-part = 10
+part = 9
 events_dataBuy = events_data.copy().loc[events_data['bb_cross'] != 0]
 BuyFeatures = ['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l']
 
@@ -23,8 +25,23 @@ SellFeatures = ['TrD6', 'St4H', 'mom20', 'macd', 'MAV']
 
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')
-print('event 0', np.sum(np.array(events_dataBuy[signal]) == 0, axis=0))
-print('event 1', np.sum(np.array(events_dataBuy[signal]) == 1, axis=0))
+
+X_trainBuyR, X_testBuyR, Y_trainBuyR, Y_testBuyR = spliter(events_dataBuy, 'ret', part, BuyFeatures, delta)
+X_trainBuy_cR, X_testBuy_cR = X_trainBuyR.copy(), X_testBuyR.copy()
+if 'bb_cross' in X_trainBuy_cR.columns:
+    print('bb_cross in X')
+    X_trainBuy_cR.drop(columns=['bb_cross'], axis=1, inplace=True)
+    X_testBuy_cR.drop(columns=['bb_cross'], axis=1, inplace=True)
+    X_trainBuy_nR, X_testBuy_nR = normalizer(X_trainBuy_cR), normalizer(X_testBuy_cR)
+    X_trainBuy_nR['bb_cross'], X_testBuy_nR['bb_cross'] = X_trainBuyR.bb_cross, X_testBuyR.bb_cross
+else:
+    X_trainBuy_nR, X_testBuy_nR = normalizer(X_trainBuy_cR), normalizer(X_testBuy_cR)
+
+ModelBuy = LinearRegression()
+ModelBuy.fit(X_trainBuy_nR, Y_trainBuyR)
+
+# META ---------------------------------------------------------------------------------------------------------------
+print('META ----------------------------------------------------------')
 X_trainBuy, X_testBuy, Y_trainBuy, Y_testBuy = spliter(events_dataBuy, signal, part, BuyFeatures, delta)
 X_trainBuy_c, X_testBuy_c = X_trainBuy.copy(), X_testBuy.copy()
 
@@ -37,12 +54,6 @@ if 'bb_cross' in X_trainBuy_c.columns:
 else:
     X_trainBuy_n, X_testBuy_n = normalizer(X_trainBuy_c), normalizer(X_testBuy_c)
 
-ModelBuy = MLPClassifier()
-ModelBuy.fit(X_trainBuy_n, Y_trainBuy)
-PredictionsBuy = ModelBuy.predict(X_testBuy_n)
-print(classification_report(Y_testBuy, PredictionsBuy, target_names=['0', '1']))
-# META ---------------------------------------------------------------------------------------------------------------
-print('META ----------------------------------------------------------')
 X_train_ABuy, Y_train_ABuy = X_trainBuy_n[:int(len(X_trainBuy) * 0.5)], Y_trainBuy[:int(len(Y_trainBuy) * 0.5)]
 X_train_BBuy, Y_train_BBuy = X_trainBuy_n[int(len(X_trainBuy) * 0.5):], Y_trainBuy[int(len(Y_trainBuy) * 0.5):]
 PrimeModelBuy = MLPClassifier()

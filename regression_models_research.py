@@ -21,8 +21,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 import warnings
 from toolbox import spliter
 from data_forming import events_data, signal, delta
-part = 1
-X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, delta)
+part = 10
+features = ['TrD6', 'St4H', 'mom20', 'macd', 'MAV']
+X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, features, delta)
 warnings.filterwarnings('ignore')
 
 # pd.set_option('display.max_rows', None)

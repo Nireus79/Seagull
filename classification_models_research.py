@@ -23,7 +23,7 @@ from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasClassifier
 from keras.optimizers import SGD
 import warnings
-from data_forming import full_data, events_data, signal
+from data_forming import full_data, events_data, signal, delta
 from toolbox import spliter, normalizer
 
 warnings.filterwarnings('ignore')
@@ -32,7 +32,7 @@ pd.set_option('display.max_columns', None)
 part = 5
 finf = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
 fin0 = ['St4H', 'TrD3']  # 0.741007/0.824
-X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, feature_columns=fin0)
+X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, fin0, delta)
 backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
 X_train_c, X_test_c = X_train.copy(), X_test.copy()
 X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)

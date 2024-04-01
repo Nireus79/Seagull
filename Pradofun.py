@@ -5,7 +5,7 @@ import datetime as dt
 from tqdm import tqdm
 import time
 import sys
-from dask import dataframe as dd
+# from dask import dataframe as dd
 
 
 # Chapter 3 ------------------------------------------------------------------------------------------------------------
@@ -501,14 +501,14 @@ def getTimeDecay(tW, clfLastW=1.):
     return clfW
 
 
-def dask_resample(ser, freq='L'):
-    dds = dd.from_pandas(ser, chunksize=len(ser) // 100)
-    tdf = (dds
-           .resample(freq)
-           .mean()
-           .dropna()
-           ).compute()
-    return tdf
+# def dask_resample(ser, freq='L'):
+#     dds = dd.from_pandas(ser, chunksize=len(ser) // 100)
+#     tdf = (dds
+#            .resample(freq)
+#            .mean()
+#            .dropna()
+#            ).compute()
+#     return tdf
 
 
 def pickle_method(method):
