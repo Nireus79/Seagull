@@ -25,11 +25,10 @@ eth5m = pd.read_csv('csv/tb/ETHEUR_5m.csv')
 
 eth5m.time = pd.to_datetime(eth5m.time, unit='ms')
 eth5m.set_index('time', inplace=True)
-eth5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
+# eth5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
 # btc5m.time = pd.to_datetime(btc5m.time, unit='ms')
 # btc5m.set_index('time', inplace=True)
 # btc5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
-
 
 ohlc = {
     'Open': 'first',
@@ -130,7 +129,7 @@ data['Dvema20'] = data['1D_Volume'].rolling(20).mean()
 data['Tr6'] = data.apply(lambda x: x['Close'] - x['ema6'], axis=1)
 data['Tr9'] = data.apply(lambda x: x['Close'] - x['ema9'], axis=1)
 data['Tr13'] = data.apply(lambda x: x['Close'] - x['ema13'], axis=1)
-data['Tr20'] = data.apply(lambda x: x['Close'] - x['ema20'], axis=1)
+# data['Tr20'] = data.apply(lambda x: x['Close'] - x['ema20'], axis=1)
 data['TrD3'] = data.apply(lambda x: x['Close'] - x['Dema3'], axis=1)
 data['TrD6'] = data.apply(lambda x: x['Close'] - x['Dema6'], axis=1)
 data['TrD9'] = data.apply(lambda x: x['Close'] - x['Dema9'], axis=1)
@@ -141,26 +140,23 @@ data['Vtr3'] = data.apply(lambda x: x['Volume'] - x['vema3'], axis=1)
 data['Vtr6'] = data.apply(lambda x: x['Volume'] - x['vema6'], axis=1)
 data['Vtr9'] = data.apply(lambda x: x['Volume'] - x['vema9'], axis=1)
 data['Vtr13'] = data.apply(lambda x: x['Volume'] - x['vema13'], axis=1)
-data['Vtr20'] = data.apply(lambda x: x['Volume'] - x['vema20'], axis=1)
+# data['Vtr20'] = data.apply(lambda x: x['Volume'] - x['vema20'], axis=1)
 data['VtrD3'] = data.apply(lambda x: x['Volume'] - x['Dvema3'], axis=1)
 data['VtrD6'] = data.apply(lambda x: x['Volume'] - x['Dvema6'], axis=1)
 data['VtrD9'] = data.apply(lambda x: x['Volume'] - x['Dvema9'], axis=1)
 data['VtrD13'] = data.apply(lambda x: x['Volume'] - x['Dvema13'], axis=1)
-data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
+# data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
 
 data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
 data['St4H'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
 
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
-# elder_sides = crossing_elder(data, '4H%K', '4H%D')
 data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta)
 data['Vol_Vol'] = getDailyVol(data['Volatility'], span, delta)
 data['VV'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean()
 data['MAV'] = data['Volatility'].rolling(window).mean()
 data['MAV_signal'] = data.apply(lambda x: x.MAV - x.Volatility, axis=1)
-# data['USDT_Volatility'] = getDailyVol(data['USDT_Close'], span, delta).rolling(window).mean()
-# data['USDT_Vol_Vol'] = getDailyVol(data['USDT_Volume'], span, delta).rolling(window).mean()
 
 tEvents = getTEvents(data['Close'], data['Volatility'], ptsl)
 t1 = addVerticalBarrier(tEvents, data['Close'], delta)
@@ -175,17 +171,14 @@ data['bin'] = labels['bin']
 data.replace([np.inf, -np.inf], np.nan, inplace=True)
 data = data.loc[~data.index.duplicated(keep='first')]
 
-data.drop(columns=['ave', 'price', 'upper', 'lower',
-                   '4H_Close', '4H_Volume',
-                   '1D_Close', '1D_Volume',
-                   'Dema6'
+data.drop(columns=['Open', 'High', 'Low', 'ave', 'price', 'upper', 'lower',
+                   '4H_Close', '4H_Volume', '4H_Low', '4H_High'
                    ], axis=1, inplace=True)
 
 data = data.fillna(0)
 full_data = data.copy()
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
-events_data.drop(columns=['Open', 'High', 'Low'], axis=1, inplace=True)
 
 # signal = 'ret'
 signal = 'bin'
@@ -204,15 +197,9 @@ print('event data min ret', events_data.ret.min())
 print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
 
-# numCoEvents = mpPandasObj(mpNumCoEvents, ('molecule', events.index),
-#                           cpus, closeIdx=data.Close.index, t1=events['t1'])
+# print(len(events_data.columns))
+# print(events_data.columns)
+# events_data.index = range(len(events_data))
+# print(events_data)
 #
-# print(numCoEvents)
-#
-# out = pd.DataFrame()
-# out['ind'] = numCoEvents.index
-# out.set_index('ind', inplace=True)
-# out['tW'] = mpPandasObj(mpSampleTW, ('molecule', events.index),
-#                         cpus, t1=events['t1'], numCoEvents=numCoEvents)
-#
-# print(out)
+# events_data.to_csv('events_data.csv')

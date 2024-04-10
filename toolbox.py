@@ -3,6 +3,7 @@ import glob
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_squared_error
+import itertools
 
 
 # from keras.models import Sequential
@@ -278,6 +279,38 @@ def evaluate_arima_models(X_train, Y_train, p_values, d_values, q_values):
                 print('ARIMA%s MSE=%.7f' % (order, mse))
     print('Best ARIMA%s MSE=%.7f' % (best_cfg, best_score))
 
+
+# def uniqueCombinations(full_elements, std_elements, plethos):
+#     c = []
+#     combinations = []
+#     full_lst = list(itertools.combinations(full_elements, plethos))
+#     if std_elements is not None:
+#         for i in full_lst:
+#             c.append(list(i) + std_elements)
+#     else:
+#         for i in full_lst:
+#             c.append(list(i))
+#     for i in c:
+#         u = []
+#         for e in i:
+#             if e not in u:
+#                 u.append(e)
+#         combinations.append(u)
+#     return combinations
+def uniqueCombinations(full_elements, std_elements, plethos):
+    combinations = set()
+    full_combinations = itertools.combinations(full_elements, plethos)
+
+    for combo in full_combinations:
+        unique_combo = sorted(set(combo))
+        if std_elements is not None:
+            unique_std_elements = sorted(set(std_elements))
+            for element in unique_std_elements:
+                if element not in unique_combo:
+                    unique_combo.append(element)
+        combinations.add(tuple(unique_combo))
+
+    return [list(combo) for combo in combinations]
 
 # def create_LSTMmodel(X_train, neurons, learn_rate, momentum):
 #     # create model

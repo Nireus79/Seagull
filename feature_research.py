@@ -1,5 +1,4 @@
-from toolbox import spliter, normalizer
-from data_forming import full_data, events_data, signal, delta
+from toolbox import spliter, normalizer, rescaler
 from sklearn.feature_selection import SelectKBest, RFE, f_classif, SelectPercentile
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
@@ -11,10 +10,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from data_forming import events_data, signal, delta
+from data_forming import events_data, delta
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
+
 
 # part = 5
 #
@@ -202,44 +202,39 @@ def Boruta(X_tr, Y_tr, X_ts, Y_ts):
     print('selected_features:', selected_features)
 
 
-def MDI():
-    X, Y = spliter(events_data, signal, 0, 'All', delta)
+def MDI(X, Y):
     rf = RandomForestRegressor()
     rf.fit(X, Y)
     names = X.columns
-
     print("Features sorted by their score:")
     print(sorted(zip(map(lambda x: round(x, 4), rf.feature_importances_), names),
                  reverse=True))
 
 
-# events_data_c = events_data.copy()
-# events_data_n = normalizer(events_data_c)
-# events_data_n[signal] = events_data[signal]
-# events_data_n.bb_cross = events_data.bb_cross
+train_data = pd.read_csv('csv/synth/synth10000.csv')
+test_data = events_data[train_data.columns]
+signal = 'ret'
+Y_train = train_data[signal]
+X_train = train_data.drop(columns=[signal])
+# X_train = normalizer(X_train)
+Y_test = test_data[signal]
+X_test = test_data.drop(columns=[signal])
+# X_test = normalizer(X_test)
 
 
-# Variance(events_data)
-# Correlation(events_data, signal)
-# for i in range(1, 11):
-#     print(i)
-#     X_train, X_test, Y_train, Y_test = spliter(events_data, signal, i, 'All', delta)
-#     backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
-#     X_train_c, X_test_c = X_train.copy(), X_test.copy()
-#     X_train_n, X_test_n = normalizer(X_train_c), normalizer(X_test_c)
-#     if 'bb_cross' in X_train.columns:
-#         print('bb_cross in X')
-#         X_train_c.drop(columns=['bb_cross'], axis=1, inplace=True)
-#         X_test_c.drop(columns=['bb_cross'], axis=1, inplace=True)
-#         X_trainBuy_n, X_testBuy_n = normalizer(X_train_c), normalizer(X_test_c)
-#         X_trainBuy_n['bb_cross'], X_testBuy_n['bb_cross'] = X_train.bb_cross, X_test.bb_cross
-#     else:
-#         X_trainBuy_n, X_testBuy_n = normalizer(X_train_c), normalizer(X_test_c)
-#     K_best(X_train_n, Y_train, X_test_n, Y_test)
-#     SelectPrsnt(X_train, Y_train)
-#     rfe(X_train_n, Y_train, X_test_n, Y_test)
-#     Boruta(X_train_n, Y_train, X_test_n, Y_test)
-# MDI()
-Correlation(events_data, signal)
+X_train_c, X_test_c = X_train.copy(), X_test.copy()
+X_train_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+X_test_c.drop(columns=['bb_cross'], axis=1, inplace=True)
+X_train_r, X_test_r = rescaler(X_train_c, (0, 1)), rescaler(X_test_c, (0, 1))
+X_train_r['bb_cross'], X_test_r['bb_cross'] = X_train.bb_cross, X_test.bb_cross
 
+
+Correlation(train_data, signal)
+Correlation(test_data, signal)
+# K_best(X_train, Y_train, X_test, Y_test)
+# SelectPrsnt(X_train, Y_train)
+# rfe(X_train, Y_train, X_test, Y_test)
+# Boruta(X_train, Y_train, X_test, Y_test)
+MDI(X_train_r, Y_train)
+MDI(X_test_r, Y_test)
 

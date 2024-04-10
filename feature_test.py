@@ -125,19 +125,16 @@ print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
 
 
-def k_mean(selected_features, eligible_features, plethos, mode, events):
+def k_mean(selected_features, eligible_features, plethos, mode, events, repetition):
+    repetition += 1
     cross = pd.DataFrame()
-    for c in tqdm(range(1, 11)):
+    for c in tqdm(range(1, repetition)):
         res = research_features(selected_features, eligible_features, plethos, mode, c, events)
-        cross['feats_' + str(c)] = res['features']
-        cross['f1-score0_' + str(c)] = res['f1-score0']
-        cross['f1-score1_' + str(c)] = res['f1-score1']
-    cross['f1_0_mean'] = cross.apply(lambda x:
-                                     (x['f1-score0_1'] + x['f1-score0_2']
-                                      + x['f1-score0_3'] + x['f1-score0_4'] + x['f1-score0_5']) / 5, axis=1)
-    cross['f1_1_mean'] = cross.apply(lambda x:
-                                     (x['f1-score1_1'] + x['f1-score1_2']
-                                      + x['f1-score1_3'] + x['f1-score1_4'] + x['f1-score1_5']) / 5, axis=1)
+        cross[f'feats_{c}'] = res['features']
+        cross[f'f1-score0_{c}'] = res['f1-score0']
+        cross[f'f1-score1_{c}'] = res['f1-score1']
+    cross['f1_0_mean'] = cross[[f'f1-score0_{i}' for i in range(1, repetition)]].mean(axis=1)
+    cross['f1_1_mean'] = cross[[f'f1-score1_{i}' for i in range(1, repetition)]].mean(axis=1)
     cross = cross[['feats_1', 'f1_0_mean', 'f1_1_mean']]
     print(cross.loc[cross['f1_0_mean'].idxmax()])
     print(cross.loc[cross['f1_1_mean'].idxmax()])
@@ -145,12 +142,32 @@ def k_mean(selected_features, eligible_features, plethos, mode, events):
     print(cross.tail(5).sort_values(by=['f1_1_mean']))
 
 
-def MDI():
-    X, Y = spliter(events_data, signal, 0, 'All', delta)
+# def k_mean(selected_features, eligible_features, plethos, mode, events):
+#     cross = pd.DataFrame()
+#     for c in tqdm(range(1, 11)):
+#         res = research_features(selected_features, eligible_features, plethos, mode, c, events)
+#         cross['feats_' + str(c)] = res['features']
+#         cross['f1-score0_' + str(c)] = res['f1-score0']
+#         cross['f1-score1_' + str(c)] = res['f1-score1']
+#     cross['f1_0_mean'] = cross.apply(lambda x:
+#                                      (x['f1-score0_1'] + x['f1-score0_2'] + x['f1-score0_3'] + x['f1-score0_4']
+#                                       + x['f1-score0_5'] + x['f1-score0_6'] + x['f1-score0_7'] + x['f1-score0_8']
+#                                       + x['f1-score0_9'] + x['f1-score0_10']) / 10, axis=1)
+#     cross['f1_1_mean'] = cross.apply(lambda x:
+#                                      (x['f1-score1_1'] + x['f1-score1_2'] + x['f1-score1_3'] + x['f1-score1_4']
+#                                       + x['f1-score1_5'] + x['f1-score1_6'] + x['f1-score1_7'] + x['f1-score1_8']
+#                                       + x['f1-score1_9'] + x['f1-score1_10']) / 10, axis=1)
+#     cross = cross[['feats_1', 'f1_0_mean', 'f1_1_mean']]
+#     print(cross.loc[cross['f1_0_mean'].idxmax()])
+#     print(cross.loc[cross['f1_1_mean'].idxmax()])
+#     print(cross.tail(5).sort_values(by=['f1_0_mean']))
+#     print(cross.tail(5).sort_values(by=['f1_1_mean']))
+
+
+def MDI(X, Y):
     rf = RandomForestRegressor()
     rf.fit(X, Y)
     names = X.columns
-
     print("Features sorted by their score:")
     print(sorted(zip(map(lambda x: round(x, 4), rf.feature_importances_), names),
                  reverse=True))
@@ -176,9 +193,8 @@ F002612 = ['TrD3', 'TrD9', 'TrD6', '4H%K', '4H_rsi', 'rsi', 'macd', '%D', '4Hmac
 S002612 = ['TrD6', 'St4H', 'mom20', 'macd', 'MAV']
 B002612 = ['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l']
 
-
 # MDI()
-k_mean(B002612, 'All', 1, 'MLP', events_data)
+k_mean(B002612, 'All', 1, 'MLP', events_data, 10)
 
 # 0.026 12
 # feats_0      [TrD6, mom20]

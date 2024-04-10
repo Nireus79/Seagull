@@ -5,8 +5,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import classification_report
-from toolbox import normalizer, spliter
+from toolbox import normalizer, spliter, rescaler
 from data_forming import full_data, events_data, signal, delta
 import numpy as np
 import pandas as pd
@@ -16,7 +17,7 @@ import joblib
 # pd.set_option('display.max_columns', None)
 # https://hudsonthames.org/meta-labeling-a-toy-example/
 
-part = 9
+part = 8
 events_dataBuy = events_data.copy().loc[events_data['bb_cross'] != 0]
 BuyFeatures = ['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l']
 
@@ -25,20 +26,16 @@ SellFeatures = ['TrD6', 'St4H', 'mom20', 'macd', 'MAV']
 
 # Train buy model ------------------------------------------------------------------------------------
 print('Buy model ---------------------------------------------------------------------------------------------------')
+R_train_data = pd.read_csv('synthesized_events')[['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l', 'ret']]
+R_train_data = rescaler(R_train_data, (0, 1))
 
-X_trainBuyR, X_testBuyR, Y_trainBuyR, Y_testBuyR = spliter(events_dataBuy, 'ret', part, BuyFeatures, delta)
-X_trainBuy_cR, X_testBuy_cR = X_trainBuyR.copy(), X_testBuyR.copy()
-if 'bb_cross' in X_trainBuy_cR.columns:
-    print('bb_cross in X')
-    X_trainBuy_cR.drop(columns=['bb_cross'], axis=1, inplace=True)
-    X_testBuy_cR.drop(columns=['bb_cross'], axis=1, inplace=True)
-    X_trainBuy_nR, X_testBuy_nR = normalizer(X_trainBuy_cR), normalizer(X_testBuy_cR)
-    X_trainBuy_nR['bb_cross'], X_testBuy_nR['bb_cross'] = X_trainBuyR.bb_cross, X_testBuyR.bb_cross
-else:
-    X_trainBuy_nR, X_testBuy_nR = normalizer(X_trainBuy_cR), normalizer(X_testBuy_cR)
+Y_trainBuyR = R_train_data['ret']
+X_trainBuyR = R_train_data.drop(columns=['ret'])
+# X_trainBuyR, X_testBuyR, Y_trainBuyR, Y_testBuyR = spliter(events_dataBuy, 'ret', part, BuyFeatures, delta)
 
-ModelBuy = LinearRegression()
-ModelBuy.fit(X_trainBuy_nR, Y_trainBuyR)
+
+ModelBuy = RandomForestRegressor()
+ModelBuy.fit(X_trainBuyR, Y_trainBuyR)
 
 # META ---------------------------------------------------------------------------------------------------------------
 print('META ----------------------------------------------------------')

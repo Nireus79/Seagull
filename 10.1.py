@@ -28,7 +28,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # dataset = read_csv('data/SP500.csv', index_col=0)
-dataset = read_csv('csv/time_bars/ETHEUR_30m.csv')[:100]
+dataset = read_csv('csv/time_bars/ETHEUR_30m.csv.csv')[:100]
 dataset.time = pd.to_datetime(dataset.time, unit='ms')
 dataset.set_index('time', inplace=True)
 print(dataset.shape)
