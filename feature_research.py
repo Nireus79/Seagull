@@ -1,10 +1,8 @@
-from toolbox import spliter, normalizer, rescaler
 from sklearn.feature_selection import SelectKBest, RFE, f_classif, SelectPercentile
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import f1_score
 from sklearn.ensemble import RandomForestRegressor
-import seaborn as sns
 from boruta import BorutaPy
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -211,8 +209,8 @@ def MDI(X, Y):
                  reverse=True))
 
 
-train_data = pd.read_csv('csv/synth/synth10000.csv')
-test_data = events_data[train_data.columns]
+train_data = pd.read_csv('csv/synth/synth10000_002612.csv')
+test_data = events_data# [train_data.columns]
 signal = 'ret'
 Y_train = train_data[signal]
 X_train = train_data.drop(columns=[signal])
@@ -225,16 +223,16 @@ X_test = test_data.drop(columns=[signal])
 X_train_c, X_test_c = X_train.copy(), X_test.copy()
 X_train_c.drop(columns=['bb_cross'], axis=1, inplace=True)
 X_test_c.drop(columns=['bb_cross'], axis=1, inplace=True)
-X_train_r, X_test_r = rescaler(X_train_c, (0, 1)), rescaler(X_test_c, (0, 1))
-X_train_r['bb_cross'], X_test_r['bb_cross'] = X_train.bb_cross, X_test.bb_cross
+# X_train_r, X_test_r = normalizer(X_train_c), normalizer(X_test_c)
+# X_train_r['bb_cross'], X_test_r['bb_cross'] = X_train.bb_cross, X_test.bb_cross
 
 
-Correlation(train_data, signal)
+# Correlation(train_data, signal)
 Correlation(test_data, signal)
 # K_best(X_train, Y_train, X_test, Y_test)
 # SelectPrsnt(X_train, Y_train)
 # rfe(X_train, Y_train, X_test, Y_test)
 # Boruta(X_train, Y_train, X_test, Y_test)
-MDI(X_train_r, Y_train)
-MDI(X_test_r, Y_test)
+# MDI(X_train_r, Y_train)
+# MDI(X_test_r, Y_test)
 

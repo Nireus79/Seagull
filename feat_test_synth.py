@@ -153,42 +153,54 @@ def MDI(X, Y):
 
 # MDI()
 
-train_data = pd.read_csv('csv/synth/synth10000.csv')
+train_data = pd.read_csv('csv/synth/synth10000_00124.csv')
 test_data = events_data[train_data.columns]
-print(len(train_data.columns))
-print(len(test_data.columns))
+
 signal = 'bin'
 Y_train = train_data[signal]
 X_train = train_data.drop(columns=[signal, 'ret'])
 Y_test = test_data[signal]
 X_test = test_data.drop(columns=[signal, 'ret'])
 
-S = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
-B = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
-# k_mean(X_train, X_test, Y_train, Y_test, ['TrD3', '4Hmacd', 'mom20', 'Tr6', 'bb_l'], 0, 'MLP', 1)
-# 10000
-# feats_0      [mom10, TrD13]
-# f1_0_mean          0.848237
-# f1_1_mean          0.764549
-# [TrD6, mom10, TrD13]
-# f1_0_mean                0.850715
-# f1_1_mean                0.773583
-# [bb_cross, TrD6, mom10, TrD13]
-# f1_0_mean                              0.85
-# f1_1_mean                          0.772809
+S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
+B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
+S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr']
+B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3']
+k_mean(X_train, X_test, Y_train, Y_test, B00124, 1, 'MLP', 1)
+
+# feats_0      [TrD3, mom10]
+# f1_0_mean          0.77007
+# f1_1_mean         0.720908
+# feats_0      [TrD3, bb_cross, srl_corr]
+# f1_0_mean                      0.782407
+# f1_1_mean                      0.729885
+# feats_0      [Tr9, roc30, TrD3, mom10]
+# f1_0_mean                     0.784988
+# f1_1_mean                     0.740811
+# feats_0      [Volatility, TrD3, bb_cross, srl_corr]
+# f1_0_mean                                  0.787645
+# f1_1_mean                                  0.736842
 
 
-# feats_1      [TrD3, bb_cross]
-# f1_0_mean            0.826603
-# f1_1_mean             0.77116
-# [Volatility, TrD3, bb_cross]
-# f1_0_mean                        0.837873
-# f1_1_mean                        0.775093
-# [TrD6, TrD3, bb_cross, Volatility]
-# f1_0_mean                              0.840816
-# f1_1_mean                              0.776023
+# feats_1      [Tr6, TrD3]
+# f1_0_mean       0.766534
+# f1_1_mean       0.729954
+# feats_1      [Tr13, TrD6, Volatility]
+# f1_0_mean                    0.763137
+# f1_1_mean                    0.734361
+# feats_1      [4Hmacd, srl_corr, Tr6, TrD3]
+# f1_0_mean                         0.769478
+# f1_1_mean                           0.7379
+# feats_1      [bb_sq, Tr13, TrD6, Volatility]
+# f1_0_mean                           0.769354
+# f1_1_mean                           0.734131
 
-
-# 1000
-# S = ['MAV_signal', 'mom10', 'TrD9']
-# B = ['4H_atr', '4Hmacd', 'mom10', 'TrD6']
+# feats_1      [Vol_Vol, 4Hmacd, Tr6, TrD3, srl_corr]
+# f1_0_mean                                  0.786585
+# f1_1_mean                                  0.727626
+# feats_1      [diff, 4Hmacd, Tr6, TrD3, srl_corr]
+# f1_0_mean                                 0.7841
+# f1_1_mean                               0.737938
+# # feats_1      [TrD3, 4Hmacd, Tr6, diff, srl_corr]
+# # f1_0_mean                               0.774142
+# # f1_1_mean                                0.73965

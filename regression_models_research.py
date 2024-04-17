@@ -40,17 +40,17 @@ def K_F(Xtr, Ytr, Xts, Yts):
     # 5.3.1 Machine Learning models-from scikit-learn
     # Regression and Tree Regression algorithms
     models = [
-        # ('LR', LinearRegression()),
-        # ('LASSO', Lasso()),
-        # ('EN', ElasticNet()),
-        # ('KNN', KNeighborsRegressor()),
-        # ('CART_S', DecisionTreeRegressor()),
-        # ('SVR', SVR()),
-        # ('MLP', MLPRegressor()),
+        ('LR', LinearRegression()),
+        ('LASSO', Lasso()),
+        ('EN', ElasticNet()),
+        ('KNN', KNeighborsRegressor()),
+        ('CART_S', DecisionTreeRegressor()),
+        ('SVR', SVR()),
+        ('MLP', MLPRegressor()),
         ('RFR', RandomForestRegressor()),
-        # ('ABR', AdaBoostRegressor()),
+        ('ABR', AdaBoostRegressor()),
         ('GBR', GradientBoostingRegressor()),
-        # ('ETR', ExtraTreesRegressor())
+        ('ETR', ExtraTreesRegressor())
     ]
     # Once we have selected all the models, we loop over each of them. First we run the K-fold analysis.
     # Next we run the model on the entire training and testing dataset.
@@ -79,34 +79,34 @@ def K_F(Xtr, Ytr, Xts, Yts):
         print(msg)
         m.append(ms)
     # print(m)
-    return m
+    # return m
     # K Fold results
     # We being by looking at the K Fold results
-    # fig = pyplot.figure()
-    # fig.suptitle('Algorithm Comparison: Kfold results')
-    # ax = fig.add_subplot(111)
-    # pyplot.boxplot(kfold_results)
-    # ax.set_xticklabels(names)
-    # fig.set_size_inches(15, 8)
+    fig = pyplot.figure()
+    fig.suptitle('Algorithm Comparison: Kfold results')
+    ax = fig.add_subplot(111)
+    pyplot.boxplot(kfold_results)
+    ax.set_xticklabels(names)
+    fig.set_size_inches(15, 8)
     # pyplot.show()
     # We see the linear regression and the regularized regression
     # including the Lasso regression (LASSO) and elastic net (EN) seem to do a good job.
     # Training and Test error -------------------
     # compare algorithms
-    # fig = pyplot.figure()
-    #
-    # ind = np.arange(len(names))  # the x locations for the groups
-    # width = 0.35  # the width of the bars
-    #
-    # fig.suptitle('Algorithm Comparison')
-    # ax = fig.add_subplot(111)
-    # pyplot.bar(ind - width / 2, train_results, width=width, label='Train Error')
-    # pyplot.bar(ind + width / 2, test_results, width=width, label='Test Error')
-    # fig.set_size_inches(15, 8)
-    # pyplot.legend()
-    # ax.set_xticks(ind)
-    # ax.set_xticklabels(names)
-    # pyplot.show()
+    fig = pyplot.figure()
+
+    ind = np.arange(len(names))  # the x locations for the groups
+    width = 0.35  # the width of the bars
+
+    fig.suptitle('Algorithm Comparison')
+    ax = fig.add_subplot(111)
+    pyplot.bar(ind - width / 2, train_results, width=width, label='Train Error')
+    pyplot.bar(ind + width / 2, test_results, width=width, label='Test Error')
+    fig.set_size_inches(15, 8)
+    pyplot.legend()
+    ax.set_xticks(ind)
+    ax.set_xticklabels(names)
+    pyplot.show()
 
 
 def report_generator(full_feats, standard_feats, pl, trd, tsd):
@@ -130,62 +130,36 @@ def report_generator(full_feats, standard_feats, pl, trd, tsd):
 
 
 signal = 'ret'
-# features = ['TrD6', 'St4H', 'mom10', 'MAV', signal]
-features = ['TrD3', 'TrD6', 'TrD20', 'vrsi', 'mom10', 'TrD6', 'Volume',
-            'mom10', 'roc10', '4H%K', 'Volatility', 'St4H', 'MAV', 'bb_cross', signal]
+
+S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross', signal]
+B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross', signal]
+S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr', signal]
+B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3', signal]  # GBR
+# features = ['TrD3', 'TrD6', 'TrD20', 'vrsi', 'mom10', 'TrD6', 'Volume',
+#            'mom10', 'roc10', '4H%K', 'Volatility', 'St4H', 'MAV', 'bb_cross', signal]
 # features = ['TrD3', 'Volatility', 'srl_corr', 'bb_cross', signal]
 # X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, features, delta)
+F = S00124
 
+trd = pd.read_csv('csv/synth/synth10000_00124.csv')[F]
+tsd = events_data[F]
 
-train_data = pd.read_csv('csv/synth/synth10000.csv')[features]
-test_data = events_data[features]
+Y_tr = trd[signal]
+X_tr = trd.drop(columns=[signal])
+if 'bb_cross' in trd.columns:
+    X_tr = X_tr.drop(columns=['bb_cross'])
+    X_tr = normalizer(X_tr)
+    X_tr['bb_cross'] = trd['bb_cross']
+else:
+    X_tr = normalizer(X_tr)
+Y_ts = tsd[signal]
+X_ts = tsd.drop(columns=[signal])
+if 'bb_cross' in tsd.columns:
+    X_ts = X_ts.drop(columns=['bb_cross'])
+    X_ts = normalizer(X_ts)
+    X_ts['bb_cross'] = tsd['bb_cross']
+else:
+    X_ts = normalizer(X_ts)
 
-data = report_generator(features, ['ret'], 2, train_data, test_data)
-df = pd.DataFrame(data, columns=['Features', 'Results'])
-print(df)
-# df['LR'] = df['Results'][1][0]
-# df['LASSO'] = df['Results'][1][1]
-# df['KNN'] = df['Results'][1][2]
-# df['CART_S'] = df['Results'][1][3]
-# df['SVR'] = df['Results'][1][4]
-# df['MLP'] = df['Results'][1][5]
-# df['RFR'] = df['Results'][1][6]
-# df['ABR'] = df['Results'][1][7]
-# df['GBR'] = df['Results'][1][8]
-# df['ETR'] = df['Results'][1][9]
-# df = df.drop(columns=['Results'])
-#
-# print(df.loc[df['LR'].idxmin()])
-# print(df.loc[df['LASSO'].idxmin()])
-# print(df.loc[df['KNN'].idxmin()])
-# print(df.loc[df['CART_S'].idxmin()])
-# print(df.loc[df['SVR'].idxmin()])
-# print(df.loc[df['MLP'].idxmin()])
-# print(df.loc[df['RFR'].idxmin()])
-# print(df.loc[df['ABR'].idxmin()])
-# print(df.loc[df['GBR'].idxmin()])
-# print(df.loc[df['ETR'].idxmin()])
+K_F(X_tr, Y_tr, X_ts, Y_ts)
 
-# [TrD3, TrD6, ret]
-# LR                   0.00184
-# LASSO                0.001946
-# KNN                  0.001944
-# CART_S               0.001506
-# SVR                  0.001873
-# MLP                  0.002238
-# RFR                  0.106893
-# ABR                  0.001001
-# GBR                  0.001927
-# ETR                  0.001011
-
-# [4H%K, TrD3, TrD6, ret]
-# LR                          0.00184
-# LASSO                      0.001946
-# KNN                        0.001944
-# CART_S                     0.001506
-# SVR                          0.0018
-# MLP                        0.002238
-# RFR                        0.336632
-# ABR                        0.000978
-# GBR                        0.002026
-# ETR                        0.001011

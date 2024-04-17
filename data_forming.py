@@ -40,7 +40,6 @@ ohlc = {
 eth30m = eth5m.resample('30min').apply(ohlc)
 eth4h = eth5m.resample('4H').apply(ohlc)
 eth1D = eth5m.resample('D').apply(ohlc)
-
 eth30m['4H_Close'] = eth4h['Close']
 eth30m['4H_Low'] = eth4h['Low']
 eth30m['4H_High'] = eth4h['High']
@@ -153,6 +152,7 @@ data['St4H'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
 bb_sides = crossing3(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta)
+data['DVol'] = getDailyVol(data['1D_Close'], span, delta)
 data['Vol_Vol'] = getDailyVol(data['Volatility'], span, delta)
 data['VV'] = getDailyVol(data['Volume'], span, delta).rolling(window).mean()
 data['MAV'] = data['Volatility'].rolling(window).mean()
@@ -171,7 +171,7 @@ data['bin'] = labels['bin']
 data.replace([np.inf, -np.inf], np.nan, inplace=True)
 data = data.loc[~data.index.duplicated(keep='first')]
 
-data.drop(columns=['Open', 'High', 'Low', 'ave', 'price', 'upper', 'lower',
+data.drop(columns=['ave', 'price', 'upper', 'lower',
                    '4H_Close', '4H_Volume', '4H_Low', '4H_High'
                    ], axis=1, inplace=True)
 
@@ -179,17 +179,26 @@ data = data.fillna(0)
 full_data = data.copy()
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
+events_data.drop(columns=['Open', 'High', 'Low', '1D_Close', '1D_Volume',
+                          'ema3', 'ema6', 'ema9', 'ema13', 'ema20', 'vema3', 'vema6', 'vema9',
+                          'vema13', 'vema20', 'Dema3',
+                          'Dema6', 'Dema9', 'Dema13', 'Dema20', 'Dvema3', 'Dvema6', 'Dvema9',
+                          'Dvema13', 'Dvema20', 'event', 'vmacd', 'vrsi', 'vdiff', 'vcusum', 'vsrl_corr',
+                          'vroc10',
+                          'vroc20', 'vroc30', 'vmom10', 'vmom20', 'vmom30', '4H%DS', '%DS'
+                          ], axis=1, inplace=True)
 
 # signal = 'ret'
 signal = 'bin'
 # print(data.columns)
 # Volatility corr -0.139562
 events_data = events_data.loc[events_data['bb_cross'] != 0]
+# events_data = events_data.loc[events_data['ret'] > 0]
 # BALANCE CLASSES (down sampling)
 # minority = events_data[events_data[signal] == 1]
 # majority = events_data[events_data[signal] == 0].sample(n=len(minority), replace=True)
 # events_data = pd.concat([minority, majority])
-
+# events_data['corr'] = events_data.apply(lambda x: x['ret'] / x['DVol'], axis=1)
 print('Data forming events')
 print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
@@ -202,4 +211,4 @@ print('event data mean ret', events_data.ret.mean())
 # events_data.index = range(len(events_data))
 # print(events_data)
 #
-# events_data.to_csv('events_data.csv')
+# events_data.to_csv('events_data_00124.csv')
