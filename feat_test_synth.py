@@ -1,9 +1,9 @@
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import classification_report, f1_score
-from toolbox import spliter, normalizer, uniqueCombinations
-from data_forming import events_data
+from sklearn.metrics import classification_report
+from toolbox import normalizer, uniqueCombinations
+# from data_forming import events_data
 import pandas as pd
 
 from tqdm import tqdm
@@ -153,8 +153,8 @@ def MDI(X, Y):
 
 # MDI()
 
-train_data = pd.read_csv('csv/synth/synth10000_00124.csv')
-test_data = events_data[train_data.columns]
+train_data = pd.read_csv('csv/synth/synth_ev100000_002624.csv')
+test_data = pd.read_csv('csv/synth/synth_ev10000_002624.csv')  # events_data[train_data.columns]
 
 signal = 'bin'
 Y_train = train_data[signal]
@@ -166,41 +166,32 @@ S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
 B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
 S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr']
 B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3']
-k_mean(X_train, X_test, Y_train, Y_test, B00124, 1, 'MLP', 1)
+S002624 = ['%K', 'Tr13', 'TrD3']
+B002624 = ['Tr6', 'TrD6', 'roc10']
+S1002624 = ['TrD9', 'TrD3', 'Vtr9', 'mom10', 'bb_cross']
+B1002624 = ['TrD20', 'TrD3', 'srl_corr', 'mom10', 'bb_cross']
 
-# feats_0      [TrD3, mom10]
-# f1_0_mean          0.77007
-# f1_1_mean         0.720908
-# feats_0      [TrD3, bb_cross, srl_corr]
-# f1_0_mean                      0.782407
-# f1_1_mean                      0.729885
-# feats_0      [Tr9, roc30, TrD3, mom10]
-# f1_0_mean                     0.784988
-# f1_1_mean                     0.740811
-# feats_0      [Volatility, TrD3, bb_cross, srl_corr]
-# f1_0_mean                                  0.787645
-# f1_1_mean                                  0.736842
+SS = ['TrD20', 'DVol', 'Tr6', 'bb_t', 'bb_cross']
+SB = ['TrD9', 'TrD3', 'St4H', '%K', 'bb_cross']
+k_mean(X_train, X_test, Y_train, Y_test, SS, 1, 'MLP', 1)
+
+# feats_0      [TrD20, bb_cross]
+# f1_0_mean             0.757501
+# f1_1_mean             0.653552
+# feats_1      [bb_t, TrD20, bb_cross]
+# f1_0_mean                   0.758486
+# f1_1_mean                   0.651521
 
 
-# feats_1      [Tr6, TrD3]
-# f1_0_mean       0.766534
-# f1_1_mean       0.729954
-# feats_1      [Tr13, TrD6, Volatility]
-# f1_0_mean                    0.763137
-# f1_1_mean                    0.734361
-# feats_1      [4Hmacd, srl_corr, Tr6, TrD3]
-# f1_0_mean                         0.769478
-# f1_1_mean                           0.7379
-# feats_1      [bb_sq, Tr13, TrD6, Volatility]
-# f1_0_mean                           0.769354
-# f1_1_mean                           0.734131
-
-# feats_1      [Vol_Vol, 4Hmacd, Tr6, TrD3, srl_corr]
-# f1_0_mean                                  0.786585
-# f1_1_mean                                  0.727626
-# feats_1      [diff, 4Hmacd, Tr6, TrD3, srl_corr]
-# f1_0_mean                                 0.7841
-# f1_1_mean                               0.737938
-# # feats_1      [TrD3, 4Hmacd, Tr6, diff, srl_corr]
-# # f1_0_mean                               0.774142
-# # f1_1_mean                                0.73965
+# feats_1      [TrD3, bb_cross]
+# f1_0_mean            0.745654
+# f1_1_mean            0.675168
+# feats_1      [TrD3, St4H, bb_cross]
+# f1_0_mean                  0.748321
+# f1_1_mean                   0.68169
+# feats_1      [TrD9, St4H, TrD3, bb_cross]
+# f1_0_mean                        0.748231
+# f1_1_mean                        0.681834
+# feats_1      [%K, St4H, TrD3, TrD9, bb_cross]
+# f1_0_mean                            0.726244
+# f1_1_mean                            0.690801

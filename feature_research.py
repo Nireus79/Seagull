@@ -8,14 +8,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from data_forming import events_data, delta
+from data_forming import events_data
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 
 # part = 5
-#
+
 # X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, 'All', delta)
 # backtest_data = full_data[X_test.index[0]:X_test.index[-1]]
 # X_train_c, X_test_c = X_train.copy(), X_test.copy()
@@ -209,7 +209,7 @@ def MDI(X, Y):
                  reverse=True))
 
 
-train_data = pd.read_csv('csv/synth/synth10000_002612.csv')
+train_data = pd.read_csv('csv/synth/synth_ev100000_002624.csv')
 test_data = events_data# [train_data.columns]
 signal = 'ret'
 Y_train = train_data[signal]
@@ -227,7 +227,7 @@ X_test_c.drop(columns=['bb_cross'], axis=1, inplace=True)
 # X_train_r['bb_cross'], X_test_r['bb_cross'] = X_train.bb_cross, X_test.bb_cross
 
 
-# Correlation(train_data, signal)
+Correlation(train_data, signal)
 Correlation(test_data, signal)
 # K_best(X_train, Y_train, X_test, Y_test)
 # SelectPrsnt(X_train, Y_train)
@@ -236,3 +236,55 @@ Correlation(test_data, signal)
 # MDI(X_train_r, Y_train)
 # MDI(X_test_r, Y_test)
 
+# Volume       -0.190955
+# bb_sq        -0.151016
+# Vtr20        -0.145141
+# Vtr13        -0.136370
+# atr          -0.131428
+# Vtr6         -0.130897
+# Volatility   -0.125523
+# Vtr3         -0.124120
+# Vtr9         -0.120869
+# 4H_atr       -0.112736
+# MAV          -0.099794
+# vmomi        -0.076182
+# St4H         -0.072570
+# vroci        -0.049116
+# VV           -0.026830
+# Vol_Vol      -0.026142
+# bb_t         -0.016372
+# DVol         -0.009606
+# srl_corr     -0.007899
+# cusum         0.005236
+# Close         0.011964
+# 4Hmacd        0.041184
+# TrD20         0.054307
+# bb_l          0.058871
+# TrD13         0.060293
+# TrD9          0.077798
+# VtrD3         0.080563
+# StD           0.085056
+# 4H%K          0.097241
+# TrD6          0.100223
+# VtrD6         0.111068
+# 4H%D          0.114401
+# 4H_rsi        0.120463
+# MAV_signal    0.122919
+# VtrD9         0.123350
+# %D            0.128775
+# %K            0.129465
+# bb_cross      0.133516
+# roci          0.133550
+# VtrD13        0.134823
+# rsi           0.135112
+# VtrD20        0.141884
+# momi          0.142768
+# TrD3          0.152596
+# Tr6           0.152800
+# macd          0.154270
+# Tr9           0.162212
+# Tr13          0.175968
+# Tr20          0.181984
+# diff          0.201393
+# bin           0.676220
+# ret           1.000000

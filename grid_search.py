@@ -56,15 +56,57 @@ pd.set_option('display.max_columns', None)
 num_folds = 10
 scoring = 'neg_mean_absolute_error'
 seed = 7
-part = 5
-finf = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
-fin0 = ['St4H', 'TrD3']  # 0.741007/0.824
-comb = finf
-X_tr, X_ts, Y_train, Y_test = spliter(events_data, signal, part, comb, delta)
-X_trc, X_tsc = X_tr.copy(), X_ts.copy()
-X_train, X_test = normalizer(X_trc), normalizer(X_tsc)
-if 'bb_cross' in comb:
-    X_train.bb_cross, X_test.bb_cross = X_tr.bb_cross, X_ts.bb_cross
+# part = 5
+# finf = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
+# fin0 = ['St4H', 'TrD3']  # 0.741007/0.824
+# comb = finf
+# X_tr, X_ts, Y_train, Y_test = spliter(events_data, signal, part, comb, delta)
+# X_trc, X_tsc = X_tr.copy(), X_ts.copy()
+# X_train, X_test = normalizer(X_trc), normalizer(X_tsc)
+# if 'bb_cross' in comb:
+#     X_train.bb_cross, X_test.bb_cross = X_tr.bb_cross, X_ts.bb_cross
+SS = ['TrD20', 'DVol', 'Tr6', 'bb_t', 'bb_cross']
+SB = ['TrD9', 'TrD3', 'St4H', '%K', 'bb_cross']
+
+B = SB
+S = SS
+signalC = 'bin'
+signalR = 'ret'
+B.append(signalC)
+B.append(signalR)
+S.append(signalC)
+S.append(signalR)
+
+train_data = pd.read_csv('csv/synth/synth_ev10000_002624.csv')
+test_data = events_data
+
+train_dataB = train_data[B]
+test_dataB = test_data[B]
+train_dataS = train_data[S]
+test_dataS = test_data[S]
+
+Y_trainC = train_data[signalC]
+
+Y_trainR = train_data[signalR]
+X_trainB = train_dataB.drop(columns=[signalC, signalR, 'bb_cross'])
+X_trainB = normalizer(X_trainB)
+X_trainB['bb_cross'] = train_dataB['bb_cross']
+X_trainS = train_dataS.drop(columns=[signalC, signalR, 'bb_cross'])
+X_trainS = normalizer(X_trainS)
+X_trainS['bb_cross'] = train_dataS['bb_cross']
+Y_testC = test_data[signalC]
+Y_testR = test_data[signalR]
+X_testB = test_dataB.drop(columns=[signalC, signalR, 'bb_cross'])
+X_testB = normalizer(X_testB)
+X_testB['bb_cross'] = test_dataB['bb_cross']
+X_testS = test_dataS.drop(columns=[signalC, signalR, 'bb_cross'])
+X_testS = normalizer(X_testS)
+X_testS['bb_cross'] = test_dataS['bb_cross']
+
+X_train = X_trainB
+Y_train = Y_trainC
+X_test = X_testB
+Y_test = Y_testC
 
 
 # 1 Grid search: Linear regression

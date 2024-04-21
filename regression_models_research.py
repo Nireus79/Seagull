@@ -131,18 +131,20 @@ def report_generator(full_feats, standard_feats, pl, trd, tsd):
 
 signal = 'ret'
 
-S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross', signal]
-B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross', signal]
-S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr', signal]
-B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3', signal]  # GBR
-# features = ['TrD3', 'TrD6', 'TrD20', 'vrsi', 'mom10', 'TrD6', 'Volume',
-#            'mom10', 'roc10', '4H%K', 'Volatility', 'St4H', 'MAV', 'bb_cross', signal]
-# features = ['TrD3', 'Volatility', 'srl_corr', 'bb_cross', signal]
-# X_train, X_test, Y_train, Y_test = spliter(events_data, signal, part, features, delta)
-F = S00124
+S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
+B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
+S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr']
+B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3']  # GBR
+S002624 = ['%K', 'Tr13', 'TrD3']
+B002624 = ['Tr6', 'TrD6', 'roc10']
+SS = ['TrD20', 'DVol', 'Tr6', 'bb_t', 'bb_cross']
+SB = ['TrD9', 'TrD3', 'St4H', '%K', 'bb_cross']
 
-trd = pd.read_csv('csv/synth/synth10000_00124.csv')[F]
-tsd = events_data[F]
+F = SB
+F.append(signal)
+
+trd = pd.read_csv('csv/synth/synth_ev100000_002624.csv')[F]
+tsd = pd.read_csv('csv/synth/synth_ev10000_002624.csv')[F]  # events_data[F]
 
 Y_tr = trd[signal]
 X_tr = trd.drop(columns=[signal])
@@ -162,4 +164,3 @@ else:
     X_ts = normalizer(X_ts)
 
 K_F(X_tr, Y_tr, X_ts, Y_ts)
-
