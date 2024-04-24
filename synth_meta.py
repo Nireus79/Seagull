@@ -3,27 +3,19 @@ from toolbox import normalizer
 from data_forming import events_data
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import classification_report
 
-train_data = pd.read_csv('csv/synth/synth_ev10000_002624.csv')
+train_data = pd.read_csv('csv/synth/synth_ev20000_2612.csv')
 test_data = events_data
 
-S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
-B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
-S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr']
-B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3']
-S002624 = ['%K', 'Tr13', 'TrD3', 'bb_cross']
-B002624 = ['Tr6', 'TrD6', 'roc10', 'bb_cross']
-
-S1002624 = ['TrD3', 'TrD9', 'Vtr9', 'mom10', 'bb_cross']
-B1002624 = ['TrD3', 'TrD20', 'srl_corr', 'mom10', 'bb_cross']
-
-SS = ['TrD20', 'DVol', 'Tr6', 'bb_t', 'bb_cross']
-SB = ['TrD9', 'TrD3', 'St4H', '%K', 'bb_cross']
-
-B = SB
-S = SS
+B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
+S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
+B26121 = ['TrD9', 'TrD3', 'Tr6', 'bb_t', 'bb_cross']
+S26121 = ['TrD20', 'TrD3', 'St4H', '%K', 'bb_cross']
+B2624 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']
+S2624 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']
+B = B26121
+S = S26121
 signalC = 'bin'
 signalR = 'ret'
 B.append(signalC)
