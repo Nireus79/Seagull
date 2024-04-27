@@ -209,8 +209,8 @@ def MDI(X, Y):
                  reverse=True))
 
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_002612.csv')
-test_data = events_data  # [train_data.columns]
+train_data = pd.read_csv('csv/synth/synth_ev100000_2612.csv')
+test_data = pd.read_csv('csv/synth/synth_ev20000_2612.csv')  # events_data  # [train_data.columns]
 signal = 'ret'
 Y_train = train_data[signal]
 X_train = train_data.drop(columns=[signal])
@@ -235,5 +235,3 @@ Correlation(test_data, signal)
 # Boruta(X_train, Y_train, X_test, Y_test)
 # MDI(X_train_r, Y_train)
 # MDI(X_test_r, Y_test)
-
-

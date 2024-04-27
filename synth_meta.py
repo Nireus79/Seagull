@@ -6,14 +6,18 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import classification_report
 
 train_data = pd.read_csv('csv/synth/synth_ev20000_2612.csv')
-test_data = events_data
+test_data = events_data  # pd.read_csv('csv/synth/synth_ev20000_2612.csv')  # events_data
 
-B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
-S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
-B26121 = ['TrD9', 'TrD3', 'Tr6', 'bb_t', 'bb_cross']
-S26121 = ['TrD20', 'TrD3', 'St4H', '%K', 'bb_cross']
-B2624 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']
-S2624 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']
+B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']  # 0.77      0.72
+S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']  # 0.78      0.85
+B26121 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']  # 0.77      0.73
+S26121 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']  # 0.78      0.87
+
+B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69      0.73
+S26240 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73      0.80
+B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.72      0.70
+S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74      0.80
+
 B = B26121
 S = S26121
 signalC = 'bin'

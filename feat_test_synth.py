@@ -153,33 +153,48 @@ def MDI(X, Y):
 
 # MDI()
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_2612.csv')
-test_data = pd.read_csv('csv/synth/synth_ev20000_2612.csv')
+train_data = pd.read_csv('csv/synth/synth_ev100000_2624.csv')
+test_data = pd.read_csv('csv/synth/synth_ev20000_2624.csv')
 
 signal = 'bin'
 Y_train = train_data[signal]
 X_train = train_data.drop(columns=[signal, 'ret'])
 Y_test = test_data[signal]
 X_test = test_data.drop(columns=[signal, 'ret'])
+B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
+S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
+B26121 = ['TrD9', 'TrD3', 'Tr6', 'bb_t', 'bb_cross']
+S26121 = ['TrD20', 'TrD3', 'St4H', '%K', 'bb_cross']
+B2624 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']
+S2624 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']
 
-B24 = ['TrD3', 'bb_cross']
-S24 = ['Tr6', 'TrD6']
+B24 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']
+S24 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']
+B12 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']
+S12 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']
+
 k_mean(X_train, X_test, Y_train, Y_test, None, 2, 'MLP', 1)
 # 24
-# feats_0      [Tr6, TrD6]
-# f1_0_mean       0.773023
-# f1_1_mean       0.677163
+# feats_1      [St4H, Tr6, TrD6, Volatility, bb_cross]
+# f1_0_mean                                   0.778286
+# f1_1_mean                                   0.679824
+# feats_0      [mom10, rsi, TrD3, bb_cross]  # Alternative
+# f1_0_mean                        0.778481
+# f1_1_mean                        0.677914
 
-# feats_1      [TrD3, bb_cross]
-# f1_0_mean            0.763125
-# f1_1_mean            0.696188
+# feats_1      [rsi, 4Hmacd, TrD3, bb_cross, momi]
+# f1_0_mean                               0.768493
+# f1_1_mean                               0.714461
+# feats_1      [VtrD13, bb_sq, TrD3, bb_cross]  # Alternative
+# f1_0_mean                           0.736893
+# f1_1_mean                           0.714166
 
 
 # 12
-# feats_0      [Tr20, TrD13]
-# f1_0_mean         0.807147
-# f1_1_mean         0.689254
+# feats_0      [TrD6, Tr20, TrD13, TrD3, bb_cross]
+# f1_0_mean                               0.820902
+# f1_1_mean                               0.728736
 
-# feats_1      [TrD6, bb_cross]
-# f1_0_mean            0.806244
-# f1_1_mean            0.734428
+# feats_1      [TrD13, MAV, TrD3, TrD6, bb_cross]
+# f1_0_mean                              0.825958
+# f1_1_mean                              0.750942
