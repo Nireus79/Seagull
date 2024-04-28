@@ -4,11 +4,18 @@ import pandas as pd
 import warnings
 from sklearn.preprocessing import normalize
 from data_forming import minRet, data
-from synth_meta import PrimeModelSell, PrimeModelBuy, MetaModelSell, MetaModelBuy, ModelRisk
+from synth_meta import PrimeModelSell, PrimeModelBuy, MetaModelSell, MetaModelBuy, ModelRisk, test_data
 
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
+
+
+# test_data = test_data[:100]
+# test_data['Open'] = 1
+# test_data['High'] = 1
+# test_data['Low'] = 1
+# test_data['event'] = 1
 
 
 class Prado26120(Strategy):
@@ -19,7 +26,6 @@ class Prado26120(Strategy):
         self.PMS = PrimeModelSell
         self.MMB = MetaModelBuy
         self.MMS = MetaModelSell
-        self.cond = 'B'
         self.stop = 0
         self.profit = 0
 
@@ -34,7 +40,7 @@ class Prado26120(Strategy):
         mom10 = self.data['mom10'][-1]
         DV = self.data['DVol'][-1]
         roc30 = self.data['roc30'][-1] / 100
-        if self.cond == 'B' and event != 0 and bbc != 0 and MAV > minRet:
+        if not self.position and event != 0 and bbc != 0 and MAV > minRet:
             features = normalize([[TrD3, TrD6, vol]])
             a, b, c = features[0][0], features[0][1], features[0][2]
             primaryPB = self.PMB.predict([[a, b, c, bbc]])[-1]
@@ -49,13 +55,12 @@ class Prado26120(Strategy):
                       .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret + DV))
                 self.cond = 'S'
                 self.buy()
-        elif self.cond == 'S':
+        elif self.position:
             if self.data.Close[-1] < self.stop:
                 self.stop = 0
                 self.profit = 0
-                print('{} Sell. price {} eq {}'.
+                print('{} Sell Stop. price {} eq {}'.
                       format(self.data.index[-1], self.data.Close[-1], self.equity))
-                self.cond = 'B'
                 self.sell()
             elif self.data.Close[-1] > self.profit:
                 if event != 0 and bbc != 0:
@@ -69,9 +74,8 @@ class Prado26120(Strategy):
                     if primaryPS != metaPS:
                         self.stop = 0
                         self.profit = 0
-                        print('{} Sell. price {} eq {}'
+                        print('{} Sell Profit. price {} eq {}'
                               .format(self.data.index[-1], self.data.Close[-1], self.equity))
-                        self.cond = 'B'
                         self.sell()
                     else:
                         if ret > minRet:
@@ -89,7 +93,6 @@ class Prado26121(Strategy):
         self.PMS = PrimeModelSell
         self.MMB = MetaModelBuy
         self.MMS = MetaModelSell
-        # self.cond = 'B'
         self.stop = 0
         self.profit = 0
 
@@ -110,20 +113,18 @@ class Prado26121(Strategy):
             ret = self.MR.predict([[a, b, c, d, bbc]])[-1]
             if primaryPB == metaPB and ret > minRet and roc30 > 0:
                 #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
-                self.profit = self.data.Close * (1 + (ret + roc30)*2)
+                self.profit = self.data.Close * (1 + (ret + roc30))
                 self.stop = self.data.Close * (1 - (ret + roc30))
                 print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                 print('{} SET + P {} S {} R {}'
                       .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret + roc30))
-                # self.cond = 'S'
                 self.buy()
-        elif self.position.is_long:
+        elif self.position:
             if self.data.Close[-1] < self.stop:
                 self.stop = 0
                 self.profit = 0
-                print('{} Sell. price {} eq {}'.
+                print('{} Sell Stop. price {} eq {}'.
                       format(self.data.index[-1], self.data.Close[-1], self.equity))
-                self.cond = 'B'
                 self.position.close()
             elif self.data.Close[-1] > self.profit:
                 if event != 0 and bbc != 0:
@@ -137,13 +138,12 @@ class Prado26121(Strategy):
                     if primaryPS != metaPS:
                         self.stop = 0
                         self.profit = 0
-                        print('{} Sell. price {} eq {}'
+                        print('{} Sell Profit. price {} eq {}'
                               .format(self.data.index[-1], self.data.Close[-1], self.equity))
-                        self.cond = 'B'
                         self.position.close()
                     else:
                         if ret > minRet and roc30 > 0:
-                            self.profit = self.data.Close * (1 + (ret + roc30)*2)
+                            self.profit = self.data.Close * (1 + (ret + roc30))
                             self.stop = self.data.Close * (1 - (ret + roc30))
                             print('{} RESET + P {} S {} R {}'
                                   .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret + roc30))
@@ -157,7 +157,6 @@ class Prado26240(Strategy):
         self.PMS = PrimeModelSell
         self.MMB = MetaModelBuy
         self.MMS = MetaModelSell
-        self.cond = 'B'
         self.stop = 0
         self.profit = 0
 
@@ -174,26 +173,26 @@ class Prado26240(Strategy):
         vol = self.data['Volatility'][-1]
         diff = self.data['diff'][-1]
 
-        if self.cond == 'B' and event != 0 and bbc != 0 and MAV > minRet:
-            featuresB = normalize([[TrD9, TrD6, TrD3, diff]])
-            a, b, c, d = featuresB[0][0], featuresB[0][1], featuresB[0][2], featuresB[0][3]
-            primaryPB = self.PMB.predict([[a, b, c, d, bbc]])[-1]
-            metaPB = self.MMB.predict([[a, b, c, d, bbc, primaryPB]])[-1]
-            ret = self.MR.predict([[a, b, c, d, bbc]])[-1]
-            if primaryPB == metaPB and ret > minRet and roc30 > 0:
-                #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
-                self.profit = self.data.Close * (1 + (ret + roc30))
-                self.stop = self.data.Close * (1 - (ret + roc30))
-                print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
-                print('{} SET + P {} S {} R {} roc {}'
-                      .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30))
-                self.cond = 'S'
-                self.buy()
-        elif self.cond == 'S':
+        if not self.position:
+            if event != 0 and bbc != 0 and MAV > minRet:
+                featuresB = normalize([[TrD9, TrD6, TrD3, diff]])
+                a, b, c, d = featuresB[0][0], featuresB[0][1], featuresB[0][2], featuresB[0][3]
+                primaryPB = self.PMB.predict([[a, b, c, d, bbc]])[-1]
+                metaPB = self.MMB.predict([[a, b, c, d, bbc, primaryPB]])[-1]
+                ret = self.MR.predict([[a, b, c, d, bbc]])[-1]
+                if primaryPB == metaPB and ret > minRet and roc30 > 0:
+                    #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
+                    self.profit = self.data.Close * (1 + (ret + roc30))
+                    self.stop = self.data.Close * (1 - (ret + roc30))
+                    print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
+                    print('{} SET + P {} S {} R {} roc {}'
+                          .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30))
+                    self.buy()
+        elif self.position:
             if self.data.Close[-1] < self.stop:
                 self.stop = 0
                 self.profit = 0
-                print('{} Sell. price {} eq {}'.
+                print('{} Sell Stop. price {} eq {}'.
                       format(self.data.index[-1], self.data.Close[-1], self.equity))
                 self.cond = 'B'
                 self.sell()
@@ -209,9 +208,8 @@ class Prado26240(Strategy):
                     if primaryPS != metaPS:
                         self.stop = 0
                         self.profit = 0
-                        print('{} Sell. price {} eq {}'
+                        print('{} Sell Profit. price {} eq {}'
                               .format(self.data.index[-1], self.data.Close[-1], self.equity))
-                        self.cond = 'B'
                         self.sell()
                     else:
                         if ret > minRet and roc30 > 0:
@@ -229,9 +227,9 @@ class Prado26241(Strategy):
         self.PMS = PrimeModelSell
         self.MMB = MetaModelBuy
         self.MMS = MetaModelSell
-        # self.cond = 'B'
         self.stop = 0
         self.profit = 0
+        self.timestamp = 0
 
     def next(self):
         event = self.data['event'][-1]
@@ -258,20 +256,20 @@ class Prado26241(Strategy):
                     #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
                     self.profit = self.data.Close * (1 + (ret + roc30))
                     self.stop = self.data.Close * (1 - (ret + roc30))
+                    self.timestamp = self.data.t[-1]
                     print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                     print('{} SET + P {} S {} R {} roc {}'
                           .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30))
-                    # self.cond = 'S'
                     self.buy()
-        if self.position:
+        elif self.position:
             if self.data.Close[-1] < self.stop:
                 self.stop = 0
                 self.profit = 0
-                print('{} Sell. price {} eq {}'.
+                self.timestamp = 0
+                print('{} Sell Stop. price {} eq {}'.
                       format(self.data.index[-1], self.data.Close[-1], self.equity))
-                # self.cond = 'B'
                 self.position.close()
-            elif self.data.Close[-1] > self.profit:
+            elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 92400000:
                 if event != 0 and bbc != 0:
                     featuresS = normalize([[TrD6, St4H, Tr6, vol]])
                     a, b, c, d = featuresS[0][0], featuresS[0][1], featuresS[0][2], featuresS[0][3]
@@ -283,14 +281,15 @@ class Prado26241(Strategy):
                     if primaryPS != metaPS:
                         self.stop = 0
                         self.profit = 0
-                        print('{} Sell. price {} eq {}'
+                        self.timestamp = 0
+                        print('{} Sell Profit. price {} eq {}'
                               .format(self.data.index[-1], self.data.Close[-1], self.equity))
-                        # self.cond = 'B'
                         self.position.close()
                     else:
                         if ret > minRet and roc30 > 0:
                             self.profit = self.data.Close * (1 + (ret + roc30))
                             self.stop = self.data.Close * (1 - (ret + roc30))
+                            self.timestamp = self.data.t[-1]
                             print('{} RESET + P {} S {} R {} roc {}'
                                   .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30))
 
@@ -317,6 +316,6 @@ def opt(dt, strategy):
     # winsound.Beep(1000, 1500)
 
 
-test_data = data
-statistics(test_data, Prado26121)
+tst_data = data
+statistics(tst_data, Prado26241)
 # opt(test_data, Prelder)

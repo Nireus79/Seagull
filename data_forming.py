@@ -22,10 +22,10 @@ pd.set_option('display.max_columns', None)
 
 eth5m = pd.read_csv('csv/tb/ETHEUR_5m.csv')
 # btc5m = pd.read_csv('csv/tb/BTCEUR_5m.csv')
-
+eth5m['t'] = eth5m.time
 eth5m.time = pd.to_datetime(eth5m.time, unit='ms')
 eth5m.set_index('time', inplace=True)
-# eth5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
+eth5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
 # btc5m.time = pd.to_datetime(btc5m.time, unit='ms')
 # btc5m.set_index('time', inplace=True)
 # btc5m.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
@@ -40,6 +40,7 @@ ohlc = {
 eth30m = eth5m.resample('30min').apply(ohlc)
 eth4h = eth5m.resample('4H').apply(ohlc)
 eth1D = eth5m.resample('D').apply(ohlc)
+eth30m['t'] = eth5m.t
 eth30m['4H_Close'] = eth4h['Close']
 eth30m['4H_Low'] = eth4h['Low']
 eth30m['4H_High'] = eth4h['High']
@@ -50,7 +51,7 @@ eth30m['1D_Volume'] = eth1D['Volume']
 cpus = 1
 ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
 minRet = 0.026  # The minimum target return(def .01)
-delta = 12
+delta = 24
 span = 100  # 100
 window = 20  # 20
 bb_stddev = 2
