@@ -183,6 +183,7 @@ data.drop(columns=['ave', 'price', 'upper', 'lower',
 
 data = data.fillna(0)
 full_data = data.copy()
+# data = data.iloc[::-1]
 events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
 events_data.drop(columns=['Open', 'High', 'Low', '1D_Close', '1D_Volume',
@@ -218,4 +219,4 @@ print('event data mean ret', events_data.ret.mean())
 # events_data.index = range(len(events_data))
 # print(events_data)
 #
-# events_data.to_csv('events_data_2624.csv')
+# events_data.to_csv('events_data_1Η6H2624.csv')

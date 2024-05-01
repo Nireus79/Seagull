@@ -5,8 +5,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import classification_report
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_2612.csv')
-test_data = events_data  # pd.read_csv('csv/synth/synth_ev20000_2612.csv')  # events_data
+train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2612.csv')
+test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2612.csv')  # events_data
 
 B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']  # 0.77      0.72
 S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']  # 0.78      0.85

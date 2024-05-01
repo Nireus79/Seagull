@@ -153,8 +153,8 @@ def MDI(X, Y):
 
 # MDI()
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_2624.csv')
-test_data = pd.read_csv('csv/synth/synth_ev20000_2624.csv')
+train_data = pd.read_csv('csv/synth/synth_ev100000_1H4H2426.csv')
+test_data = pd.read_csv('csv/synth/synth_ev20000_1H4H2426.csv')
 
 signal = 'bin'
 Y_train = train_data[signal]
@@ -173,28 +173,8 @@ S24 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']
 B12 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']
 S12 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']
 
-k_mean(X_train, X_test, Y_train, Y_test, None, 2, 'MLP', 1)
-# 24
-# feats_1      [St4H, Tr6, TrD6, Volatility, bb_cross]
-# f1_0_mean                                   0.778286
-# f1_1_mean                                   0.679824
-# feats_0      [mom10, rsi, TrD3, bb_cross]  # Alternative
-# f1_0_mean                        0.778481
-# f1_1_mean                        0.677914
-
-# feats_1      [rsi, 4Hmacd, TrD3, bb_cross, momi]
-# f1_0_mean                               0.768493
-# f1_1_mean                               0.714461
-# feats_1      [VtrD13, bb_sq, TrD3, bb_cross]  # Alternative
-# f1_0_mean                           0.736893
-# f1_1_mean                           0.714166
-
-
-# 12
-# feats_0      [TrD6, Tr20, TrD13, TrD3, bb_cross]
-# f1_0_mean                               0.820902
-# f1_1_mean                               0.728736
-
-# feats_1      [TrD13, MAV, TrD3, TrD6, bb_cross]
-# f1_0_mean                              0.825958
-# f1_1_mean                              0.750942
+B14242624 = ['TrD3', 'VtrD3', '4H_rsi', 'bb_cross']
+S14242624 = ['diff', 'mom10']
+B16242624 = ['TrD20', 'VtrD3']
+S16242624 = ['TrD20', 'bb_cross']
+k_mean(X_train, X_test, Y_train, Y_test, S14242624, 2, 'MLP', 1)

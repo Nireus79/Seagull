@@ -220,6 +220,8 @@ class Prado26240(Strategy):
 
 
 class Prado26241(Strategy):
+    pt = 1
+    sl = 4
 
     def init(self):
         self.MR = ModelRisk
@@ -254,8 +256,8 @@ class Prado26241(Strategy):
                 ret = self.MR.predict([[a, b, c, d, bbc]])[-1]
                 if primaryPB == metaPB and ret > minRet and roc30 > 0:
                     #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
-                    self.profit = self.data.Close * (1 + (ret + roc30))
-                    self.stop = self.data.Close * (1 - (ret + roc30))
+                    self.profit = self.data.Close * (1 + ((ret + roc30) * self.pt))
+                    self.stop = self.data.Close * (1 - ((ret + roc30) / self.sl))
                     self.timestamp = self.data.t[-1]
                     print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                     print('{} SET + P {} S {} R {} roc {}'
@@ -287,8 +289,8 @@ class Prado26241(Strategy):
                         self.position.close()
                     else:
                         if ret > minRet and roc30 > 0:
-                            self.profit = self.data.Close * (1 + (ret + roc30))
-                            self.stop = self.data.Close * (1 - (ret + roc30))
+                            self.profit = self.data.Close * (1 + ((ret + roc30) * self.pt))
+                            self.stop = self.data.Close * (1 - ((ret + roc30) / self.sl))
                             self.timestamp = self.data.t[-1]
                             print('{} RESET + P {} S {} R {} roc {}'
                                   .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30))
@@ -305,8 +307,8 @@ def statistics(dt, strategy):
 def opt(dt, strategy):
     bt = Backtest(dt, strategy, cash=100000, commission=0.026, exclusive_orders=True)
     stats, heatmap = bt.optimize(
-        t=range(-200, 201),
-        # sl=range(1, 6),
+        pt=range(0, 11),
+        sl=range(0, 11),
         maximize='Sharpe Ratio',
         # maximize='Equity Final [$]',
         # maximize='Max. Drawdown [%]',
@@ -318,4 +320,17 @@ def opt(dt, strategy):
 
 tst_data = data
 statistics(tst_data, Prado26241)
-# opt(test_data, Prelder)
+# opt(tst_data, Prado26241)
+
+# pt  sl
+# 1   9     0.321399
+# 3   10    0.326057
+# 4   9     0.329497
+# 5   8     0.380615
+# 4   7     0.385017
+#             ...
+# 8   4     0.759417
+#     6     0.760541
+# 1   2     0.764966
+#     3     0.856943
+#     4     0.909881
