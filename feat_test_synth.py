@@ -173,8 +173,19 @@ S24 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']
 B12 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']
 S12 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']
 
-B14242624 = ['TrD3', 'VtrD3', '4H_rsi', 'bb_cross']
-S14242624 = ['diff', 'mom10']
-B16242624 = ['TrD20', 'VtrD3']
-S16242624 = ['TrD20', 'bb_cross']
-k_mean(X_train, X_test, Y_train, Y_test, S14242624, 2, 'MLP', 1)
+B14242624 = ['Volume', '4H_rsi', 'TrD3', 'VtrD3', 'bb_cross']
+S14242624 = ['TrD3', '4H%K', 'diff', 'mom10', 'bb_cross']
+
+B14242624A = ['Tr6', 'TrD9', 'bb_cross', 'roci', 'rsi']
+S14242624A = ['St4H', 'TrD6', 'roc30', 'rsi', 'srl_corr']
+k_mean(X_train, X_test, Y_train, Y_test, B14242624, 1, 'MLP', 1)
+
+# 4
+# feats_0      [roc30, srl_corr]
+# f1_0_mean             0.707797
+# f1_1_mean             0.006381
+
+# feats_1      [TrD9, bb_cross]
+# f1_0_mean            0.659428
+# f1_1_mean            0.563409
+

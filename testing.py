@@ -221,7 +221,7 @@ class Prado26240(Strategy):
 
 class Prado26241(Strategy):
     pt = 1
-    sl = 4
+    sl = 3
 
     def init(self):
         self.MR = ModelRisk
@@ -321,16 +321,3 @@ def opt(dt, strategy):
 tst_data = data
 statistics(tst_data, Prado26241)
 # opt(tst_data, Prado26241)
-
-# pt  sl
-# 1   9     0.321399
-# 3   10    0.326057
-# 4   9     0.329497
-# 5   8     0.380615
-# 4   7     0.385017
-#             ...
-# 8   4     0.759417
-#     6     0.760541
-# 1   2     0.764966
-#     3     0.856943
-#     4     0.909881
