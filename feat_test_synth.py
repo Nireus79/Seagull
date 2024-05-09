@@ -169,13 +169,13 @@ S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']  # 0.78 0.85
 B26121 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']  # 0.77 0.73
 S26121 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']  # 0.78 0.87
 
-B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69 0.73
-S26240 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73 0.80
-B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.72 0.70 G
-S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74 0.80 G
-B26242 = ['TrD3', '4Hmacd', 'Vol_Vol', 'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.735257
-S26242 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.792629
-k_mean(X_train, X_test, Y_train, Y_test, B26242, 1, 'MLP', 1)
+B26241 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69 0.73
+S26241 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73 0.80
+B26242 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.72 0.70 G
+S26242 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74 0.80 G
+B26243 = ['TrD3', '4Hmacd', 'TrD20', 'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.735257
+S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.792629
+k_mean(X_train, X_test, Y_train, Y_test, B26243, 0, 'MLP', 1)
 
 # feats_1      [TrD3, bb_cross]
 # f1_0_mean            0.758037

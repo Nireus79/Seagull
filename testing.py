@@ -322,7 +322,6 @@ class Prado26243(Strategy):
         roc30r = self.data['roc30'][-1] / 100
         mac4 = self.data['4Hmacd'][-1]
         vol = self.data['Volatility'][-1]
-        vol_vol = self.data['Vol_Vol'][-1]
         vv = self.data['VV'][-1]
         srl_corr = self.data['srl_corr'][-1]
         rsi = self.data['rsi'][-1]
@@ -330,7 +329,7 @@ class Prado26243(Strategy):
 
         if not self.position:
             if event != 0 and bbc != 0 and MAV > minRet:
-                featuresB = normalize([[TrD3, mac4, vol_vol, vol, vv, roc30, srl_corr, rsi]])
+                featuresB = normalize([[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]])
                 a, b, c, d, e, f, g, k = \
                     featuresB[0][0], featuresB[0][1], featuresB[0][2], featuresB[0][3], featuresB[0][4], \
                     featuresB[0][5], featuresB[0][6], featuresB[0][7]
@@ -362,7 +361,7 @@ class Prado26243(Strategy):
                         featuresS[0][5], featuresS[0][6], featuresS[0][7]
                     primaryPS = self.PMS.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
                     metaPS = self.MMS.predict([[a, b, c, d, e, f, g, k, bbc, primaryPS]])[-1]
-                    featuresB = normalize([[TrD3, mac4, vol_vol, vol, vv, roc30, srl_corr, rsi]])
+                    featuresB = normalize([[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]])
                     aB, bB, cB, dB, eB, fB, gB, kB = featuresB[0][0], featuresB[0][1], featuresB[0][2], \
                                                      featuresB[0][3], featuresB[0][4], featuresB[0][5], \
                                                      featuresB[0][6], featuresB[0][7]
