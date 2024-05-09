@@ -209,8 +209,8 @@ def MDI(X, Y):
                  reverse=True))
 
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2612.csv')
-test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2612.csv')  # events_data  # [train_data.columns]
+train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2624.csv')
+test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')  # events_data  # [train_data.columns]
 signal = 'ret'
 Y_train = train_data[signal]
 X_train = train_data.drop(columns=[signal])

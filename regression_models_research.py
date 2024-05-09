@@ -131,20 +131,24 @@ def report_generator(full_feats, standard_feats, pl, trd, tsd):
 
 signal = 'ret'
 
-S002612 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
-B002612 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
-S00124 = ['Volatility', 'TrD3', 'bb_cross', 'srl_corr']
-B00124 = ['diff', '4Hmacd', 'srl_corr', 'Tr6', 'TrD3']  # GBR
-S002624 = ['%K', 'Tr13', 'TrD3']
-B002624 = ['Tr6', 'TrD6', 'roc10']
-SS = ['TrD20', 'DVol', 'Tr6', 'bb_t', 'bb_cross']
-SB = ['TrD9', 'TrD3', 'St4H', '%K', 'bb_cross']
 
-F = SB
-F.append(signal)
+# Volume       -0.144724
+# Vtr20        -0.136662
+# St4H         -0.119008
+# Volatility   -0.108866
+# bb_sq        -0.102084
+# momi          0.164554
+# diff          0.190731
+# roci          0.229228
+# roc30         0.251544
+# bb_cross      0.134300
+B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']
+F = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross',
+     'roc30', 'roci', 'diff', 'Volume', 'Vtr20', 'St4H', 'Volatility', 'bb_sq']
 
-trd = pd.read_csv('csv/synth/synth_ev100000_002624.csv')[F]
-tsd = pd.read_csv('csv/synth/synth_ev10000_002624.csv')[F]  # events_data[F]
+combinations = uniqueCombinations(F, 0, 2)
+trd = pd.read_csv('csv/synth/synth_ev100000_30m4H2624.csv')[F]
+tsd = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')[F]  # events_data[F]
 
 Y_tr = trd[signal]
 X_tr = trd.drop(columns=[signal])
@@ -164,3 +168,12 @@ else:
     X_ts = normalizer(X_ts)
 
 K_F(X_tr, Y_tr, X_ts, Y_ts)
+
+
+# LR: cv_results.mean(): 0.003372 cv_results.std(): (0.000099) train_result: 0.003371 test_result: 0.003351
+# LASSO: cv_results.mean(): 0.003469 cv_results.std(): (0.000101) train_result: 0.003468 test_result: 0.003453
+# EN: cv_results.mean(): 0.003469 cv_results.std(): (0.000101) train_result: 0.003468 test_result: 0.003453
+# KNN: cv_results.mean(): 0.002884 cv_results.std(): (0.000088) train_result: 0.001894 test_result: 0.002784
+# CART_S: cv_results.mean(): 0.003602 cv_results.std(): (0.000090) train_result: 0.000000 test_result: 0.003506
+# SVR: cv_results.mean(): 0.003088 cv_results.std(): (0.000077) train_result: 0.003078 test_result: 0.003047
+# MLP: cv_results.mean(): 0.002792 cv_results.std(): (0.000101) train_result: 0.002758 test_result: 0.002749

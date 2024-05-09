@@ -8,24 +8,18 @@ from sklearn.metrics import classification_report
 train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2624.csv')
 test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')  # events_data
 
-B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']  # 0.77 0.72
-S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']  # 0.78 0.85
-B26121 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']  # 0.77 0.73
-S26121 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']  # 0.78 0.87
 
-B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69 0.73
-S26240 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73 0.80
-B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.72 0.70
-S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74 0.80
+B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69      0.73
+S26240 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73      0.79
+B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.73      0.68
+S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74      0.81
+B26242 = ['TrD3', 'roc30', 'VV', 'Volatility', 'bb_cross']  # 0.72      0.67
+S26242 = ['TrD3',  'Tr6', 'bb_l', 'rsi', 'bb_cross']  # 0.74      0.80
+B26243 = ['TrD3', '4Hmacd', 'Vol_Vol', 'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.74      0.69
+S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.76      0.81
 
-B14242624 = ['TrD3', 'VtrD3', '4H_rsi', 'bb_cross']  # 0.66 0.29
-S14242624 = ['TrD3', '4H%K', 'diff', 'mom10', 'bb_cross']  # 0.63 0.82
-
-B14242624A = ['Tr6', 'TrD9', 'bb_cross', 'roci', 'rsi']  # 0.65 0.55
-S14242624A = ['St4H', 'TrD6', 'roc30', 'rsi', 'srl_corr', 'bb_cross']  # 0.64 0.78
-
-B = B26241
-S = S26241
+B = B26243
+S = S26243
 signalC = 'bin'
 signalR = 'ret'
 B.append(signalC)

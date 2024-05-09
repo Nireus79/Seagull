@@ -12,7 +12,7 @@ import warnings
 
 # warnings.filterwarnings('ignore')
 
-# pd.set_option('display.max_rows', None)
+pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 
@@ -132,11 +132,11 @@ def k_mean(X_tr, X_tst, Y_tr, Y_tst, selected_features, plethos, mode, repetitio
     cross['f1_0_mean'] = cross[[f'f1-score0_{i}' for i in range(1, repetition)]].mean(axis=1)
     cross['f1_1_mean'] = cross[[f'f1-score1_{i}' for i in range(1, repetition)]].mean(axis=1)
     cross = cross[['feats_1', 'f1_0_mean', 'f1_1_mean']]
+    print(cross.loc[cross['f1_1_mean'].idxmax()])
+    print("Tail 5 sorted by f1-score0_mean:")
     print("Max f1-score0_mean:")
     print(cross.loc[cross['f1_0_mean'].idxmax()])
     print("Max f1-score1_mean:")
-    print(cross.loc[cross['f1_1_mean'].idxmax()])
-    print("Tail 5 sorted by f1-score0_mean:")
     print(cross.tail(5).sort_values(by='f1_0_mean'))
     print("Tail 5 sorted by f1-score1_mean:")
     print(cross.tail(5).sort_values(by='f1_1_mean'))
@@ -153,39 +153,77 @@ def MDI(X, Y):
 
 # MDI()
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_1H4H2426.csv')
-test_data = pd.read_csv('csv/synth/synth_ev20000_1H4H2426.csv')
+train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2624.csv')
+test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')
 
 signal = 'bin'
 Y_train = train_data[signal]
 X_train = train_data.drop(columns=[signal, 'ret'])
 Y_test = test_data[signal]
 X_test = test_data.drop(columns=[signal, 'ret'])
-B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']
-S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']
-B26121 = ['TrD9', 'TrD3', 'Tr6', 'bb_t', 'bb_cross']
-S26121 = ['TrD20', 'TrD3', 'St4H', '%K', 'bb_cross']
-B2624 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']
-S2624 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']
 
-B24 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']
-S24 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']
-B12 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']
-S12 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']
+B3042624 = ['TrD20', 'TrD3', '4Hmacd', 'rsi', 'bb_cross']  # 0.679292
+S3042624 = ['TrD6', 'TrD3', 'Tr13', 'roci', 'bb_cross']  # 0.774514
+B26120 = ['TrD3', 'TrD6', 'Volatility', 'bb_cross']  # 0.77 0.72
+S26120 = ['TrD6', 'TrD13', 'mom10', 'bb_cross']  # 0.78 0.85
+B26121 = ['TrD13', 'TrD6', 'TrD3', 'MAV', 'bb_cross']  # 0.77 0.73
+S26121 = ['TrD13', 'TrD6', 'TrD3', 'Tr20', 'bb_cross']  # 0.78 0.87
 
-B14242624 = ['Volume', '4H_rsi', 'TrD3', 'VtrD3', 'bb_cross']
-S14242624 = ['TrD3', '4H%K', 'diff', 'mom10', 'bb_cross']
+B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69 0.73
+S26240 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73 0.80
+B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.72 0.70 G
+S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74 0.80 G
+B26242 = ['TrD3', '4Hmacd', 'Vol_Vol', 'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.735257
+S26242 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.792629
+k_mean(X_train, X_test, Y_train, Y_test, B26242, 1, 'MLP', 1)
 
-B14242624A = ['Tr6', 'TrD9', 'bb_cross', 'roci', 'rsi']
-S14242624A = ['St4H', 'TrD6', 'roc30', 'rsi', 'srl_corr']
-k_mean(X_train, X_test, Y_train, Y_test, B14242624, 1, 'MLP', 1)
+# feats_1      [TrD3, bb_cross]
+# f1_0_mean            0.758037
+# f1_1_mean             0.69792
+# feats_1      [VV, TrD3, bb_cross]
+# f1_0_mean                0.752507
+# f1_1_mean                0.708381
+# feats_1      [Volatility, TrD3, VV, bb_cross]
+# f1_0_mean                            0.754124
+# f1_1_mean                            0.710169
+# feats_1      [roc30, TrD3, VV, Volatility, bb_cross]
+# f1_0_mean                                   0.758776
+# f1_1_mean                                   0.711265
+# feats_1      [srl_corr, TrD3, VV, Volatility, bb_cross, roc30]
+# f1_0_mean                                             0.761742
+# f1_1_mean                                             0.717618
+# feats_1      [rsi, TrD3, VV, Volatility, bb_cross, roc30, srl_corr]
+# f1_0_mean                                             0.765328
+# f1_1_mean                                             0.723321
+# feats_1      [4Hmacd, TrD3, VV, Volatility, bb_cross, roc30...
+# f1_0_mean                                             0.778072
+# f1_1_mean                                              0.73175
+# feats_1      [Vol_Vol, 4Hmacd, TrD3, VV, Volatility, bb_cro...
+# f1_0_mean                                             0.772953
+# f1_1_mean                                             0.735257
 
-# 4
-# feats_0      [roc30, srl_corr]
-# f1_0_mean             0.707797
-# f1_1_mean             0.006381
 
-# feats_1      [TrD9, bb_cross]
-# f1_0_mean            0.659428
-# f1_1_mean            0.563409
-
+# feats_0      [Tr6, TrD3]
+# f1_0_mean       0.772625
+# f1_1_mean       0.675326
+# feats_0      [bb_l, Tr6, TrD3]
+# f1_0_mean             0.773085
+# f1_1_mean              0.68184
+# feats_0      [rsi, Tr6, TrD3, bb_l]
+# f1_0_mean                  0.777227
+# f1_1_mean                  0.692834
+# feats_0      [bb_cross, Tr6, TrD3, bb_l, rsi]
+# f1_0_mean                            0.779813
+# f1_1_mean                            0.669169
+# feats_0      [TrD20, Tr6, TrD3, bb_cross, bb_l, rsi]
+# f1_0_mean                                   0.784599
+# f1_1_mean                                   0.697143
+# feats_0      [roc30, Tr6, TrD20, TrD3, bb_cross, bb_l, rsi]
+# f1_0_mean                                          0.788877
+# f1_1_mean                                          0.691915
+# feats_0      [4Hmacd, roc30, Tr6, TrD20, TrD3, bb_cross, bb_l, rsi]
+# f1_0_mean                                             0.792451
+# f1_1_mean                                             0.719285
+# feats_1      [4H%D, 4Hmacd, Tr6, TrD20, TrD3, bb_cross, bb_...
+# f1_0_mean                                             0.792629
+# f1_1_mean                                             0.722264

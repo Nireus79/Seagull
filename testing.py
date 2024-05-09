@@ -296,6 +296,93 @@ class Prado26241(Strategy):
                                   .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30))
 
 
+class Prado26243(Strategy):
+    pt = 1
+    sl = 1
+
+    def init(self):
+        self.MR = ModelRisk
+        self.PMB = PrimeModelBuy
+        self.PMS = PrimeModelSell
+        self.MMB = MetaModelBuy
+        self.MMS = MetaModelSell
+        self.stop = 0
+        self.profit = 0
+        self.timestamp = 0
+
+    def next(self):
+        event = self.data['event'][-1]
+        TrD20 = self.data['TrD20'][-1]
+        TrD3 = self.data['TrD3'][-1]
+        D4 = self.data['4H%D'][-1]
+        Tr6 = self.data['Tr6'][-1]
+        bbc = self.data['bb_cross'][-1]
+        MAV = self.data['MAV'][-1]
+        roc30 = self.data['roc30'][-1]
+        roc30r = self.data['roc30'][-1] / 100
+        mac4 = self.data['4Hmacd'][-1]
+        vol = self.data['Volatility'][-1]
+        vol_vol = self.data['Vol_Vol'][-1]
+        vv = self.data['VV'][-1]
+        srl_corr = self.data['srl_corr'][-1]
+        rsi = self.data['rsi'][-1]
+        bb_l = self.data['bb_l'][-1]
+
+        if not self.position:
+            if event != 0 and bbc != 0 and MAV > minRet:
+                featuresB = normalize([[TrD3, mac4, vol_vol, vol, vv, roc30, srl_corr, rsi]])
+                a, b, c, d, e, f, g, k = \
+                    featuresB[0][0], featuresB[0][1], featuresB[0][2], featuresB[0][3], featuresB[0][4], \
+                    featuresB[0][5], featuresB[0][6], featuresB[0][7]
+                primaryPB = self.PMB.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
+                metaPB = self.MMB.predict([[a, b, c, d, e, f, g, k, bbc, primaryPB]])[-1]
+                ret = self.MR.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
+                if primaryPB == metaPB and ret > minRet and roc30 > 0:
+                    #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
+                    self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
+                    self.stop = self.data.Close * (1 - ((ret + roc30r) / self.sl))
+                    self.timestamp = self.data.t[-1]
+                    print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
+                    print('{} SET + P {} S {} R {} roc {}'
+                          .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
+                    self.buy()
+        elif self.position:
+            if self.data.Close[-1] < self.stop:
+                self.stop = 0
+                self.profit = 0
+                self.timestamp = 0
+                print('{} Sell Stop. price {} eq {}'.
+                      format(self.data.index[-1], self.data.Close[-1], self.equity))
+                self.position.close()
+            elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 92400000:
+                if event != 0 and bbc != 0:
+                    featuresS = normalize([[TrD20, TrD3, D4, mac4, Tr6, roc30, bb_l, rsi]])
+                    a, b, c, d, e, f, g, k = \
+                        featuresS[0][0], featuresS[0][1], featuresS[0][2], featuresS[0][3], featuresS[0][4], \
+                        featuresS[0][5], featuresS[0][6], featuresS[0][7]
+                    primaryPS = self.PMS.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
+                    metaPS = self.MMS.predict([[a, b, c, d, e, f, g, k, bbc, primaryPS]])[-1]
+                    featuresB = normalize([[TrD3, mac4, vol_vol, vol, vv, roc30, srl_corr, rsi]])
+                    aB, bB, cB, dB, eB, fB, gB, kB = featuresB[0][0], featuresB[0][1], featuresB[0][2], \
+                                                     featuresB[0][3], featuresB[0][4], featuresB[0][5], \
+                                                     featuresB[0][6], featuresB[0][7]
+                    ret = self.MR.predict([[aB, bB, cB, dB, eB, fB, gB, kB, bbc]])[-1]
+                    if primaryPS != metaPS:
+                        self.stop = 0
+                        self.profit = 0
+                        self.timestamp = 0
+                        print('{} Sell Profit. price {} eq {}'
+                              .format(self.data.index[-1], self.data.Close[-1], self.equity))
+                        self.position.close()
+                    else:
+                        if ret > minRet and roc30 > 0:
+                            self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
+                            self.stop = self.data.Close * (1 - ((ret + roc30r) / self.sl))
+                            self.timestamp = self.data.t[-1]
+                            print('{} RESET + P {} S {} R {} roc {}'
+                                  .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
+
+
 def statistics(dt, strategy):
     bt = Backtest(dt, strategy, cash=100000, commission=0.026, exclusive_orders=True)
     output = bt.run()
@@ -307,8 +394,8 @@ def statistics(dt, strategy):
 def opt(dt, strategy):
     bt = Backtest(dt, strategy, cash=100000, commission=0.026, exclusive_orders=True)
     stats, heatmap = bt.optimize(
-        pt=range(0, 11),
-        sl=range(0, 11),
+        pt=range(1, 11),
+        sl=range(1, 11),
         maximize='Sharpe Ratio',
         # maximize='Equity Final [$]',
         # maximize='Max. Drawdown [%]',
@@ -319,5 +406,17 @@ def opt(dt, strategy):
 
 
 tst_data = data
-statistics(tst_data, Prado26241)
-# opt(tst_data, Prado26241)
+statistics(tst_data, Prado26243)
+# opt(tst_data, Prado26243)
+# pt  sl
+# 1   1     0.000000
+# 3   8     0.000000
+#     9     0.000000
+#     10    0.000000
+# 4   6     0.000000
+#             ...
+# 9   3     0.588140
+# 8   2     0.634390
+# 9   4     0.636692
+# 8   1     0.643848
+# 9   2     0.695043
