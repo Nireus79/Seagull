@@ -4,6 +4,7 @@ from data_forming import events_data
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import classification_report
+import pickle
 
 train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2624.csv')
 test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')  # events_data
@@ -114,3 +115,9 @@ print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0'
 # ---------------------------------------------------------------------------------------------------------
 ModelRisk = MLPRegressor()
 ModelRisk.fit(X_trainB, Y_trainR)
+
+# pickle.dump(PrimeModelBuy, open('PrimeModelBuy.pkl', 'wb'))
+# pickle.dump(MetaModelBuy, open('MetaModelBuy.pkl', 'wb'))
+# pickle.dump(PrimeModelSell, open('PrimeModelSell.pkl', 'wb'))
+# pickle.dump(MetaModelSell, open('MetaModelSell.pkl', 'wb'))
+# pickle.dump(ModelRisk, open('ModelRisk.pkl', 'wb'))

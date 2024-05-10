@@ -55,7 +55,7 @@ warnings.filterwarnings('ignore')
 pd.set_option('display.max_columns', None)
 num_folds = 10
 scoring = 'neg_mean_absolute_error'
-seed = 7
+seed = 42
 # part = 5
 # finf = ['bb_cross', 'bb_l', 'TrD3']  # 94/90 - 71/82
 # fin0 = ['St4H', 'TrD3']  # 0.741007/0.824
@@ -65,11 +65,11 @@ seed = 7
 # X_train, X_test = normalizer(X_trc), normalizer(X_tsc)
 # if 'bb_cross' in comb:
 #     X_train.bb_cross, X_test.bb_cross = X_tr.bb_cross, X_ts.bb_cross
-SS = ['TrD20', 'DVol', 'Tr6', 'bb_t', 'bb_cross']
-SB = ['TrD9', 'TrD3', 'St4H', '%K', 'bb_cross']
+B26243 = ['TrD20', 'TrD3', '4Hmacd', 'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.74      0.69
+S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.76      0.81
 
-B = SB
-S = SS
+B = B26243
+S = S26243
 signalC = 'bin'
 signalR = 'ret'
 B.append(signalC)
@@ -77,7 +77,7 @@ B.append(signalR)
 S.append(signalC)
 S.append(signalR)
 
-train_data = pd.read_csv('csv/synth/synth_ev10000_002624.csv')
+train_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')
 test_data = events_data
 
 train_dataB = train_data[B]

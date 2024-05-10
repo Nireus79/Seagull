@@ -5,7 +5,7 @@ import warnings
 from sklearn.preprocessing import normalize
 from data_forming import minRet, data
 from synth_meta import PrimeModelSell, PrimeModelBuy, MetaModelSell, MetaModelBuy, ModelRisk, test_data
-
+import numpy as np
 warnings.filterwarnings('ignore')
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -329,13 +329,14 @@ class Prado26243(Strategy):
 
         if not self.position:
             if event != 0 and bbc != 0 and MAV > minRet:
-                featuresB = normalize([[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]])
-                a, b, c, d, e, f, g, k = \
-                    featuresB[0][0], featuresB[0][1], featuresB[0][2], featuresB[0][3], featuresB[0][4], \
-                    featuresB[0][5], featuresB[0][6], featuresB[0][7]
-                primaryPB = self.PMB.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
-                metaPB = self.MMB.predict([[a, b, c, d, e, f, g, k, bbc, primaryPB]])[-1]
-                ret = self.MR.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
+                featuresB = [[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]]
+                featuresB = normalize(featuresB)
+                featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
+                primaryPB = self.PMB.predict([featuresB])[-1]
+                featuresMB = featuresB
+                featuresMB = np.insert(featuresMB, len(featuresMB), primaryPB)
+                metaPB = self.MMB.predict([featuresMB])[-1]
+                ret = self.MR.predict([featuresB])[-1]
                 if primaryPB == metaPB and ret > minRet and roc30 > 0:
                     #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
                     self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
@@ -355,17 +356,17 @@ class Prado26243(Strategy):
                 self.position.close()
             elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 92400000:
                 if event != 0 and bbc != 0:
-                    featuresS = normalize([[TrD20, TrD3, D4, mac4, Tr6, roc30, bb_l, rsi]])
-                    a, b, c, d, e, f, g, k = \
-                        featuresS[0][0], featuresS[0][1], featuresS[0][2], featuresS[0][3], featuresS[0][4], \
-                        featuresS[0][5], featuresS[0][6], featuresS[0][7]
-                    primaryPS = self.PMS.predict([[a, b, c, d, e, f, g, k, bbc]])[-1]
-                    metaPS = self.MMS.predict([[a, b, c, d, e, f, g, k, bbc, primaryPS]])[-1]
-                    featuresB = normalize([[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]])
-                    aB, bB, cB, dB, eB, fB, gB, kB = featuresB[0][0], featuresB[0][1], featuresB[0][2], \
-                                                     featuresB[0][3], featuresB[0][4], featuresB[0][5], \
-                                                     featuresB[0][6], featuresB[0][7]
-                    ret = self.MR.predict([[aB, bB, cB, dB, eB, fB, gB, kB, bbc]])[-1]
+                    featuresS = [[TrD20, TrD3, D4, mac4, Tr6, roc30, bb_l, rsi]]
+                    featuresS = normalize(featuresS)
+                    featuresS = np.insert(featuresS, len(featuresS[0]), bbc)
+                    primaryPS = self.PMS.predict([featuresS])[-1]
+                    featuresMS = featuresS
+                    featuresMS = np.insert(featuresMS, len(featuresMS), primaryPS)
+                    metaPS = self.MMS.predict([featuresMS])[-1]
+                    featuresB = [[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]]
+                    featuresB = normalize(featuresB)
+                    featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
+                    ret = self.MR.predict([featuresB])[-1]
                     if primaryPS != metaPS:
                         self.stop = 0
                         self.profit = 0
