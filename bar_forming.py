@@ -186,6 +186,7 @@ def form_time_bars(csv, frequency):
     # time_bars_price.to_csv('EURUSDT_30m.csv')
     return time_bars_price
 
-# print(pd.read_csv('D:/crypto_DATA/tick/DOTEUR/DOTEUR_full_tick.csv'))
 
-# print(form_time_bars('D:/crypto_DATA/tick/EURUSDT/EURUSDT_full_tick.csv', '30min'))
+# print(pd.read_csv('D:/crypto_DATA/tick/ETHEUR/ETHEUR_full_tick.csv'))
+db = form_dollar_bars('D:/crypto_DATA/tick/ETHEUR/ETHEUR_full_tick.csv', 1000000)
+print(db)

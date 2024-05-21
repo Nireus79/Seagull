@@ -30,13 +30,13 @@ def model_test(comb, X_tr, X_ts, Y_tr, Y_ts, md):
         Model = MLPClassifier()
         Model.fit(X_trn, Y_tr)
         predictions = Model.predict(X_tsn)
-        report = classification_report(Y_ts, predictions, target_names=['0', '1'], output_dict=True)
+        report = classification_report(Y_ts, predictions, target_names=['0', '1'], output_dict=True, zero_division=1)
         return report
     elif md == 'GBC':
         Model = GradientBoostingClassifier(max_depth=len(comb), random_state=42)
         Model.fit(X_trn, Y_tr)
         predictions = Model.predict(X_tsn)
-        report = classification_report(Y_ts, predictions, target_names=['0', '1'], output_dict=True)
+        report = classification_report(Y_ts, predictions, target_names=['0', '1'], output_dict=True, zero_division=1)
         return report
 
 
@@ -173,57 +173,8 @@ B26241 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69 0.73
 S26241 = ['TrD20', 'TrD9', 'macd', 'Volatility', 'bb_cross']  # 0.73 0.80
 B26242 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.72 0.70 G
 S26242 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74 0.80 G
-B26243 = ['TrD3', '4Hmacd', 'TrD20', 'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.735257
+B26243 = ['TrD3', '4Hmacd', 'TrD20', 'Volatility', 'VV', 'mom10', 'roc30', 'rsi', 'bb_cross']  # 0.735257
 S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.792629
-k_mean(X_train, X_test, Y_train, Y_test, B26243, 0, 'MLP', 1)
-
-# feats_1      [TrD3, bb_cross]
-# f1_0_mean            0.758037
-# f1_1_mean             0.69792
-# feats_1      [VV, TrD3, bb_cross]
-# f1_0_mean                0.752507
-# f1_1_mean                0.708381
-# feats_1      [Volatility, TrD3, VV, bb_cross]
-# f1_0_mean                            0.754124
-# f1_1_mean                            0.710169
-# feats_1      [roc30, TrD3, VV, Volatility, bb_cross]
-# f1_0_mean                                   0.758776
-# f1_1_mean                                   0.711265
-# feats_1      [srl_corr, TrD3, VV, Volatility, bb_cross, roc30]
-# f1_0_mean                                             0.761742
-# f1_1_mean                                             0.717618
-# feats_1      [rsi, TrD3, VV, Volatility, bb_cross, roc30, srl_corr]
-# f1_0_mean                                             0.765328
-# f1_1_mean                                             0.723321
-# feats_1      [4Hmacd, TrD3, VV, Volatility, bb_cross, roc30...
-# f1_0_mean                                             0.778072
-# f1_1_mean                                              0.73175
-# feats_1      [Vol_Vol, 4Hmacd, TrD3, VV, Volatility, bb_cro...
-# f1_0_mean                                             0.772953
-# f1_1_mean                                             0.735257
+k_mean(X_train, X_test, Y_train, Y_test, None, 2, 'MLP', 1)
 
 
-# feats_0      [Tr6, TrD3]
-# f1_0_mean       0.772625
-# f1_1_mean       0.675326
-# feats_0      [bb_l, Tr6, TrD3]
-# f1_0_mean             0.773085
-# f1_1_mean              0.68184
-# feats_0      [rsi, Tr6, TrD3, bb_l]
-# f1_0_mean                  0.777227
-# f1_1_mean                  0.692834
-# feats_0      [bb_cross, Tr6, TrD3, bb_l, rsi]
-# f1_0_mean                            0.779813
-# f1_1_mean                            0.669169
-# feats_0      [TrD20, Tr6, TrD3, bb_cross, bb_l, rsi]
-# f1_0_mean                                   0.784599
-# f1_1_mean                                   0.697143
-# feats_0      [roc30, Tr6, TrD20, TrD3, bb_cross, bb_l, rsi]
-# f1_0_mean                                          0.788877
-# f1_1_mean                                          0.691915
-# feats_0      [4Hmacd, roc30, Tr6, TrD20, TrD3, bb_cross, bb_l, rsi]
-# f1_0_mean                                             0.792451
-# f1_1_mean                                             0.719285
-# feats_1      [4H%D, 4Hmacd, Tr6, TrD20, TrD3, bb_cross, bb_...
-# f1_0_mean                                             0.792629
-# f1_1_mean                                             0.722264

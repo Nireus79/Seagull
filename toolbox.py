@@ -312,6 +312,7 @@ def uniqueCombinations(full_elements, std_elements, plethos):
 
     return [list(combo) for combo in combinations]
 
+
 # def create_LSTMmodel(X_train, neurons, learn_rate, momentum):
 #     # create model
 #     mdl = Sequential()
@@ -423,6 +424,20 @@ def crossing_elder(df, col1, col2):
     return pd.concat([side_up, side_down]).sort_index()
 
 
+def simple_crossing(df, col1, col2, col3):
+    # crit1 = df[col1].shift(1) < df[col2].shift(1)
+    crit2 = df[col1] > df[col2]
+    up_cross = df[col1][crit2]
+    side_up = pd.Series(1, index=up_cross.index)
+
+    # crit3 = df[col1].shift(1) > df[col3].shift(1)
+    crit4 = df[col1] < df[col3]
+    down_cross = df[col1][crit4]
+    side_down = pd.Series(-1, index=down_cross.index)
+
+    return pd.concat([side_up, side_down]).sort_index()
+
+
 def crossing3(df, col1, col2, col3):
     crit1 = df[col1].shift(1) < df[col2].shift(1)
     crit2 = df[col1] > df[col2]
@@ -435,3 +450,19 @@ def crossing3(df, col1, col2, col3):
     side_down = pd.Series(-1, index=down_cross.index)
 
     return pd.concat([side_up, side_down]).sort_index()
+
+
+def compute_rolling_autocorr(closing_prices, window, lag):
+    """
+    Compute rolling column-wise autocorrelation for a DataFrame containing closing prices.
+
+    Args:
+    - closing_prices (pd.DataFrame): DataFrame containing closing prices.
+    - window (int): Size of the rolling window.
+    - lag (int, optional): Lag for the autocorrelation calculation. Defaults to 1.
+
+    Returns:
+    - pd.DataFrame: DataFrame containing rolling autocorrelation values.
+    """
+    autocorr_df = closing_prices.rolling(window=window).corr(closing_prices.shift(lag))
+    return autocorr_df

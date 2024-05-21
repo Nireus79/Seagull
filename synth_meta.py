@@ -6,8 +6,8 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import classification_report
 import pickle
 
-train_data = pd.read_csv('csv/synth/synth_ev100000_30m4H2624.csv')
-test_data = pd.read_csv('csv/synth/synth_ev20000_30m4H2624.csv')  # events_data
+train_data = pd.read_csv('csv/synth/100simple.csv')
+test_data = pd.read_csv('csv/synth/20simple.csv')  # events_data
 
 
 B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69      0.73
@@ -16,7 +16,7 @@ B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.73      0.68
 S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74      0.81
 B26242 = ['TrD3', 'roc30', 'VV', 'Volatility', 'bb_cross']  # 0.72      0.67
 S26242 = ['TrD3',  'Tr6', 'bb_l', 'rsi', 'bb_cross']  # 0.74      0.80
-B26243 = ['TrD20', 'TrD3', '4Hmacd',  'Volatility', 'VV', 'roc30', 'srl_corr', 'rsi', 'bb_cross']  # 0.74      0.69
+B26243 = ['TrD20', 'TrD3', '4Hmacd',  'Volatility', 'VV', 'roc30', 'mom10', 'rsi', 'bb_cross']  # 0.74      0.69
 S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.76      0.81
 
 B = B26243
@@ -79,8 +79,8 @@ MetaModelBuy = MLPClassifier()
 MetaModelBuy.fit(X_train_BB, Y_train_metaBuy)
 test_set_meta_predBuy = MetaModelBuy.predict(X_testB)
 print('Buy-----------------')
-print(classification_report(Y_testC, test_set_predBuy, target_names=['0', '1']))
-print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=['0', '1']))
+print(classification_report(Y_testC, test_set_predBuy, target_names=['0', '1'], zero_division=1))
+print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=['0', '1'], zero_division=1))
 # -------------------------------------------------------------------------------------------------------
 X_train_AS, Y_train_AS = X_trainS[:int(len(X_trainS) * 0.5)], Y_trainC[:int(len(Y_trainC) * 0.5)]
 X_train_BS, Y_train_BS = X_trainS[int(len(X_trainS) * 0.5):], Y_trainC[int(len(Y_trainC) * 0.5):]
@@ -110,8 +110,8 @@ MetaModelSell = MLPClassifier()
 MetaModelSell.fit(X_train_BS, Y_train_metaS)
 test_set_meta_predS = MetaModelSell.predict(X_testS)
 print('Sell---------------')
-print(classification_report(Y_testC, test_set_predS, target_names=['0', '1']))
-print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0', '1']))
+print(classification_report(Y_testC, test_set_predS, target_names=['0', '1'], zero_division=1))
+print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0', '1'], zero_division=1))
 # ---------------------------------------------------------------------------------------------------------
 ModelRisk = MLPRegressor()
 ModelRisk.fit(X_trainB, Y_trainR)

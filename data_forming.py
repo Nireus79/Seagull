@@ -3,7 +3,7 @@ import numpy as np
 from ta.momentum import rsi, stoch
 from ta.trend import macd_diff, macd_signal, macd, adx
 from ta.volatility import average_true_range
-from toolbox import MOM, ROC, crossing3
+from toolbox import MOM, ROC, crossing3, compute_rolling_autocorr, simple_crossing
 from Pradofun import *
 import warnings
 
@@ -80,6 +80,7 @@ data['atr'] = average_true_range(data['High'], data['Low'], data['Close'], windo
 data['diff'] = np.log(data['Close']).diff()
 data['cusum'] = data['Close'].cumsum()
 data['srl_corr'] = df_rolling_autocorr(returns(data['Close']), window=window).rename('srl_corr')
+# data['auto_corr'] = compute_rolling_autocorr(data['Close'], window, 1)
 data['vmacd'] = macd_diff(data['Volume'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
 data['vrsi'] = rsi(data['Volume'], window=14, fillna=False)
 data['vdiff'] = np.log(data['Volume']).diff()
@@ -131,6 +132,7 @@ data['Dvema9'] = data['1D_Volume'].rolling(9).mean()
 data['Dvema13'] = data['1D_Volume'].rolling(13).mean()
 data['Dvema20'] = data['1D_Volume'].rolling(20).mean()
 
+# data['Tr3'] = data.apply(lambda x: x['Close'] - x['ema3'], axis=1)
 data['Tr6'] = data.apply(lambda x: x['Close'] - x['ema6'], axis=1)
 data['Tr9'] = data.apply(lambda x: x['Close'] - x['ema9'], axis=1)
 data['Tr13'] = data.apply(lambda x: x['Close'] - x['ema13'], axis=1)
@@ -150,12 +152,12 @@ data['VtrD3'] = data.apply(lambda x: x['Volume'] - x['Dvema3'], axis=1)
 data['VtrD6'] = data.apply(lambda x: x['Volume'] - x['Dvema6'], axis=1)
 data['VtrD9'] = data.apply(lambda x: x['Volume'] - x['Dvema9'], axis=1)
 data['VtrD13'] = data.apply(lambda x: x['Volume'] - x['Dvema13'], axis=1)
-data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
+# data['VtrD20'] = data.apply(lambda x: x['Volume'] - x['Dvema20'], axis=1)
 
 data['StD'] = data.apply(lambda x: x['%K'] - x['%D'], axis=1)
 data['St4H'] = data.apply(lambda x: x['4H%K'] - x['4H%D'], axis=1)
 
-bb_sides = crossing3(data, 'Close', 'upper', 'lower')
+bb_sides = simple_crossing(data, 'Close', 'upper', 'lower')
 data['bb_cross'] = bb_sides
 data['Volatility'] = getDailyVol(data['Close'], span, delta)
 data['DVol'] = getDailyVol(data['1D_Close'], span, delta)
@@ -206,6 +208,7 @@ events_data = events_data.loc[events_data['bb_cross'] != 0]
 # majority = events_data[events_data[signal] == 0].sample(n=len(minority), replace=True)
 # events_data = pd.concat([minority, majority])
 # events_data['corr'] = events_data.apply(lambda x: x['ret'] / x['DVol'], axis=1)
+
 print('Data forming events')
 print('event 0', np.sum(np.array(events_data[signal]) == 0, axis=0))
 print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
@@ -217,6 +220,6 @@ print('event data mean ret', events_data.ret.mean())
 # print(events_data.columns)
 # print(events_data.columns)
 # events_data.index = range(len(events_data))
-# print(events_data)
-#
-# events_data.to_csv('events_data_1Η6H2624.csv')
+
+# events_data.to_csv('events_data_30m6H1Dsbb.csv')
+# print(len(events_data.columns))
