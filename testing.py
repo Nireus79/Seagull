@@ -328,7 +328,7 @@ class Prado26243(Strategy):
         bb_l = self.data['bb_l'][-1]
 
         if not self.position:
-            if event != 0 and bbc != 0 and MAV > minRet:
+            if event > minRet and bbc != 0:
                 featuresB = [[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]]
                 featuresB = normalize(featuresB)
                 featuresB = np.insert(featuresB, len(featuresB[0]), bbc)

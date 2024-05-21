@@ -55,9 +55,9 @@ X_testS['bb_cross'] = test_dataS['bb_cross']
 X_train_AB, Y_train_AB = X_trainB[:int(len(X_trainB) * 0.5)], Y_trainC[:int(len(Y_trainC) * 0.5)]
 X_train_BB, Y_train_BB = X_trainB[int(len(X_trainB) * 0.5):], Y_trainC[int(len(Y_trainC) * 0.5):]
 PrimeModelBuy = MLPClassifier()
-PrimeModelBuy.fit(X_train_AB, Y_train_AB)
-prime_predictionsBuy = PrimeModelBuy.predict(X_train_BB)
-test_set_predBuy = PrimeModelBuy.predict(X_testB)
+PrimeModelBuy.fit(X_train_AB.values, Y_train_AB.values)
+prime_predictionsBuy = PrimeModelBuy.predict(X_train_BB.values)
+test_set_predBuy = PrimeModelBuy.predict(X_testB.values)
 X_train_BB['predA'] = prime_predictionsBuy
 X_testB['predA'] = test_set_predBuy
 
@@ -76,8 +76,8 @@ test_meta_dfBuy['meta'] = test_meta_dfBuy.apply(lambda x: 1 if x['actual'] == x[
 Y_test_metaBuy = test_meta_dfBuy.iloc[:, 2]
 
 MetaModelBuy = MLPClassifier()
-MetaModelBuy.fit(X_train_BB, Y_train_metaBuy)
-test_set_meta_predBuy = MetaModelBuy.predict(X_testB)
+MetaModelBuy.fit(X_train_BB.values, Y_train_metaBuy.values)
+test_set_meta_predBuy = MetaModelBuy.predict(X_testB.values)
 print('Buy-----------------')
 print(classification_report(Y_testC, test_set_predBuy, target_names=['0', '1'], zero_division=1))
 print(classification_report(Y_test_metaBuy, test_set_meta_predBuy, target_names=['0', '1'], zero_division=1))
@@ -86,9 +86,9 @@ X_train_AS, Y_train_AS = X_trainS[:int(len(X_trainS) * 0.5)], Y_trainC[:int(len(
 X_train_BS, Y_train_BS = X_trainS[int(len(X_trainS) * 0.5):], Y_trainC[int(len(Y_trainC) * 0.5):]
 
 PrimeModelSell = MLPClassifier()
-PrimeModelSell.fit(X_train_AS, Y_train_AS)
-prime_predictionsS = PrimeModelSell.predict(X_train_BS)
-test_set_predS = PrimeModelSell.predict(X_testS)
+PrimeModelSell.fit(X_train_AS.values, Y_train_AS.values)
+prime_predictionsS = PrimeModelSell.predict(X_train_BS.values)
+test_set_predS = PrimeModelSell.predict(X_testS.values)
 X_train_BS['predA'] = prime_predictionsS
 X_testS['predA'] = test_set_predS
 
@@ -107,14 +107,14 @@ test_meta_dfS['meta'] = test_meta_dfS.apply(lambda x: 1 if x['actual'] == x['pre
 Y_test_metaS = test_meta_dfS.iloc[:, 2]
 
 MetaModelSell = MLPClassifier()
-MetaModelSell.fit(X_train_BS, Y_train_metaS)
-test_set_meta_predS = MetaModelSell.predict(X_testS)
+MetaModelSell.fit(X_train_BS.values, Y_train_metaS.values)
+test_set_meta_predS = MetaModelSell.predict(X_testS.values)
 print('Sell---------------')
 print(classification_report(Y_testC, test_set_predS, target_names=['0', '1'], zero_division=1))
 print(classification_report(Y_test_metaS, test_set_meta_predS, target_names=['0', '1'], zero_division=1))
 # ---------------------------------------------------------------------------------------------------------
 ModelRisk = MLPRegressor()
-ModelRisk.fit(X_trainB, Y_trainR)
+ModelRisk.fit(X_trainB.values, Y_trainR.values)
 
 # pickle.dump(PrimeModelBuy, open('PrimeModelBuy.pkl', 'wb'))
 # pickle.dump(MetaModelBuy, open('MetaModelBuy.pkl', 'wb'))

@@ -178,3 +178,12 @@ S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_
 k_mean(X_train, X_test, Y_train, Y_test, None, 2, 'MLP', 1)
 
 
+# feats_0      [TrD3, bb_cross]
+# f1_0_mean            0.765013
+# f1_1_mean            0.695408
+# Name: 961, dtype: object
+# Tail 5 sorted by f1-score0_mean:
+# Max f1-score0_mean:
+# feats_0      [Tr6, TrD9]
+# f1_0_mean       0.771864
+# f1_1_mean       0.661409
