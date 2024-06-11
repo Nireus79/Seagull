@@ -50,7 +50,7 @@ eth30m['1D_Volume'] = eth1D['Volume']
 
 cpus = 1
 ptsl = [1, 1]  # profit-taking / stop-loss limit multipliers
-minRet = 0.026  # The minimum target return(def .01)
+minRet = 0.01  # The minimum target return(def .01)
 delta = 24
 span = 100  # 100
 window = 20  # 20
@@ -91,21 +91,22 @@ data['vsrl_corr'] = df_rolling_autocorr(returns(data['Volume']), window=window).
 data['roc10'] = ROC(data['Close'], 10)
 data['roc20'] = ROC(data['Close'], 20)
 data['roc30'] = ROC(data['Close'], 30)
-
-data['roci'] = data.apply(lambda x: x.roc30 - x.roc10, axis=1)
-data['mom10'] = MOM(data['Close'], 10)
-data['mom20'] = MOM(data['Close'], 20)
-data['mom30'] = MOM(data['Close'], 30)
-data['momi'] = data.apply(lambda x: x.mom30 - x.mom10, axis=1)
+data['roc40'] = ROC(data['Close'], 40)
+data['roc50'] = ROC(data['Close'], 50)
+data['roci'] = data.apply(lambda x: x.roc50 - x.roc10, axis=1)
+# data['mom10'] = MOM(data['Close'], 10)
+# data['mom20'] = MOM(data['Close'], 20)
+# data['mom30'] = MOM(data['Close'], 30)
+# data['momi'] = data.apply(lambda x: x.mom30 - x.mom10, axis=1)
 
 data['vroc10'] = ROC(data['Volume'], 10)
 data['vroc20'] = ROC(data['Volume'], 20)
 data['vroc30'] = ROC(data['Volume'], 30)
 data['vroci'] = data.apply(lambda x: x.vroc30 - x.vroc10, axis=1)
-data['vmom10'] = MOM(data['Volume'], 10)
-data['vmom20'] = MOM(data['Volume'], 20)
-data['vmom30'] = MOM(data['Volume'], 30)
-data['vmomi'] = data.apply(lambda x: x.vmom30 - x.vmom10, axis=1)
+# data['vmom10'] = MOM(data['Volume'], 10)
+# data['vmom20'] = MOM(data['Volume'], 20)
+# data['vmom30'] = MOM(data['Volume'], 30)
+# data['vmomi'] = data.apply(lambda x: x.vmom30 - x.vmom10, axis=1)
 
 data['price'], data['ave'], data['upper'], data['lower'] = bbands(data['Close'], window=window, numsd=bb_stddev)
 data['bb_sq'] = data.apply(lambda x: x['upper'] - x['lower'], axis=1)
@@ -190,10 +191,10 @@ events_data = full_data.loc[events.index]
 events_data.fillna(0, axis=1, inplace=True)
 events_data.drop(columns=['Open', 'High', 'Low', '1D_Close', '1D_Volume',
                           'ema3', 'ema6', 'ema9', 'ema13', 'ema20', 'vema3', 'vema6', 'vema9',
-                          'vema13', 'vema20', 'roc10', 'roc20', 'mom20', 'mom30',
+                          'vema13', 'vema20', 'roc10', 'roc20',
                           'Dema3', 'Dema6', 'Dema9', 'Dema13', 'Dema20', 'Dvema3', 'Dvema6', 'Dvema9',
                           'Dvema13', 'Dvema20', 'event', 'vmacd', 'vrsi', 'vdiff', 'vcusum', 'vsrl_corr',
-                          'vroc10', 'vroc20', 'vroc30', 'vmom10', 'vmom20', 'vmom30', '4H%DS', '%DS', 'Vtr3',
+                          'vroc10', 'vroc20', 'vroc30', '4H%DS', '%DS', 'Vtr3',
                           'Vtr6', 'Vtr9', 'Vtr13'
                           ], axis=1, inplace=True)
 
@@ -215,11 +216,7 @@ print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 print('event data min ret', events_data.ret.min())
 print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
-
+# print(events_data)
 # print(len(events_data.columns))
-# print(events_data.columns)
-# print(events_data.columns)
-# events_data.index = range(len(events_data))
 
-# events_data.to_csv('events_data_30m6H1Dsbb.csv')
-# print(len(events_data.columns))
+events_data.to_csv('events_data_prelder_standards.csv')

@@ -6,8 +6,8 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import classification_report
 import pickle
 
-train_data = pd.read_csv('csv/synth/100simple.csv')
-test_data = pd.read_csv('csv/synth/20simple.csv')  # events_data
+train_data = pd.read_csv('csv/synth/Prelder_standard_ev100.csv')
+test_data = pd.read_csv('csv/synth/Prelder_standard_ev20.csv')  # events_data
 
 
 B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69      0.73
@@ -16,11 +16,14 @@ B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.73      0.68
 S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74      0.81
 B26242 = ['TrD3', 'roc30', 'VV', 'Volatility', 'bb_cross']  # 0.72      0.67
 S26242 = ['TrD3',  'Tr6', 'bb_l', 'rsi', 'bb_cross']  # 0.74      0.80
-B26243 = ['TrD20', 'TrD3', '4Hmacd',  'Volatility', 'VV', 'roc30', 'mom10', 'rsi', 'bb_cross']  # 0.74      0.69
+B26243 = ['TrD20', 'TrD3', '4Hmacd',  'Volatility', 'VV', 'roc30', 'rsi', 'bb_cross']  # 0.74      0.69
 S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.76      0.81
 
-B = B26243
-S = S26243
+standardB0 = ['TrD13', 'TrD3', 'DVol', '4H%K', '%D', 'bb_cross']  # 0.714278
+standardS0 = ['TrD3', 'Tr20', '%D', 'Volatility', 'roc30', 'bb_cross'] # 0.78262
+
+B = standardB0
+S = standardS0
 signalC = 'bin'
 signalR = 'ret'
 B.append(signalC)
