@@ -184,9 +184,9 @@ standardS0 = ['TrD3', 'Tr20', 'StD', '%D', 'Volatility', 'roc30', 'bb_cross'] # 
 standardB1 = ['St4H', 'TrD13', 'TrD6', 'TrD3', 'bb_t', 'bb_cross'] # 0.714027
 standardS1 = ['St4H', '%D', 'Tr13', 'TrD3', 'bb_cross', 'bb_sq'] # 0.780441
 
-standardB2 = ['TrD6', 'Tr6', 'diff', 'roc40']
-standardS2 = ['TrD6', 'DVol', 'MAV', 'bb_cross']
-k_mean(X_train, X_test, Y_train, Y_test, standardB2, 1, 'MLP', 1)
+standardB2 = ['TrD6', '4H%D', 'Tr13', 'Tr6', 'diff', 'roc40', 'bb_l', 'bb_cross']
+standardS2 = ['TrD6', 'DVol', 'MAV', 'StD', 'Volatility', 'bb_cross']
+# k_mean(X_train, X_test, Y_train, Y_test, standardB2, 0, 'MLP', 1)
 k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 
 # feats_1      [Tr6, TrD6]
@@ -198,6 +198,15 @@ k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 # feats_1      [roc40, Tr6, TrD6, diff]
 # f1_0_mean                    0.767006
 # f1_1_mean                    0.754149
+# feats_1      [4H%D, Tr6, TrD6, diff, roc40]
+# f1_0_mean                           0.76364
+# f1_1_mean                          0.756246
+# feats_1      [Tr13, 4H%D, Tr6, TrD6, diff, roc40]
+# f1_0_mean                                0.765949
+# f1_1_mean                                0.755419
+# feats_1      [bb_l, 4H%D, Tr13, Tr6, TrD6, diff, roc40]
+# f1_0_mean                                      0.766244
+# f1_1_mean                                      0.758014
 
 # feats_0      [TrD6, bb_cross]
 # f1_0_mean            0.776536
@@ -208,3 +217,12 @@ k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 # feats_0      [MAV, DVol, TrD6, bb_cross]
 # f1_0_mean                       0.780659
 # f1_1_mean                       0.747513
+# feats_1      [StD, DVol, MAV, TrD6, bb_cross]
+# f1_0_mean                            0.781104
+# f1_1_mean                            0.747036
+# feats_0      [MAV, DVol, StD, TrD6, bb_cross]
+# f1_0_mean                            0.781596
+# f1_1_mean                            0.744617
+# feats_0      [Volatility, DVol, MAV, StD, TrD6, bb_cross]
+# f1_0_mean                                        0.781903
+# f1_1_mean                                        0.738341
