@@ -185,7 +185,7 @@ standardB1 = ['St4H', 'TrD13', 'TrD6', 'TrD3', 'bb_t', 'bb_cross'] # 0.714027
 standardS1 = ['St4H', '%D', 'Tr13', 'TrD3', 'bb_cross', 'bb_sq'] # 0.780441
 
 standardB2 = ['TrD6', '4H%D', 'Tr13', 'Tr6', 'diff', 'roc40', 'bb_l', 'bb_cross']
-standardS2 = ['TrD6', 'DVol', 'MAV', 'StD', 'Volatility', 'bb_cross']
+standardS2 = ['TrD6', 'DVol', 'MAV', 'StD', 'Volatility', 'srl_corr', 'bb_t', 'bb_cross']
 # k_mean(X_train, X_test, Y_train, Y_test, standardB2, 0, 'MLP', 1)
 k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 
@@ -207,6 +207,9 @@ k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 # feats_1      [bb_l, 4H%D, Tr13, Tr6, TrD6, diff, roc40]
 # f1_0_mean                                      0.766244
 # f1_1_mean                                      0.758014
+# feats_0      ['TrD6', 'DVol', 'MAV', 'StD', 'Volatility', 'srl_corr', 'bb_t', 'bb_cross']
+# f1_0_mean                                             0.782329
+# f1_1_mean                                             0.748653
 
 # feats_0      [TrD6, bb_cross]
 # f1_0_mean            0.776536
@@ -217,7 +220,7 @@ k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 # feats_0      [MAV, DVol, TrD6, bb_cross]
 # f1_0_mean                       0.780659
 # f1_1_mean                       0.747513
-# feats_1      [StD, DVol, MAV, TrD6, bb_cross]
+# feats_0      [StD, DVol, MAV, TrD6, bb_cross]
 # f1_0_mean                            0.781104
 # f1_1_mean                            0.747036
 # feats_0      [MAV, DVol, StD, TrD6, bb_cross]
@@ -226,3 +229,7 @@ k_mean(X_train, X_test, Y_train, Y_test, standardS2, 1, 'MLP', 1)
 # feats_0      [Volatility, DVol, MAV, StD, TrD6, bb_cross]
 # f1_0_mean                                        0.781903
 # f1_1_mean                                        0.738341
+# feats_1      [srl_corr, DVol, MAV, StD, TrD6, Volatility, bb_cross]
+# f1_0_mean                                             0.782358
+# f1_1_mean                                             0.747801
+#

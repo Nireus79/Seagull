@@ -86,7 +86,7 @@ class Prelder0(Strategy):
                     featuresMS = featuresS
                     featuresMS = np.insert(featuresMS, len(featuresMS), primaryPS)
                     metaPS = self.MMS.predict([featuresMS])[-1]
-                    featuresB = [[TrD20, TrD3, mac4, vol, vv, roc30, srl_corr, rsi]]
+                    featuresB = [[TrD20, TrD3, mac4, vol, vv, roc30, rsi]]
                     featuresB = normalize(featuresB)
                     featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
                     ret = self.MR.predict([featuresB])[-1]
@@ -122,26 +122,26 @@ class PrelderStandard(Strategy):
 
     def next(self):
         event = self.data['event'][-1]
-        TrD13 = self.data['TrD13'][-1]
-        TrD3 = self.data['TrD3'][-1]
-        Dvol = self.data['DVol'][-1]
-        K4 = self.data['4H%K'][-1]
-        D = self.data['%D'][-1]
-        Tr20 = self.data['Tr20'][-1]
+        TrD6 = self.data['TrD13'][-1]
+        Tr13 = self.data['Tr13'][-1]
+        Tr6 = self.data['Tr6'][-1]
+        diff = self.data['diff'][-1]
+        DVol = self.data['DVol'][-1]
+        D4 = self.data['4H%D'][-1]
+        StD = self.data['StD'][-1]
         bbc = self.data['bb_cross'][-1]
         MAV = self.data['MAV'][-1]
+        roc40 = self.data['roc40'][-1]
         roc30 = self.data['roc30'][-1]
         roc30r = self.data['roc30'][-1] / 100
-        mac4 = self.data['4Hmacd'][-1]
         vol = self.data['Volatility'][-1]
-        vv = self.data['VV'][-1]
         srl_corr = self.data['srl_corr'][-1]
-        rsi = self.data['rsi'][-1]
         bb_l = self.data['bb_l'][-1]
+        bb_t = self.data['bb_t'][-1]
 
         if not self.position:
             if event > minRet and bbc != 0:
-                featuresB = [[TrD13, TrD3, Dvol, K4, D]]
+                featuresB = [[TrD6, D4, Tr13, Tr6, diff, roc40, bb_l]]
                 featuresB = normalize(featuresB)
                 featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
                 primaryPB = self.PMB.predict([featuresB])[-1]
@@ -168,14 +168,14 @@ class PrelderStandard(Strategy):
                 self.position.close()
             elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 92400000:
                 if event != 0 and bbc != 0:
-                    featuresS = [[TrD3, Tr20, D, vol, roc30]]
+                    featuresS = [[TrD6, DVol, MAV, StD, vol, srl_corr, bb_t]]
                     featuresS = normalize(featuresS)
                     featuresS = np.insert(featuresS, len(featuresS[0]), bbc)
                     primaryPS = self.PMS.predict([featuresS])[-1]
                     featuresMS = featuresS
                     featuresMS = np.insert(featuresMS, len(featuresMS), primaryPS)
                     metaPS = self.MMS.predict([featuresMS])[-1]
-                    featuresB = [[TrD13, TrD3, Dvol, K4, D]]
+                    featuresB = [[TrD6, D4, Tr13, Tr6, diff, roc40, bb_l]]
                     featuresB = normalize(featuresB)
                     featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
                     ret = self.MR.predict([featuresB])[-1]
@@ -217,4 +217,4 @@ def opt(dt, strategy):
 
 
 tst_data = data
-statistics(tst_data, PrelderStandard)
+statistics(tst_data, Prelder0)

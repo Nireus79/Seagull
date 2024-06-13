@@ -6,8 +6,8 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import classification_report
 import pickle
 
-train_data = pd.read_csv('csv/synth/Prelder_standard_ev100.csv')
-test_data = pd.read_csv('csv/synth/Prelder_standard_ev20.csv')  # events_data
+train_data = pd.read_csv('csv/synth/Prelder_standard_1_ev100.csv')
+test_data = pd.read_csv('csv/synth/Prelder_standard_1_ev20.csv')
 
 
 B26240 = ['TrD9', 'TrD6', 'TrD3', 'diff', 'bb_cross']  # 0.69      0.73
@@ -22,8 +22,11 @@ S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_
 standardB0 = ['TrD13', 'TrD3', 'DVol', '4H%K', '%D', 'bb_cross']  # 0.714278
 standardS0 = ['TrD3', 'Tr20', '%D', 'Volatility', 'roc30', 'bb_cross'] # 0.78262
 
-B = standardB0
-S = standardS0
+standardB2 = ['TrD6', '4H%D', 'Tr13', 'Tr6', 'diff', 'roc40', 'bb_l', 'bb_cross']
+standardS2 = ['TrD6', 'DVol', 'MAV', 'StD', 'Volatility', 'srl_corr', 'bb_t', 'bb_cross']
+
+B = B26243
+S = S26243
 signalC = 'bin'
 signalR = 'ret'
 B.append(signalC)
