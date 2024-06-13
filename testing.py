@@ -19,9 +19,9 @@ pd.set_option('display.max_columns', None)
 
 
 
-class Prelder0(Strategy):
+class Prelder(Strategy):
     pt = 1
-    sl = 1
+    sl = 2
 
     def init(self):
         self.MR = ModelRisk
@@ -127,4 +127,5 @@ def opt(dt, strategy):
 
 
 tst_data = data
-statistics(tst_data, Prelder0)
+statistics(tst_data, Prelder)
+# opt(tst_data, Prelder)
