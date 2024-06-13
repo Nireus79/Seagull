@@ -40,13 +40,11 @@ class Prelder0(Strategy):
         D4 = self.data['4H%D'][-1]
         Tr6 = self.data['Tr6'][-1]
         bbc = self.data['bb_cross'][-1]
-        MAV = self.data['MAV'][-1]
         roc30 = self.data['roc30'][-1]
         roc30r = self.data['roc30'][-1] / 100
         mac4 = self.data['4Hmacd'][-1]
         vol = self.data['Volatility'][-1]
         vv = self.data['VV'][-1]
-        srl_corr = self.data['srl_corr'][-1]
         rsi = self.data['rsi'][-1]
         bb_l = self.data['bb_l'][-1]
 
@@ -105,94 +103,6 @@ class Prelder0(Strategy):
                             print('{} RESET + P {} S {} R {} roc {}'
                                   .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
 
-
-class PrelderStandard(Strategy):
-    pt = 1
-    sl = 1
-
-    def init(self):
-        self.MR = ModelRisk
-        self.PMB = PrimeModelBuy
-        self.PMS = PrimeModelSell
-        self.MMB = MetaModelBuy
-        self.MMS = MetaModelSell
-        self.stop = 0
-        self.profit = 0
-        self.timestamp = 0
-
-    def next(self):
-        event = self.data['event'][-1]
-        TrD6 = self.data['TrD13'][-1]
-        Tr13 = self.data['Tr13'][-1]
-        Tr6 = self.data['Tr6'][-1]
-        diff = self.data['diff'][-1]
-        DVol = self.data['DVol'][-1]
-        D4 = self.data['4H%D'][-1]
-        StD = self.data['StD'][-1]
-        bbc = self.data['bb_cross'][-1]
-        MAV = self.data['MAV'][-1]
-        roc40 = self.data['roc40'][-1]
-        roc30 = self.data['roc30'][-1]
-        roc30r = self.data['roc30'][-1] / 100
-        vol = self.data['Volatility'][-1]
-        srl_corr = self.data['srl_corr'][-1]
-        bb_l = self.data['bb_l'][-1]
-        bb_t = self.data['bb_t'][-1]
-
-        if not self.position:
-            if event > minRet and bbc != 0:
-                featuresB = [[TrD6, D4, Tr13, Tr6, diff, roc40, bb_l]]
-                featuresB = normalize(featuresB)
-                featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
-                primaryPB = self.PMB.predict([featuresB])[-1]
-                featuresMB = featuresB
-                featuresMB = np.insert(featuresMB, len(featuresMB), primaryPB)
-                metaPB = self.MMB.predict([featuresMB])[-1]
-                ret = self.MR.predict([featuresB])[-1]
-                if primaryPB == metaPB and ret > minRet and roc30 > 0:
-                    #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
-                    self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
-                    self.stop = self.data.Close * (1 - ((ret + roc30r) / self.sl))
-                    self.timestamp = self.data.t[-1]
-                    print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
-                    print('{} SET + P {} S {} R {} roc {}'
-                          .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
-                    self.buy()
-        elif self.position:
-            if self.data.Close[-1] < self.stop:
-                self.stop = 0
-                self.profit = 0
-                self.timestamp = 0
-                print('{} Sell Stop. price {} eq {}'.
-                      format(self.data.index[-1], self.data.Close[-1], self.equity))
-                self.position.close()
-            elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 92400000:
-                if event != 0 and bbc != 0:
-                    featuresS = [[TrD6, DVol, MAV, StD, vol, srl_corr, bb_t]]
-                    featuresS = normalize(featuresS)
-                    featuresS = np.insert(featuresS, len(featuresS[0]), bbc)
-                    primaryPS = self.PMS.predict([featuresS])[-1]
-                    featuresMS = featuresS
-                    featuresMS = np.insert(featuresMS, len(featuresMS), primaryPS)
-                    metaPS = self.MMS.predict([featuresMS])[-1]
-                    featuresB = [[TrD6, D4, Tr13, Tr6, diff, roc40, bb_l]]
-                    featuresB = normalize(featuresB)
-                    featuresB = np.insert(featuresB, len(featuresB[0]), bbc)
-                    ret = self.MR.predict([featuresB])[-1]
-                    if primaryPS != metaPS:
-                        self.stop = 0
-                        self.profit = 0
-                        self.timestamp = 0
-                        print('{} Sell Profit. price {} eq {}'
-                              .format(self.data.index[-1], self.data.Close[-1], self.equity))
-                        self.position.close()
-                    else:
-                        if ret > minRet and roc30 > 0:
-                            self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
-                            self.stop = self.data.Close * (1 - ((ret + roc30r) / self.sl))
-                            self.timestamp = self.data.t[-1]
-                            print('{} RESET + P {} S {} R {} roc {}'
-                                  .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
 
 def statistics(dt, strategy):
     bt = Backtest(dt, strategy, cash=100000, commission=0.026, exclusive_orders=True)

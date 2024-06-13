@@ -16,6 +16,7 @@ B26241 = ['TrD3', '4Hmacd', 'momi', 'rsi', 'bb_cross']  # 0.73      0.68
 S26241 = ['TrD6', 'St4H', 'Tr6', 'Volatility', 'bb_cross']  # 0.74      0.81
 B26242 = ['TrD3', 'roc30', 'VV', 'Volatility', 'bb_cross']  # 0.72      0.67
 S26242 = ['TrD3',  'Tr6', 'bb_l', 'rsi', 'bb_cross']  # 0.74      0.80
+
 B26243 = ['TrD20', 'TrD3', '4Hmacd',  'Volatility', 'VV', 'roc30', 'rsi', 'bb_cross']  # 0.74      0.69
 S26243 = ['TrD20', 'TrD3', '4H%D', '4Hmacd', 'Tr6', 'roc30', 'bb_l', 'rsi', 'bb_cross']  # 0.76      0.81
 
