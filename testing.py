@@ -21,7 +21,7 @@ pd.set_option('display.max_columns', None)
 
 class Prelder(Strategy):
     pt = 1
-    sl = 2
+    sl = 0.5
 
     def init(self):
         self.MR = ModelRisk
@@ -31,7 +31,7 @@ class Prelder(Strategy):
         self.MMS = MetaModelSell
         self.stop = 0
         self.profit = 0
-        self.timestamp = 0
+        # self.timestamp = 0
 
     def next(self):
         event = self.data['event'][-1]
@@ -61,8 +61,8 @@ class Prelder(Strategy):
                 if primaryPB == metaPB and ret > minRet and roc30 > 0:
                     #  𝜋− =−.01,𝜋+ = .005 are set by the portfolio manager
                     self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
-                    self.stop = self.data.Close * (1 - ((ret + roc30r) / self.sl))
-                    self.timestamp = self.data.t[-1]
+                    self.stop = self.data.Close * (1 - ((ret + roc30r) * self.sl))
+                    # self.timestamp = self.data.t[-1]
                     print('{} Buy. price {} eq {}'.format(self.data.index[-1], self.data.Close[-1], self.equity))
                     print('{} SET + P {} S {} R {} roc {}'
                           .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
@@ -71,11 +71,11 @@ class Prelder(Strategy):
             if self.data.Close[-1] < self.stop:
                 self.stop = 0
                 self.profit = 0
-                self.timestamp = 0
+                #self.timestamp = 0
                 print('{} Sell Stop. price {} eq {}'.
                       format(self.data.index[-1], self.data.Close[-1], self.equity))
                 self.position.close()
-            elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 92400000:
+            elif self.data.Close[-1] > self.profit:  # or self.data.t[-1] > self.timestamp + 86400000:
                 if event != 0 and bbc != 0:
                     featuresS = [[TrD20, TrD3, D4, mac4, Tr6, roc30, bb_l, rsi]]
                     featuresS = normalize(featuresS)
@@ -91,21 +91,22 @@ class Prelder(Strategy):
                     if primaryPS != metaPS:
                         self.stop = 0
                         self.profit = 0
-                        self.timestamp = 0
+                        # self.timestamp = 0
                         print('{} Sell Profit. price {} eq {}'
                               .format(self.data.index[-1], self.data.Close[-1], self.equity))
                         self.position.close()
                     else:
                         if ret > minRet and roc30 > 0:
                             self.profit = self.data.Close * (1 + ((ret + roc30r) * self.pt))
-                            self.stop = self.data.Close * (1 - ((ret + roc30r) / self.sl))
-                            self.timestamp = self.data.t[-1]
+                            self.stop = self.data.Close * (1 - ((ret + roc30r) * self.sl))
+                            #self.timestamp = self.data.t[-1]
                             print('{} RESET + P {} S {} R {} roc {}'
                                   .format(self.data.index[-1], self.profit[-1], self.stop[-1], ret, roc30r))
 
 
 def statistics(dt, strategy):
-    bt = Backtest(dt, strategy, cash=100000, commission=0.026, exclusive_orders=True)
+    # EON commission=0.045
+    bt = Backtest(dt, strategy, cash=100000, commission=0.045, exclusive_orders=True)
     output = bt.run()
     print(output)
     # winsound.Beep(1000, 1500)
@@ -113,10 +114,11 @@ def statistics(dt, strategy):
 
 
 def opt(dt, strategy):
-    bt = Backtest(dt, strategy, cash=100000, commission=0.026, exclusive_orders=True)
+    # EON commission=0.045
+    bt = Backtest(dt, strategy, cash=100000, commission=0.045, exclusive_orders=True)
     stats, heatmap = bt.optimize(
-        pt=range(1, 11),
-        sl=range(1, 11),
+        pt=range(1, 21),
+        sl=range(1, 21),
         maximize='Sharpe Ratio',
         # maximize='Equity Final [$]',
         # maximize='Max. Drawdown [%]',
