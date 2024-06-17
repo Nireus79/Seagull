@@ -9,7 +9,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# pd.set_option('display.max_rows', None)
+pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 # https://data.binance.vision/
@@ -180,9 +180,9 @@ data['bin'] = labels['bin']
 data.replace([np.inf, -np.inf], np.nan, inplace=True)
 data = data.loc[~data.index.duplicated(keep='first')]
 
-data.drop(columns=['ave', 'price', 'upper', 'lower',
-                   '4H_Close', '4H_Volume', '4H_Low', '4H_High'
-                   ], axis=1, inplace=True)
+# data.drop(columns=['ave', 'price', 'upper', 'lower',
+#                    '4H_Close', '4H_Volume', '4H_Low', '4H_High'
+#                    ], axis=1, inplace=True)
 
 data = data.fillna(0)
 full_data = data.copy()
@@ -216,7 +216,9 @@ print('event 1', np.sum(np.array(events_data[signal]) == 1, axis=0))
 print('event data min ret', events_data.ret.min())
 print('event data max ret', events_data.ret.max())
 print('event data mean ret', events_data.ret.mean())
+# print(events_data.loc[events_data['bin'] == 1].mean())
 # print(events_data)
 # print(len(events_data.columns))
 
 # events_data.to_csv('events_data_prelder_standards.csv')
+# data.to_csv('eth001.csv')
